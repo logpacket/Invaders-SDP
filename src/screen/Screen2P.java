@@ -16,10 +16,17 @@ import java.util.concurrent.Future;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  *
  */
+<<<<<<<< HEAD:src/screen/Screen2P.java
 public class Screen2P extends Screen {
     private GameScreen2P player1Screen;
     private GameScreen2P player2Screen;
     private ExecutorService executor;//
+========
+public class TwoPlayerGameScreen extends Screen {
+    private TmpScreen player1Screen;
+    private TmpScreen player2Screen;
+    private ExecutorService executor;
+>>>>>>>> 1ac998a (fix) merge master branch):src/screen/TwoPlayerGameScreen.java
 
     /** Milliseconds until the screen accepts user input. */
     private static final int INPUT_DELAY = 6000;
@@ -46,9 +53,15 @@ public class Screen2P extends Screen {
      * @param fps
      *            Frames per second, frame rate at which the game is run.
      */
+<<<<<<<< HEAD:src/screen/Screen2P.java
     public Screen2P(final GameState gameState,
                     final GameSettings gameSettings, final boolean bonusLife,
                     final int width, final int height, final int fps) {
+========
+    public TwoPlayerGameScreen(final GameState gameState,
+                               final GameSettings gameSettings, final boolean bonusLife,
+                               final int width, final int height, final int fps) {
+>>>>>>>> 1ac998a (fix) merge master branch):src/screen/TwoPlayerGameScreen.java
         super(width, height, fps);
 
         player1Screen = new GameScreen2P(gameState, gameSettings, bonusLife, width /2 , height, fps, 1
