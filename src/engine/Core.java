@@ -58,8 +58,6 @@ public final class Core {
 			new GameSettings(8, 7, 2, 500);
 	/** Frame to draw the screen on. */
 	private static Frame frame;
-	/** Frame to draw the 2p game screen on*/
-	private static Frame frame2p;
 	/** Screen currently shown. */
 	private static Screen currentScreen;
 	/** Difficulty settings list. */
@@ -103,7 +101,6 @@ public final class Core {
 		DrawManager.getInstance().setFrame(frame);
 		int width = frame.getWidth();
 		int height = frame.getHeight();
-
 
 		gameSettings = new ArrayList<GameSettings>();
 		gameSettings.add(SETTINGS_LEVEL_1);
@@ -217,6 +214,7 @@ public final class Core {
 
 				//ScoreScreen
 				frame.setSize(WIDTH, HEIGHT);
+
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
 						+ " score screen at " + FPS + " fps, with a score of "
 						+ gameState.getScore() + ", "

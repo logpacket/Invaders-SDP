@@ -203,11 +203,11 @@ public final class DrawManager {
 		Insets insets = frame.getInsets();
 		int totalWidth = frame.getWidth();
 
-
 		if (playerNumber == 1) {
 			graphics.drawImage(backBuffer, insets.left,
 					frame.getInsets().top, frame);
 		} else {
+
 			graphics.drawImage(backBuffer, insets.left + totalWidth,
 					frame.getInsets().top, frame);
 		}
