@@ -38,8 +38,12 @@ public final class DrawManager {
 	private static Graphics graphics;
 	/** Buffer Graphics. */
 	private static Graphics backBufferGraphics;
+	/** Buffer Graphics for multi screens. */
+	private static Graphics[] threadBufferGraphics = new Graphics[2];
 	/** Buffer image. */
 	private static BufferedImage backBuffer;
+	/** Buffer images for multi screens **/
+	private static BufferedImage[] threadBuffers = new BufferedImage[2];
 	/** Small sized font. */
 	private static Font fontSmall;
 	/** Small sized font properties. */
@@ -171,6 +175,19 @@ public final class DrawManager {
 		// drawGrid(screen);
 	}
 
+	public void initDrawing2P(final Screen screen, final int playerNumber) {
+		/**
+		 * TODO: implement for double buffering
+		 **/
+		BufferedImage threadBuffer = new BufferedImage(screen.getWidth(),screen.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics threadGraphic = threadBuffer.getGraphics();
+		threadBuffers[playerNumber-1] = threadBuffer;
+		threadBufferGraphics[playerNumber-1] = threadGraphic;
+
+		threadGraphic.setColor(Color.BLACK);
+		threadGraphic.fillRect(0,0,screen.getWidth(),screen.getHeight());
+	}
+
 	/**
 	 * Draws the completed drawing on screen.
 	 * 
@@ -185,14 +202,13 @@ public final class DrawManager {
 	public void completeDrawing2P(final Screen screen, final int playerNumber) {
 		Insets insets = frame.getInsets();
 		int totalWidth = frame.getWidth();
-		int halfWidth = totalWidth / 2;
+
 
 		if (playerNumber == 1) {
 			graphics.drawImage(backBuffer, insets.left,
 					frame.getInsets().top, frame);
-		}
-		else {
-			graphics.drawImage(backBuffer, insets.left + halfWidth,
+		} else {
+			graphics.drawImage(backBuffer, insets.left + totalWidth,
 					frame.getInsets().top, frame);
 		}
 	}

@@ -25,8 +25,6 @@ public final class Core {
 	private static final int WIDTH = 600;
 	/** Height of current screen. */
 	private static final int HEIGHT = 650;
-	/** Width of 2p screen*/
-	private static final int WIDTH_2P = WIDTH*2;
 	/** Max fps of current screen. */
 	private static final int FPS = 60;
 
@@ -102,11 +100,9 @@ public final class Core {
 		}
 
 		frame = new Frame(WIDTH, HEIGHT);
-		frame2p = new Frame(WIDTH_2P, HEIGHT);
 		DrawManager.getInstance().setFrame(frame);
 		int width = frame.getWidth();
 		int height = frame.getHeight();
-		int width2p = frame2p.getWidth();
 
 
 		gameSettings = new ArrayList<GameSettings>();
@@ -122,7 +118,7 @@ public final class Core {
 
 		Wallet wallet = Wallet.getWallet();
 
-		int returnCode = 1;
+		int returnCode = 7;
 		do {
 			gameState = new GameState(1, 0, MAX_LIVES, 0, 0);
 
@@ -142,7 +138,6 @@ public final class Core {
 					boolean bonusLife = gameState.getLevel()
 							% EXTRA_LIFE_FRECUENCY == 0
 							&& gameState.getLivesRemaining() < MAX_LIVES;
-
 					currentScreen = new GameScreen(gameState,
 							gameSettings.get(gameState.getLevel() - 1),
 							bonusLife, width, height, FPS);
@@ -209,34 +204,19 @@ public final class Core {
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing game setting screen.");
 			case 7:
-				//Two Player
-				DrawManager.getInstance().setFrame(frame2p);
+				//TwoPlayerScreen
+				frame.setSize(WIDTH*2, HEIGHT);
 
-				do {
-					// One extra live every few levels.
-					boolean bonusLife = gameState.getLevel()
-							% EXTRA_LIFE_FRECUENCY == 0
-							&& gameState.getLivesRemaining() < MAX_LIVES;
+				currentScreen = new Screen2P(gameState,
+						gameSettings.get(gameState.getLevel() - 1),
+						EXTRA_LIFE_FRECUENCY, width, height, FPS);
+				LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
+						+ " game screen at " + FPS + " fps.");
+				frame.setScreen(currentScreen);
+				LOGGER.info("Closing game screen.");
 
-					currentScreen = new Screen2P(gameState,
-							gameSettings.get(gameState.getLevel() - 1),
-							bonusLife, width2p, height, FPS);					
-					LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
-							+ " game screen at " + FPS + " fps.");
-					frame.setScreen(currentScreen);							
-					LOGGER.info("Closing game screen.");
-
-					gameState = ((GameScreen) currentScreen).getGameState();
-
-					gameState = new GameState(gameState.getLevel() + 1,
-							gameState.getScore(),
-							gameState.getLivesRemaining(),
-							gameState.getBulletsShot(),
-							gameState.getShipsDestroyed());
-
-				} while (gameState.getLivesRemaining() > 0
-						&& gameState.getLevel() <= NUM_LEVELS);
-
+				//ScoreScreen
+				frame.setSize(WIDTH, HEIGHT);
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
 						+ " score screen at " + FPS + " fps, with a score of "
 						+ gameState.getScore() + ", "
