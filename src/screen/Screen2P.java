@@ -28,19 +28,17 @@ public class Screen2P extends Screen {
 
     /** Current game difficulty settings. */
     private GameSettings gameSettings;
+    private GameSettings gameSettings2;
     /** Formation of enemy ships. */
     private EnemyShipFormation enemyShipFormation;
+    private EnemyShipFormation enemyShipFormation2;
 
 
     /**
      * Constructor, establishes the properties of the screen.
      *
-     * @param gameState
-     *            Current game state.
      * @param gameSettings
      *            Current game settings.
-     * @param bonusLife
-     *            Checks if a bonus life is awarded this level.
      * @param width
      *            Screen width.
      * @param height
@@ -48,39 +46,41 @@ public class Screen2P extends Screen {
      * @param fps
      *            Frames per second, frame rate at which the game is run.
      */
-    public Screen2P(final GameState gameState,
-                    final GameSettings gameSettings, final boolean bonusLife,
+    public Screen2P(final GameState gameState1, final GameState gameState2,
+                    final GameSettings gameSettings, final GameSettings gameSettings2, final int extraLifeFrequency,
                     final int width, final int height, final int fps) {
 
         super(width, height, fps);
 
-        player1Screen = new GameScreen2P(gameState, gameSettings, bonusLife, width /2 , height, fps, 1
+        player1Screen = new GameScreen2P(gameState1, gameSettings, extraLifeFrequency, width , height, fps, 1
         );
-        player2Screen = new GameScreen2P(gameState, gameSettings, bonusLife, width / 2, height, fps, 2
+        player2Screen = new GameScreen2P(gameState2, gameSettings2, extraLifeFrequency, width , height, fps, 2
         );
         executor = Executors.newFixedThreadPool(2);
-
         this.gameSettings = gameSettings;
+        this.gameSettings2 = gameSettings2;
+
     }
 
     public void show() throws Exception {
-        Future<Integer> player1Result = executor.submit(player1Screen);  // Starting the first game screen
-        Future<Integer> player2Result = executor.submit(player2Screen);  // Starting the second game screen
+        Future<Integer> player1Result = executor.submit(player1Screen);
+        Future<Integer> player2Result = executor.submit(player2Screen);
     }
 
     /**
      * Initializes basic screen properties, and adds necessary elements.
      */
     public final void initialize() {
-        super.initialize();
         player1Screen.initialize();
         player2Screen.initialize();
 
-        enemyShipFormation = new EnemyShipFormation(this.gameSettings);
-        enemyShipFormation.attach(this);
-        // Special input delay / countdown.
-        this.inputDelay = Core.getCooldown(INPUT_DELAY);
-        this.inputDelay.reset();
+//        enemyShipFormation = new EnemyShipFormation(this.gameSettings);
+//        enemyShipFormation2 = new EnemyShipFormation(this.gameSettings2);
+//        enemyShipFormation.attach(player1Screen);
+//        enemyShipFormation.attach(player1Screen);
+//        // Special input delay / countdown.
+//        this.inputDelay = Core.getCooldown(INPUT_DELAY);
+//        this.inputDelay.reset();
     }
 
     /**
@@ -102,15 +102,11 @@ public class Screen2P extends Screen {
     /**
      * Updates the elements on screen and checks for events.
      */
-    protected final void update() {
-
-        // Update both screen
-        player1Screen.update();
-        player2Screen.update();
-
-    }
-
-    /**
-     * Draws the elements associated with the screen.
-     */
+//    protected final void update() {
+//
+//        // Update both screen
+//        player1Screen.update();
+//        player2Screen.update();
+//
+//    }
 }

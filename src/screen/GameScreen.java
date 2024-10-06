@@ -106,7 +106,7 @@ public class GameScreen extends Screen {
 	/**
 	 * Initializes basic screen properties, and adds necessary elements.
 	 */
-	public final void initialize() {
+	public void initialize() {
 		super.initialize();
 
 		enemyShipFormation = new EnemyShipFormation(this.gameSettings);
@@ -145,7 +145,7 @@ public class GameScreen extends Screen {
 	/**
 	 * Updates the elements on screen and checks for events.
 	 */
-	protected final void update() {
+	protected void update() {
 		super.update();
 
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
@@ -335,7 +335,7 @@ public class GameScreen extends Screen {
 	 * 
 	 * @return Current game state.
 	 */
-	public final GameState getGameState() {
+	public GameState getGameState() {
 		return new GameState(this.level, this.score, this.lives,
 				this.bulletsShot, this.shipsDestroyed);
 	}

@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  *
  */
-public class GameScreen2P extends Screen implements Callable<Integer> {
+public class GameScreen2P extends GameScreen implements Callable<Integer> {
 
     /** Milliseconds until the screen accepts user input. */
     private static final int INPUT_DELAY = 6000;
@@ -68,6 +68,10 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
     private boolean bonusLife;
     /** Checks player number*/
     private int playerNumber;       //know player number
+    /** Checks game finished */
+    private boolean gameFinished;
+    /** Levels between extra life. */
+    private int extraLifeFrequency;
 
     /**
      * Constructor, establishes the properties of the screen.
@@ -76,8 +80,6 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
      *            Current game state.
      * @param gameSettings
      *            Current game settings.
-     * @param bonusLife
-     *            Checks if a bonus life is awarded this level.
      * @param width
      *            Screen width.
      * @param height
@@ -86,12 +88,12 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
      *            Frames per second, frame rate at which the game is run.
      */
     public GameScreen2P(final GameState gameState,
-                        final GameSettings gameSettings, final boolean bonusLife,
+                        final GameSettings gameSettings, final int extraLifeFrequency,
                         final int width, final int height, final int fps, final int playerNumber) {
-        super(width, height, fps);
+        super(gameState, gameSettings, false, width, height, fps);
 
         this.gameSettings = gameSettings;
-        this.bonusLife = bonusLife;
+        // this.bonusLife = bonusLife;
         this.level = gameState.getLevel();
         this.score = gameState.getScore();
         this.lives = gameState.getLivesRemaining();
@@ -100,6 +102,7 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
         this.bulletsShot = gameState.getBulletsShot();
         this.shipsDestroyed = gameState.getShipsDestroyed();
         this.playerNumber = playerNumber;
+        this.extraLifeFrequency = extraLifeFrequency;
     }
 
     /**
@@ -133,11 +136,16 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
      */
     @Override
     public final Integer call() throws Exception{
-        super.run();
+        this.gameFinished = false;
 
-        this.score += LIFE_SCORE * (this.lives - 1);
-        this.logger.info("Screen cleared with a score of " + this.score);
+        if (!this.gameFinished) {
+            super.run();
 
+            this.score += LIFE_SCORE * (this.lives - 1);
+            this.logger.info("Screen cleared with a score of " + this.score);
+
+            if (!this.gameFinished) this.newRound();
+        }
         return this.returnCode;
     }
 
@@ -146,8 +154,6 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
      */
     protected final void update() {
         super.update();
-
-
 
         if (this.inputDelay.checkFinished() && !this.levelFinished) {
 
@@ -171,9 +177,6 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
                 if (inputManager.isKeyDown(KeyEvent.VK_SPACE))
                     if (this.ship.shoot(this.bullets)) {
                         this.bulletsShot++;
-
-                        //tmp code
-                        this.logger.info("Shoooooooooting");
                     }
 
 
@@ -210,12 +213,28 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
 
         if ((this.enemyShipFormation.isEmpty() || this.lives == 0)
                 && !this.levelFinished) {
+            if (this.lives == 0) this.gameFinished = true;
             this.levelFinished = true;
             this.screenFinishedCooldown.reset();
         }
 
         if (this.levelFinished && this.screenFinishedCooldown.checkFinished())
             this.isRunning = false;
+
+    }
+
+    /**
+     * Initialize the screen, reset the various elements.
+     */
+    private final void newRound(){
+        this.isRunning = true;
+        this.levelFinished = false;
+        /*
+          1. bonusLife logic -> use this.extraLifeFrequency
+          2. this.initialize()
+          3. level up logic
+          4. The necessary logic as the other levels change and the other levels change
+         */
 
     }
 
@@ -286,7 +305,7 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
                     if (!this.ship.isDestroyed()) {
                         this.ship.destroy();
                         this.lives--;
-                        this.logger.info("Hit on player ship, " + this.lives
+                        this.logger.info("Hit on " + this.playerNumber + "player ship, " + this.lives
                                 + " lives remaining.");
                     }
                 }
