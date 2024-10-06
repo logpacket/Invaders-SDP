@@ -25,8 +25,6 @@ public final class Core {
 	private static final int WIDTH = 600;
 	/** Height of current screen. */
 	private static final int HEIGHT = 650;
-	/** Width of 2p screen*/
-	private static final int WIDTH_2P = WIDTH*2;
 	/** Max fps of current screen. */
 	private static final int FPS = 60;
 
@@ -60,8 +58,6 @@ public final class Core {
 			new GameSettings(8, 7, 2, 500);
 	/** Frame to draw the screen on. */
 	private static Frame frame;
-	/** Frame to draw the 2p game screen on*/
-	private static Frame frame2p;
 	/** Screen currently shown. */
 	private static Screen currentScreen;
 	/** Difficulty settings list. */
@@ -102,12 +98,9 @@ public final class Core {
 		}
 
 		frame = new Frame(WIDTH, HEIGHT);
-		frame2p = new Frame(WIDTH_2P, HEIGHT);
 		DrawManager.getInstance().setFrame(frame);
 		int width = frame.getWidth();
 		int height = frame.getHeight();
-		int width2p = frame2p.getWidth();
-
 
 		gameSettings = new ArrayList<GameSettings>();
 		gameSettings.add(SETTINGS_LEVEL_1);
@@ -210,7 +203,7 @@ public final class Core {
 				LOGGER.info("Closing game setting screen.");
 			case 7:
 				//Two Player
-				DrawManager.getInstance().setFrame(frame2p);
+				frame.setSize(WIDTH*2, HEIGHT);
 
 				do {
 					// One extra live every few levels.
@@ -220,7 +213,7 @@ public final class Core {
 
 					currentScreen = new Screen2P(gameState,
 							gameSettings.get(gameState.getLevel() - 1),
-							bonusLife, width2p, height, FPS);					
+							bonusLife, width*2, height, FPS);
 					LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
 							+ " game screen at " + FPS + " fps.");
 					frame.setScreen(currentScreen);							

@@ -185,14 +185,13 @@ public final class DrawManager {
 	public void completeDrawing2P(final Screen screen, final int playerNumber) {
 		Insets insets = frame.getInsets();
 		int totalWidth = frame.getWidth();
-		int halfWidth = totalWidth / 2;
 
 		if (playerNumber == 1) {
 			graphics.drawImage(backBuffer, insets.left,
 					frame.getInsets().top, frame);
 		}
 		else {
-			graphics.drawImage(backBuffer, insets.left + halfWidth,
+			graphics.drawImage(backBuffer, insets.left + totalWidth,
 					frame.getInsets().top, frame);
 		}
 	}
