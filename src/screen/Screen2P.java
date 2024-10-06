@@ -61,9 +61,8 @@ public class Screen2P extends Screen {
     }
 
     public void show() throws Exception {
-        // 두 개의 GameScreen을 쓰레드에서 실행하고 Future로 결과 받기
-        Future<Integer> player1Result = executor.submit(player1Screen);  // 첫 번째 게임 화면 실행
-        Future<Integer> player2Result = executor.submit(player2Screen);  // 두 번째 게임 화면 실행
+        Future<Integer> player1Result = executor.submit(player1Screen);  // Starting the first game screen
+        Future<Integer> player2Result = executor.submit(player2Screen);  // Starting the second game screen
     }
 
     /**
@@ -102,7 +101,7 @@ public class Screen2P extends Screen {
      */
     protected final void update() {
 
-        // 두 개의 GameScreen을 각각 갱신
+        // Update both screen
         player1Screen.update();
         player2Screen.update();
 

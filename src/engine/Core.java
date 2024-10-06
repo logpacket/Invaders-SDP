@@ -209,7 +209,7 @@ public final class Core {
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing game setting screen.");
 			case 7:
-				DrawManager.getInstance().setFrame(frame2p);		//set 2p frame
+				DrawManager.getInstance().setFrame(frame2p);
 				//twoplayer
 				do {
 					// One extra live every few levels.
@@ -217,12 +217,12 @@ public final class Core {
 							% EXTRA_LIFE_FRECUENCY == 0
 							&& gameState.getLivesRemaining() < MAX_LIVES;
 
-					currentScreen = new TwoPlayerGameScreen(gameState,
+					currentScreen = new Screen2P(gameState,
 							gameSettings.get(gameState.getLevel() - 1),
-							bonusLife, width2p, height, FPS);					//create screen sized by 2pframe's width
+							bonusLife, width2p, height, FPS);					
 					LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
 							+ " game screen at " + FPS + " fps.");
-					frame.setScreen(currentScreen);
+					frame.setScreen(currentScreen);							
 					LOGGER.info("Closing game screen.");
 
 					gameState = ((GameScreen) currentScreen).getGameState();
