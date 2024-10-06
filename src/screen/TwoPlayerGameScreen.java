@@ -15,7 +15,7 @@ import java.util.concurrent.Future;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  *
  */
-public class TwoPlayerGameScreenDongbin extends Screen {
+public class TwoPlayerGameScreen extends Screen {
     private TmpScreen player1Screen;
     private TmpScreen player2Screen;
     private ExecutorService executor;
@@ -45,9 +45,9 @@ public class TwoPlayerGameScreenDongbin extends Screen {
      * @param fps
      *            Frames per second, frame rate at which the game is run.
      */
-    public TwoPlayerGameScreenDongbin(final GameState gameState,
-                                      final GameSettings gameSettings, final boolean bonusLife,
-                                      final int width, final int height, final int fps) {
+    public TwoPlayerGameScreen(final GameState gameState,
+                               final GameSettings gameSettings, final boolean bonusLife,
+                               final int width, final int height, final int fps) {
         super(width, height, fps);
 
         player1Screen = new TmpScreen(gameState, gameSettings, bonusLife, width, height, fps

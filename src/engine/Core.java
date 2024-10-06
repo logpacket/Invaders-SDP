@@ -111,13 +111,13 @@ public final class Core {
 		gameSettings.add(SETTINGS_LEVEL_6);
 		gameSettings.add(SETTINGS_LEVEL_7);
 		
-		GameState gameState;		//gamestate 인스턴스 생성
+		GameState gameState;
 
 		Wallet wallet = Wallet.getWallet();
 
 		int returnCode = 1;
 		do {
-			gameState = new GameState(1, 0, MAX_LIVES, 0, 0);	//gamestate에 값 할당 - 게임 상태 조정
+			gameState = new GameState(1, 0, MAX_LIVES, 0, 0);
 
 			switch (returnCode) {
 			case 1:
@@ -135,13 +135,14 @@ public final class Core {
 					boolean bonusLife = gameState.getLevel()
 							% EXTRA_LIFE_FRECUENCY == 0
 							&& gameState.getLivesRemaining() < MAX_LIVES;
+
 					currentScreen = new GameScreen(gameState,
 							gameSettings.get(gameState.getLevel() - 1),
 							bonusLife, width, height, FPS);
 					LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
 							+ " game screen at " + FPS + " fps.");
-					frame.setScreen(currentScreen);							//현재 스크린(게임스크린) 띄우기, 여기서 대부분 처리(setscreen에는 run이 있음)
-					LOGGER.info("Closing game screen.");				//끝
+					frame.setScreen(currentScreen);
+					LOGGER.info("Closing game screen.");
 
 					gameState = ((GameScreen) currentScreen).getGameState();
 
@@ -165,7 +166,6 @@ public final class Core {
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing score screen.");
 				break;
-
 			case 3:
 				//Shop
 
@@ -201,7 +201,6 @@ public final class Core {
 						+ " game setting screen at " + FPS + " fps.");
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing game setting screen.");
-
 			case 7:
 				//twoplayer
 				do {
@@ -210,7 +209,7 @@ public final class Core {
 							% EXTRA_LIFE_FRECUENCY == 0
 							&& gameState.getLivesRemaining() < MAX_LIVES;
 
-					currentScreen = new TwoPlayerGameScreenDongbin(gameState,
+					currentScreen = new TwoPlayerGameScreen(gameState,
 							gameSettings.get(gameState.getLevel() - 1),
 							bonusLife, width, height, FPS);
 					LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
