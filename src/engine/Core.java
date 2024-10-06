@@ -115,16 +115,12 @@ public final class Core {
 		gameSettings.add(SETTINGS_LEVEL_7);
 		
 		GameState gameState;
-		GameState gameState1;
-		GameState gameState2;
 
 		Wallet wallet = Wallet.getWallet();
 
 		int returnCode = 7;
 		do {
 			gameState = new GameState(1, 0, MAX_LIVES, 0, 0);
-			gameState1= new GameState(1, 0, MAX_LIVES, 0, 0);
-			gameState2 = new GameState(1, 0, MAX_LIVES, 0, 0);
 
 			switch (returnCode) {
 			case 1:
@@ -211,9 +207,8 @@ public final class Core {
 				//TwoPlayerScreen
 				frame.setSize(WIDTH*2, HEIGHT);
 
-				currentScreen = new Screen2P(gameState1, gameState2,
-						gameSettings.get(gameState1.getLevel() - 1),
-						gameSettings.get(gameState2.getLevel() - 1),
+				currentScreen = new Screen2P(gameState,
+						gameSettings.get(gameState.getLevel() - 1),
 						EXTRA_LIFE_FRECUENCY, width, height, FPS);
 				LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
 						+ " game screen at " + FPS + " fps.");

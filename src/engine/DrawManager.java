@@ -38,8 +38,12 @@ public final class DrawManager {
 	private static Graphics graphics;
 	/** Buffer Graphics. */
 	private static Graphics backBufferGraphics;
+	/** Buffer Graphics for multi screens. */
+	private static Graphics[] threadBufferGraphics = new Graphics[2];
 	/** Buffer image. */
 	private static BufferedImage backBuffer;
+	/** Buffer images for multi screens **/
+	private static BufferedImage[] threadBuffers = new BufferedImage[2];
 	/** Small sized font. */
 	private static Font fontSmall;
 	/** Small sized font properties. */
@@ -169,6 +173,19 @@ public final class DrawManager {
 
 		// drawBorders(screen);
 		// drawGrid(screen);
+	}
+
+	public void initDrawing2P(final Screen screen, final int playerNumber) {
+		/**
+		 * TODO: implement for double buffering
+		 **/
+		BufferedImage threadBuffer = new BufferedImage(screen.getWidth(),screen.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics threadGraphic = threadBuffer.getGraphics();
+		threadBuffers[playerNumber-1] = threadBuffer;
+		threadBufferGraphics[playerNumber-1] = threadGraphic;
+
+		threadGraphic.setColor(Color.BLACK);
+		threadGraphic.fillRect(0,0,screen.getWidth(),screen.getHeight());
 	}
 
 	/**
