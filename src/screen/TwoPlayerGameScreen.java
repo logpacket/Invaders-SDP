@@ -5,9 +5,12 @@ import engine.GameSettings;
 import engine.GameState;
 import entity.EnemyShipFormation;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 
 /**
  * Implements the game screen, where the action happens.
@@ -18,7 +21,7 @@ import java.util.concurrent.Future;
 public class TwoPlayerGameScreen extends Screen {
     private TmpScreen player1Screen;
     private TmpScreen player2Screen;
-    private ExecutorService executor;
+    private ExecutorService executor;//
 
     /** Milliseconds until the screen accepts user input. */
     private static final int INPUT_DELAY = 6000;
@@ -50,9 +53,9 @@ public class TwoPlayerGameScreen extends Screen {
                                final int width, final int height, final int fps) {
         super(width, height, fps);
 
-        player1Screen = new TmpScreen(gameState, gameSettings, bonusLife, width, height, fps
+        player1Screen = new TmpScreen(gameState, gameSettings, bonusLife, width /2 , height, fps, 1
         );
-        player2Screen = new TmpScreen(gameState, gameSettings, bonusLife, width, height, fps
+        player2Screen = new TmpScreen(gameState, gameSettings, bonusLife, width / 2, height, fps, 2
         );
         executor = Executors.newFixedThreadPool(2);
 
@@ -105,13 +108,9 @@ public class TwoPlayerGameScreen extends Screen {
         player1Screen.update();
         player2Screen.update();
 
-        draw();
     }
 
     /**
      * Draws the elements associated with the screen.
      */
-    private void draw() {
-
-    }
 }

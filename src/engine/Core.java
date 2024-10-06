@@ -25,6 +25,8 @@ public final class Core {
 	private static final int WIDTH = 600;
 	/** Height of current screen. */
 	private static final int HEIGHT = 650;
+	/** Width of 2p screen*/
+	private static final int WIDTH2p = WIDTH*2;
 	/** Max fps of current screen. */
 	private static final int FPS = 60;
 
@@ -58,6 +60,8 @@ public final class Core {
 			new GameSettings(8, 7, 2, 500);
 	/** Frame to draw the screen on. */
 	private static Frame frame;
+	/** Frame to draw the 2p game screen on*/
+	private static Frame frame2p;
 	/** Screen currently shown. */
 	private static Screen currentScreen;
 	/** Difficulty settings list. */
@@ -98,9 +102,12 @@ public final class Core {
 		}
 
 		frame = new Frame(WIDTH, HEIGHT);
+		frame2p = new Frame(WIDTH2p, HEIGHT);
 		DrawManager.getInstance().setFrame(frame);
 		int width = frame.getWidth();
 		int height = frame.getHeight();
+		int width2p = frame2p.getWidth();
+
 
 		gameSettings = new ArrayList<GameSettings>();
 		gameSettings.add(SETTINGS_LEVEL_1);
@@ -202,6 +209,7 @@ public final class Core {
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing game setting screen.");
 			case 7:
+				DrawManager.getInstance().setFrame(frame2p);		//set 2p frame
 				//twoplayer
 				do {
 					// One extra live every few levels.
@@ -211,7 +219,7 @@ public final class Core {
 
 					currentScreen = new TwoPlayerGameScreen(gameState,
 							gameSettings.get(gameState.getLevel() - 1),
-							bonusLife, width, height, FPS);
+							bonusLife, width2p, height, FPS);					//create screen sized by 2pframe's width
 					LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
 							+ " game screen at " + FPS + " fps.");
 					frame.setScreen(currentScreen);
@@ -234,6 +242,7 @@ public final class Core {
 						+ gameState.getLivesRemaining() + " lives remaining, "
 						+ gameState.getBulletsShot() + " bullets shot and "
 						+ gameState.getShipsDestroyed() + " ships destroyed.");
+				DrawManager.getInstance().setFrame(frame);
 				currentScreen = new ScoreScreen(width, height, FPS, gameState, wallet);
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing score screen.");

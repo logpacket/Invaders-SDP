@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.awt.Insets;				//to know insets
 
 import entity.Wallet;
 import screen.Screen;
@@ -179,6 +180,21 @@ public final class DrawManager {
 	public void completeDrawing(final Screen screen) {
 		graphics.drawImage(backBuffer, frame.getInsets().left,
 				frame.getInsets().top, frame);
+	}
+	/** get frame's insets and draw screen by player number*/
+	public void completeDrawing2P(final Screen screen, final int playerNumber) {
+		Insets insets = frame.getInsets();
+		int totalWidth = frame.getWidth();
+		int halfWidth = totalWidth / 2;
+
+		if (playerNumber == 1) {
+			graphics.drawImage(backBuffer, insets.left,
+					frame.getInsets().top, frame);
+		}
+		else {
+			graphics.drawImage(backBuffer, insets.left + halfWidth,
+					frame.getInsets().top, frame);
+		}
 	}
 
 	/**

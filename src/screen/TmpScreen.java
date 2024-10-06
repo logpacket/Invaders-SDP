@@ -66,6 +66,8 @@ public class TmpScreen extends Screen implements Callable<Integer> {
     private boolean levelFinished;
     /** Checks if a bonus life is received. */
     private boolean bonusLife;
+    /** Checks player number*/
+    private int playerNumber;       //know player number
 
     /**
      * Constructor, establishes the properties of the screen.
@@ -85,7 +87,7 @@ public class TmpScreen extends Screen implements Callable<Integer> {
      */
     public TmpScreen(final GameState gameState,
                      final GameSettings gameSettings, final boolean bonusLife,
-                     final int width, final int height, final int fps) {
+                     final int width, final int height, final int fps, final int playerNumber) {
         super(width, height, fps);
 
         this.gameSettings = gameSettings;
@@ -97,6 +99,7 @@ public class TmpScreen extends Screen implements Callable<Integer> {
             this.lives++;
         this.bulletsShot = gameState.getBulletsShot();
         this.shipsDestroyed = gameState.getShipsDestroyed();
+        this.playerNumber = playerNumber;
     }
 
     /**
@@ -253,7 +256,7 @@ public class TmpScreen extends Screen implements Callable<Integer> {
                     / 12);
         }
 
-        drawManager.completeDrawing(this);
+        drawManager.completeDrawing2P(this, playerNumber);  //it will draw left or right by playerNumber
     }
 
     /**
