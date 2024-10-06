@@ -25,22 +25,21 @@ public class Screen2P extends Screen {
 
     /** Milliseconds until the screen accepts user input. */
     private static final int INPUT_DELAY = 6000;
-
+    /** Current game state*/
+    private GameState gameState1;
+    private GameState gameState2;
     /** Current game difficulty settings. */
     private GameSettings gameSettings;
     /** Formation of enemy ships. */
     private EnemyShipFormation enemyShipFormation;
+    private EnemyShipFormation enemyShipFormation2;
 
 
     /**
      * Constructor, establishes the properties of the screen.
      *
-     * @param gameState
-     *            Current game state.
      * @param gameSettings
      *            Current game settings.
-     * @param bonusLife
-     *            Checks if a bonus life is awarded this level.
      * @param width
      *            Screen width.
      * @param height
@@ -49,38 +48,33 @@ public class Screen2P extends Screen {
      *            Frames per second, frame rate at which the game is run.
      */
     public Screen2P(final GameState gameState,
-                    final GameSettings gameSettings, final boolean bonusLife,
+                    final GameSettings gameSettings, final int extraLifeFrequency,
                     final int width, final int height, final int fps) {
-
         super(width, height, fps);
 
-        player1Screen = new GameScreen2P(gameState, gameSettings, bonusLife, width /2 , height, fps, 1
+        this.gameState1 = new GameState(gameState);
+        this.gameState2 = new GameState(gameState);
+
+        player1Screen = new GameScreen2P(gameState1, gameSettings, extraLifeFrequency, width , height, fps, 1
         );
-        player2Screen = new GameScreen2P(gameState, gameSettings, bonusLife, width / 2, height, fps, 2
+        player2Screen = new GameScreen2P(gameState2, gameSettings, extraLifeFrequency, width , height, fps, 2
         );
         executor = Executors.newFixedThreadPool(2);
-
         this.gameSettings = gameSettings;
+
     }
 
     public void show() throws Exception {
-        Future<Integer> player1Result = executor.submit(player1Screen);  // Starting the first game screen
-        Future<Integer> player2Result = executor.submit(player2Screen);  // Starting the second game screen
+        Future<Integer> player1Result = executor.submit(player1Screen);
+        Future<Integer> player2Result = executor.submit(player2Screen);
     }
 
     /**
      * Initializes basic screen properties, and adds necessary elements.
      */
     public final void initialize() {
-        super.initialize();
         player1Screen.initialize();
         player2Screen.initialize();
-
-        enemyShipFormation = new EnemyShipFormation(this.gameSettings);
-        enemyShipFormation.attach(this);
-        // Special input delay / countdown.
-        this.inputDelay = Core.getCooldown(INPUT_DELAY);
-        this.inputDelay.reset();
     }
 
     /**
@@ -104,13 +98,5 @@ public class Screen2P extends Screen {
      */
     protected final void update() {
 
-        // Update both screen
-        player1Screen.update();
-        player2Screen.update();
-
     }
-
-    /**
-     * Draws the elements associated with the screen.
-     */
 }

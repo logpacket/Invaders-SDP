@@ -24,52 +24,52 @@ import entity.Ship;
 public class GameScreen extends Screen {
 
 	/** Milliseconds until the screen accepts user input. */
-	private static final int INPUT_DELAY = 6000;
+	protected static final int INPUT_DELAY = 6000;
 	/** Bonus score for each life remaining at the end of the level. */
-	private static final int LIFE_SCORE = 100;
+	protected static final int LIFE_SCORE = 100;
 	/** Minimum time between bonus ship's appearances. */
-	private static final int BONUS_SHIP_INTERVAL = 20000;
+	protected static final int BONUS_SHIP_INTERVAL = 20000;
 	/** Maximum variance in the time between bonus ship's appearances. */
-	private static final int BONUS_SHIP_VARIANCE = 10000;
+	protected static final int BONUS_SHIP_VARIANCE = 10000;
 	/** Time until bonus ship explosion disappears. */
-	private static final int BONUS_SHIP_EXPLOSION = 500;
+	protected static final int BONUS_SHIP_EXPLOSION = 500;
 	/** Time from finishing the level to screen change. */
-	private static final int SCREEN_CHANGE_INTERVAL = 1500;
+	protected static final int SCREEN_CHANGE_INTERVAL = 1500;
 	/** Height of the interface separation line. */
-	private static final int SEPARATION_LINE_HEIGHT = 40;
+	protected static final int SEPARATION_LINE_HEIGHT = 40;
 
 	/** Current game difficulty settings. */
-	private GameSettings gameSettings;
+	protected GameSettings gameSettings;
 	/** Current difficulty level number. */
-	private int level;
+	protected int level;
 	/** Formation of enemy ships. */
-	private EnemyShipFormation enemyShipFormation;
+	protected EnemyShipFormation enemyShipFormation;
 	/** Player's ship. */
-	private Ship ship;
+	protected Ship ship;
 	/** Bonus enemy ship that appears sometimes. */
-	private EnemyShip enemyShipSpecial;
+	protected EnemyShip enemyShipSpecial;
 	/** Minimum time between bonus ship appearances. */
-	private Cooldown enemyShipSpecialCooldown;
+	protected Cooldown enemyShipSpecialCooldown;
 	/** Time until bonus ship explosion disappears. */
-	private Cooldown enemyShipSpecialExplosionCooldown;
+	protected Cooldown enemyShipSpecialExplosionCooldown;
 	/** Time from finishing the level to screen change. */
-	private Cooldown screenFinishedCooldown;
+	protected Cooldown screenFinishedCooldown;
 	/** Set of all bullets fired by on screen ships. */
-	private Set<Bullet> bullets;
+	protected Set<Bullet> bullets;
 	/** Current score. */
-	private int score;
+	protected int score;
 	/** Player lives left. */
-	private int lives;
+	protected int lives;
 	/** Total bullets shot by the player. */
-	private int bulletsShot;
+	protected int bulletsShot;
 	/** Total ships destroyed by the player. */
-	private int shipsDestroyed;
+	protected int shipsDestroyed;
 	/** Moment the game starts. */
-	private long gameStartTime;
+	protected long gameStartTime;
 	/** Checks if the level is finished. */
-	private boolean levelFinished;
+	protected boolean levelFinished;
 	/** Checks if a bonus life is received. */
-	private boolean bonusLife;
+	protected boolean bonusLife;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -106,7 +106,7 @@ public class GameScreen extends Screen {
 	/**
 	 * Initializes basic screen properties, and adds necessary elements.
 	 */
-	public final void initialize() {
+	public void initialize() {
 		super.initialize();
 
 		enemyShipFormation = new EnemyShipFormation(this.gameSettings);
@@ -145,7 +145,7 @@ public class GameScreen extends Screen {
 	/**
 	 * Updates the elements on screen and checks for events.
 	 */
-	protected final void update() {
+	protected void update() {
 		super.update();
 
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
@@ -335,7 +335,7 @@ public class GameScreen extends Screen {
 	 * 
 	 * @return Current game state.
 	 */
-	public final GameState getGameState() {
+	public GameState getGameState() {
 		return new GameState(this.level, this.score, this.lives,
 				this.bulletsShot, this.shipsDestroyed);
 	}
