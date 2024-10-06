@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  *
  */
-public class TmpScreen extends Screen implements Callable<Integer> {
+public class GameScreen2P extends Screen implements Callable<Integer> {
 
     /** Milliseconds until the screen accepts user input. */
     private static final int INPUT_DELAY = 6000;
@@ -85,9 +85,9 @@ public class TmpScreen extends Screen implements Callable<Integer> {
      * @param fps
      *            Frames per second, frame rate at which the game is run.
      */
-    public TmpScreen(final GameState gameState,
-                     final GameSettings gameSettings, final boolean bonusLife,
-                     final int width, final int height, final int fps, final int playerNumber) {
+    public GameScreen2P(final GameState gameState,
+                        final GameSettings gameSettings, final boolean bonusLife,
+                        final int width, final int height, final int fps, final int playerNumber) {
         super(width, height, fps);
 
         this.gameSettings = gameSettings;
