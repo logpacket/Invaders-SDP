@@ -256,7 +256,7 @@ public class GameScreen2P extends Screen implements Callable<Integer> {
                     / 12);
         }
 
-        drawManager.completeDrawing2P(this, playerNumber);  //it will draw left or right by playerNumber
+        drawManager.completeDrawing2P(this, playerNumber);
     }
 
     /**

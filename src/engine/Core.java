@@ -26,7 +26,7 @@ public final class Core {
 	/** Height of current screen. */
 	private static final int HEIGHT = 650;
 	/** Width of 2p screen*/
-	private static final int WIDTH2p = WIDTH*2;
+	private static final int WIDTH_2P = WIDTH*2;
 	/** Max fps of current screen. */
 	private static final int FPS = 60;
 
@@ -102,7 +102,7 @@ public final class Core {
 		}
 
 		frame = new Frame(WIDTH, HEIGHT);
-		frame2p = new Frame(WIDTH2p, HEIGHT);
+		frame2p = new Frame(WIDTH_2P, HEIGHT);
 		DrawManager.getInstance().setFrame(frame);
 		int width = frame.getWidth();
 		int height = frame.getHeight();
@@ -209,8 +209,9 @@ public final class Core {
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing game setting screen.");
 			case 7:
+				//Two Player
 				DrawManager.getInstance().setFrame(frame2p);
-				//twoplayer
+
 				do {
 					// One extra live every few levels.
 					boolean bonusLife = gameState.getLevel()
