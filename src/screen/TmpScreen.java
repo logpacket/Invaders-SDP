@@ -18,7 +18,6 @@ import java.util.concurrent.Callable;
  *
  */
 public class TmpScreen extends Screen implements Callable<Integer> {
-    private boolean running = true;
 
     /** Milliseconds until the screen accepts user input. */
     private static final int INPUT_DELAY = 6000;
@@ -129,15 +128,7 @@ public class TmpScreen extends Screen implements Callable<Integer> {
      *
      * @return Next screen code.
      */
-    public final int run() {
-        super.run();
-
-        this.score += LIFE_SCORE * (this.lives - 1);
-        this.logger.info("Screen cleared with a score of " + this.score);
-
-        return this.returnCode;
-    }
-
+    @Override
     public final Integer call() throws Exception{
         super.run();
 
@@ -147,15 +138,13 @@ public class TmpScreen extends Screen implements Callable<Integer> {
         return this.returnCode;
     }
 
-    public void stop() {
-        running = false;
-    }
-
     /**
      * Updates the elements on screen and checks for events.
      */
     protected final void update() {
         super.update();
+
+
 
         if (this.inputDelay.checkFinished() && !this.levelFinished) {
 
@@ -177,8 +166,15 @@ public class TmpScreen extends Screen implements Callable<Integer> {
                     this.ship.moveLeft();
                 }
                 if (inputManager.isKeyDown(KeyEvent.VK_SPACE))
-                    if (this.ship.shoot(this.bullets))
+                    if (this.ship.shoot(this.bullets)) {
                         this.bulletsShot++;
+
+                        //tmp code
+                        this.logger.info("Shoooooooooting");
+                    }
+
+
+
             }
 
             if (this.enemyShipSpecial != null) {
