@@ -3,6 +3,7 @@ package screen;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import engine.Cooldown;
 import engine.Core;
@@ -21,7 +22,7 @@ import entity.Ship;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  * 
  */
-public class GameScreen extends Screen {
+public class GameScreen extends Screen implements Callable<GameState> {
 
 	/** Milliseconds until the screen accepts user input. */
 	private static final int INPUT_DELAY = 6000;
@@ -70,6 +71,8 @@ public class GameScreen extends Screen {
 	private boolean levelFinished;
 	/** Checks if a bonus life is received. */
 	private boolean bonusLife;
+	/** Player number for two player mode **/
+	private int playerNumber;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -101,6 +104,32 @@ public class GameScreen extends Screen {
 			this.lives++;
 		this.bulletsShot = gameState.getBulletsShot();
 		this.shipsDestroyed = gameState.getShipsDestroyed();
+		this.playerNumber = -1;
+	}
+
+	/**
+	 * Constructor, establishes the properties of the screen for two player mode.
+	 *
+	 * @param gameState
+	 *            Current game state.
+	 * @param gameSettings
+	 *            Current game settings.
+	 * @param bonusLife
+	 *            Checks if a bonus life is awarded this level.
+	 * @param width
+	 *            Screen width.
+	 * @param height
+	 *            Screen height.
+	 * @param fps
+	 *            Frames per second, frame rate at which the game is run.
+	 * @param playerNumber
+	 *            Player number for two player mode
+	 */
+	public GameScreen(final GameState gameState,
+					  final GameSettings gameSettings, final boolean bonusLife,
+					  final int width, final int height, final int fps, final int playerNumber) {
+		this(gameState, gameSettings, bonusLife, width, height, fps);
+		this.playerNumber = playerNumber;
 	}
 
 	/**
@@ -198,7 +227,10 @@ public class GameScreen extends Screen {
 
 		manageCollisions();
 		cleanBullets();
-		draw();
+		if (playerNumber >= 0)
+			drawThread();
+		else
+			draw();
 
 		if ((this.enemyShipFormation.isEmpty() || this.lives == 0)
 				&& !this.levelFinished) {
@@ -249,6 +281,45 @@ public class GameScreen extends Screen {
 		}
 
 		drawManager.completeDrawing(this);
+	}
+
+	/**
+	 * Draws the elements associated with the screen to thread buffer.
+	 */
+	private void drawThread() {
+		drawManager.initThreadDrawing(this, playerNumber);
+
+		drawManager.drawEntity(this.ship, this.ship.getPositionX(),
+				this.ship.getPositionY(), playerNumber);
+		if (this.enemyShipSpecial != null)
+			drawManager.drawEntity(this.enemyShipSpecial,
+					this.enemyShipSpecial.getPositionX(),
+					this.enemyShipSpecial.getPositionY(), playerNumber);
+
+		enemyShipFormation.draw(playerNumber);
+
+		for (Bullet bullet : this.bullets)
+			drawManager.drawEntity(bullet, bullet.getPositionX(),
+					bullet.getPositionY(), playerNumber);
+
+		// Interface.
+		drawManager.drawScore(this, this.score, playerNumber);
+		drawManager.drawLives(this, this.lives, playerNumber);
+		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
+
+		// Countdown to game start.
+		if (!this.inputDelay.checkFinished()) {
+			int countdown = (int) ((INPUT_DELAY
+					- (System.currentTimeMillis()
+					- this.gameStartTime)) / 1000);
+			drawManager.drawCountDown(this, this.level, countdown,
+					this.bonusLife, playerNumber);
+			drawManager.drawHorizontalLine(this, this.height / 2 - this.height
+					/ 12, playerNumber);
+			drawManager.drawHorizontalLine(this, this.height / 2 + this.height
+					/ 12, playerNumber);
+		}
+		drawManager.flushBuffer(this, playerNumber);
 	}
 
 	/**
@@ -338,5 +409,17 @@ public class GameScreen extends Screen {
 	public final GameState getGameState() {
 		return new GameState(this.level, this.score, this.lives,
 				this.bulletsShot, this.shipsDestroyed);
+	}
+
+
+	/**
+	 * Start the action for two player mode
+	 *
+	 * @return Current game state.
+	 */
+	@Override
+	public final GameState call() {
+		run();
+		return getGameState();
 	}
 }

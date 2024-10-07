@@ -44,6 +44,15 @@ public class GameState {
 		this.shipsDestroyed = shipsDestroyed;
 	}
 
+	public GameState(GameState gameState) {
+		this.level = gameState.level;
+		this.score = gameState.score;
+		this.livesRemaining = gameState.livesRemaining;
+		this.bulletsShot = gameState.bulletsShot;
+		this.shipsDestroyed = gameState.shipsDestroyed;
+	}
+
+
 	/**
 	 * @return the level
 	 */

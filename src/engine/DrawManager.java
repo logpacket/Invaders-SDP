@@ -37,8 +37,12 @@ public final class DrawManager {
 	private static Graphics graphics;
 	/** Buffer Graphics. */
 	private static Graphics backBufferGraphics;
+	/** Buffer Graphics for multi screens. */
+	private static final Graphics[] threadBufferGraphics = new Graphics[2];
 	/** Buffer image. */
 	private static BufferedImage backBuffer;
+	/** Buffer images for multi screens **/
+	private static final BufferedImage[] threadBuffers = new BufferedImage[4];
 	/** Small sized font. */
 	private static Font fontSmall;
 	/** Small sized font properties. */
@@ -169,6 +173,23 @@ public final class DrawManager {
 		// drawBorders(screen);
 		// drawGrid(screen);
 	}
+	/**
+	 * First part of the drawing process in thread. Initializes buffers each thread, draws the
+	 * background and prepares the images.
+	 *
+	 * @param screen
+	 *            Screen to draw in.
+	 * @param threadNumber
+	 * 			  Thread number for two player mode
+	 */
+
+	public void initThreadDrawing(final Screen screen, final int threadNumber) {
+		BufferedImage threadBuffer = new BufferedImage(screen.getWidth(),screen.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics threadGraphic = threadBuffer.getGraphics();
+
+		threadBuffers[threadNumber] = threadBuffer;
+		threadBufferGraphics[threadNumber] = threadGraphic;
+	}
 
 	/**
 	 * Draws the completed drawing on screen.
@@ -179,6 +200,33 @@ public final class DrawManager {
 	public void completeDrawing(final Screen screen) {
 		graphics.drawImage(backBuffer, frame.getInsets().left,
 				frame.getInsets().top, frame);
+	}
+
+	/**
+	 * Merge second buffers to back buffer
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 */
+	public void mergeDrawing(final Screen screen) {
+		backBufferGraphics.drawImage(threadBuffers[2], 0, 0, frame);
+		backBufferGraphics.drawImage(threadBuffers[3], screen.getWidth() / 2, 0, frame);
+	}
+
+	/**
+	 * Flush buffer to second buffer
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param threadNumber
+	 * 			  Thread number for two player mode
+	 */
+	public void flushBuffer(final Screen screen, final int threadNumber) {
+		BufferedImage threadBuffer = new BufferedImage(screen.getWidth(),screen.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics threadGraphic = threadBuffer.getGraphics();
+
+		threadGraphic.drawImage(threadBuffers[threadNumber], 0, 0, frame);
+		threadBuffers[threadNumber + 2] = threadBuffer;
 	}
 
 	/**
@@ -200,6 +248,30 @@ public final class DrawManager {
 			for (int j = 0; j < image[i].length; j++)
 				if (image[i][j])
 					backBufferGraphics.drawRect(positionX + i * 2, positionY
+							+ j * 2, 1, 1);
+	}
+
+	/**
+	 * Draws an entity, using the appropriate image.
+	 *
+	 * @param entity
+	 *            Entity to be drawn.
+	 * @param positionX
+	 *            Coordinates for the left side of the image.
+	 * @param positionY
+	 *            Coordinates for the upper side of the image.
+	 * @param threadNumber
+	 *            Thread number for two player mode
+	 */
+	public void drawEntity(final Entity entity, final int positionX,
+						   final int positionY, final int threadNumber) {
+		boolean[][] image = spriteMap.get(entity.getSpriteType());
+
+		threadBufferGraphics[threadNumber].setColor(entity.getColor());
+		for (int i = 0; i < image.length; i++)
+			for (int j = 0; j < image[i].length; j++)
+				if (image[i][j])
+					threadBufferGraphics[threadNumber].drawRect(positionX + i * 2, positionY
 							+ j * 2, 1, 1);
 	}
 
@@ -251,6 +323,23 @@ public final class DrawManager {
 	}
 
 	/**
+	 * Draws current score on screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param score
+	 *            Current score.
+	 * @param threadNumber
+	 *            Thread number for two player mode
+	 */
+	public void drawScore(final Screen screen, final int score, final int threadNumber) {
+		threadBufferGraphics[threadNumber].setFont(fontRegular);
+		threadBufferGraphics[threadNumber].setColor(Color.WHITE);
+		String scoreString = String.format("%04d", score);
+		threadBufferGraphics[threadNumber].drawString(scoreString, screen.getWidth() - 60, 25);
+	}
+
+	/**
 	 * Draws number of remaining lives on screen.
 	 * 
 	 * @param screen
@@ -267,6 +356,26 @@ public final class DrawManager {
 			drawEntity(dummyShip, 40 + 35 * i, 10);
 	}
 
+
+	/**
+	 * Draws number of remaining lives on screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param lives
+	 *            Current lives.
+	 * @param threadNumber
+	 *            Thread number for two player mode
+	 */
+	public void drawLives(final Screen screen, final int lives, final int threadNumber) {
+		threadBufferGraphics[threadNumber].setFont(fontRegular);
+		threadBufferGraphics[threadNumber].setColor(Color.WHITE);
+		threadBufferGraphics[threadNumber].drawString(Integer.toString(lives), 20, 25);
+		Ship dummyShip = new Ship(0, 0);
+		for (int i = 0; i < lives; i++)
+			drawEntity(dummyShip, 40 + 35 * i, 10, threadNumber);
+	}
+
 	/**
 	 * Draws a thick line from side to side of the screen.
 	 * 
@@ -279,6 +388,23 @@ public final class DrawManager {
 		backBufferGraphics.setColor(Color.GREEN);
 		backBufferGraphics.drawLine(0, positionY, screen.getWidth(), positionY);
 		backBufferGraphics.drawLine(0, positionY + 1, screen.getWidth(),
+				positionY + 1);
+	}
+
+	/**
+	 * Draws a thick line from side to side of the screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param positionY
+	 *            Y coordinate of the line.
+	 * @param threadNumber
+	 *            Thread number for two player mode
+	 */
+	public void drawHorizontalLine(final Screen screen, final int positionY, final int threadNumber) {
+		threadBufferGraphics[threadNumber].setColor(Color.GREEN);
+		threadBufferGraphics[threadNumber].drawLine(0, positionY, screen.getWidth(), positionY);
+		threadBufferGraphics[threadNumber].drawLine(0, positionY + 1, screen.getWidth(),
 				positionY + 1);
 	}
 
@@ -576,6 +702,25 @@ public final class DrawManager {
 	}
 
 	/**
+	 * Draws a centered string on big font.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param string
+	 *            String to draw.
+	 * @param height
+	 *            Height of the drawing.
+	 * @param threadNumber
+	 *            Thread number for two player mode
+	 */
+	public void drawCenteredBigString(final Screen screen, final String string,
+									  final int height, final int threadNumber) {
+		threadBufferGraphics[threadNumber].setFont(fontBig);
+		threadBufferGraphics[threadNumber].drawString(string, screen.getWidth() / 2
+				- fontBigMetrics.stringWidth(string) / 2, height);
+	}
+
+	/**
 	 * Countdown to game start.
 	 * 
 	 * @param screen
@@ -612,6 +757,47 @@ public final class DrawManager {
 		else
 			drawCenteredBigString(screen, "GO!", screen.getHeight() / 2
 					+ fontBigMetrics.getHeight() / 3);
+	}
+
+	/**
+	 * Countdown to game start.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param level
+	 *            Game difficulty level.
+	 * @param number
+	 *            Countdown number.
+	 * @param bonusLife
+	 *            Checks if a bonus life is received.
+	 * @param threadNumber
+	 *            Thread number for two player mode
+	 */
+	public void drawCountDown(final Screen screen, final int level,
+							  final int number, final boolean bonusLife, final int threadNumber) {
+		int rectWidth = screen.getWidth();
+		int rectHeight = screen.getHeight() / 6;
+		threadBufferGraphics[threadNumber].setColor(Color.BLACK);
+		threadBufferGraphics[threadNumber].fillRect(0, screen.getHeight() / 2 - rectHeight / 2,
+				rectWidth, rectHeight);
+		threadBufferGraphics[threadNumber].setColor(Color.GREEN);
+		if (number >= 4)
+			if (!bonusLife) {
+				drawCenteredBigString(screen, "Level " + level,
+						screen.getHeight() / 2
+								+ fontBigMetrics.getHeight() / 3, threadNumber);
+			} else {
+				drawCenteredBigString(screen, "Level " + level
+								+ " - Bonus life!",
+						screen.getHeight() / 2
+								+ fontBigMetrics.getHeight() / 3, threadNumber);
+			}
+		else if (number != 0)
+			drawCenteredBigString(screen, Integer.toString(number),
+					screen.getHeight() / 2 + fontBigMetrics.getHeight() / 3, threadNumber);
+		else
+			drawCenteredBigString(screen, "GO!", screen.getHeight() / 2
+					+ fontBigMetrics.getHeight() / 3, threadNumber);
 	}
 
 	/**
