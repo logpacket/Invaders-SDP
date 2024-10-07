@@ -1,6 +1,7 @@
 package screen;
 
 import engine.Core;
+import engine.DrawManager;
 import engine.GameSettings;
 import engine.GameState;
 import entity.EnemyShipFormation;
@@ -97,6 +98,9 @@ public class Screen2P extends Screen {
      * Updates the elements on screen and checks for events.
      */
     protected final void update() {
-
+        DrawManager.getInstance().initDrawing(this);
+        player1Screen.update();
+        player2Screen.update();
+        DrawManager.getInstance().completeDrawing2P(this);
     }
 }

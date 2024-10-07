@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Implements the game screen, where the action happens.
@@ -62,16 +63,25 @@ public class GameScreen2P extends GameScreen implements Callable<Integer> {
      */
     @Override
     public final Integer call() throws Exception{
-        this.gameFinished = false;
+        this.isRunning = true;
 
-        if (!this.gameFinished) {
-            super.run();
+        while (this.isRunning) {
+            long time = System.currentTimeMillis();
 
-            this.score += LIFE_SCORE * (this.lives - 1);
-            this.logger.info("Screen cleared with a score of " + this.score);
-
-            if (!this.gameFinished) this.newRound();
+            time = (1000 / this.fps) - (System.currentTimeMillis() - time);
+            if (time > 0) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(time);
+                } catch (InterruptedException e) {
+                    return 0;
+                }
+            }
         }
+
+        this.score += LIFE_SCORE * (this.lives - 1);
+        if(this.lives == 0) this.score += 100;
+        this.logger.info("Screen cleared with a score of " + this.score);
+
         return this.returnCode;
     }
 
@@ -79,10 +89,7 @@ public class GameScreen2P extends GameScreen implements Callable<Integer> {
      * Updates the elements on screen and checks for events.
      */
     protected final void update() {
-        super.update();
-
         if (this.inputDelay.checkFinished() && !this.levelFinished) {
-
             if (!this.ship.isDestroyed()) {
                 boolean moveRight = inputManager.isKeyDown(KeyEvent.VK_RIGHT)
                         || inputManager.isKeyDown(KeyEvent.VK_D);
@@ -104,9 +111,6 @@ public class GameScreen2P extends GameScreen implements Callable<Integer> {
                     if (this.ship.shoot(this.bullets)) {
                         this.bulletsShot++;
                     }
-
-
-
             }
 
             if (this.enemyShipSpecial != null) {
@@ -143,51 +147,33 @@ public class GameScreen2P extends GameScreen implements Callable<Integer> {
             this.levelFinished = true;
             this.screenFinishedCooldown.reset();
         }
-
         if (this.levelFinished && this.screenFinishedCooldown.checkFinished())
             this.isRunning = false;
-
-    }
-
-    /**
-     * Initialize the screen, reset the various elements.
-     */
-    private final void newRound(){
-        this.isRunning = true;
-        this.levelFinished = false;
-        /*
-          TO DO
-          1. bonusLife logic -> use this.extraLifeFrequency
-          2. this.initialize()
-          3. level up logic
-          4. The necessary logic as the other levels change and the other levels change
-         */
-
     }
 
     /**
      * Draws the elements associated with the screen.
      */
     private void draw() {
-        drawManager.initDrawing(this);
+        drawManager.initDrawing2p(this, playerNumber);
 
         drawManager.drawEntity(this.ship, this.ship.getPositionX(),
-                this.ship.getPositionY());
+                this.ship.getPositionY(), playerNumber);
         if (this.enemyShipSpecial != null)
             drawManager.drawEntity(this.enemyShipSpecial,
                     this.enemyShipSpecial.getPositionX(),
-                    this.enemyShipSpecial.getPositionY());
+                    this.enemyShipSpecial.getPositionY(), playerNumber);
 
-        enemyShipFormation.draw();
+        enemyShipFormation.draw(playerNumber);
 
         for (Bullet bullet : this.bullets)
             drawManager.drawEntity(bullet, bullet.getPositionX(),
-                    bullet.getPositionY());
+                    bullet.getPositionY(), playerNumber);
 
         // Interface.
-        drawManager.drawScore(this, this.score);
-        drawManager.drawLives(this, this.lives);
-        drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1);
+        drawManager.drawScore(this, this.score, playerNumber);
+        drawManager.drawLives(this, this.lives, playerNumber);
+        drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
 
         // Countdown to game start.
         if (!this.inputDelay.checkFinished()) {
@@ -195,14 +181,12 @@ public class GameScreen2P extends GameScreen implements Callable<Integer> {
                     - (System.currentTimeMillis()
                     - this.gameStartTime)) / 1000);
             drawManager.drawCountDown(this, this.level, countdown,
-                    this.bonusLife);
+                    this.bonusLife, playerNumber);
             drawManager.drawHorizontalLine(this, this.height / 2 - this.height
-                    / 12);
+                    / 12, playerNumber);
             drawManager.drawHorizontalLine(this, this.height / 2 + this.height
-                    / 12);
+                    / 12, playerNumber);
         }
-
-        drawManager.completeDrawing2P(this, playerNumber);
     }
 
     /**
