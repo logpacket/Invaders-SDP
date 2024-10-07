@@ -135,7 +135,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	/**
 	 * Initializes basic screen properties, and adds necessary elements.
 	 */
-	public void initialize() {
+	public final void initialize() {
 		super.initialize();
 
 		enemyShipFormation = new EnemyShipFormation(this.gameSettings);
@@ -174,7 +174,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	/**
 	 * Updates the elements on screen and checks for events.
 	 */
-	protected void update() {
+	protected final void update() {
 		super.update();
 
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
@@ -240,6 +240,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished())
 			this.isRunning = false;
+
 	}
 
 	/**
@@ -405,7 +406,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 * 
 	 * @return Current game state.
 	 */
-	public GameState getGameState() {
+	public final GameState getGameState() {
 		return new GameState(this.level, this.score, this.lives,
 				this.bulletsShot, this.shipsDestroyed);
 	}

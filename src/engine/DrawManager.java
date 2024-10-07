@@ -132,7 +132,7 @@ public final class DrawManager {
 	 * 
 	 * @return Shared instance of DrawManager.
 	 */
-	public static DrawManager getInstance() {
+	protected static DrawManager getInstance() {
 		if (instance == null)
 			instance = new DrawManager();
 		return instance;

@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 /**
  * Implements the Two player mode screen, where the action happens.
  *
- * @author Sungyoon Chang, Dongbin Shine, Hojune Moon
+ * @author ZARA Team
  */
 
 public class TwoPlayerScreen extends Screen {
@@ -79,7 +79,10 @@ public class TwoPlayerScreen extends Screen {
         try {
             runGameScreens();
         }
-        catch (Exception e) {e.printStackTrace();}
+        catch (Exception e) {
+            // TODO handle exception
+            e.printStackTrace();
+        }
         super.run();
         return returnCode;
     }
@@ -106,6 +109,9 @@ public class TwoPlayerScreen extends Screen {
             }
             else {draw();}
         }
-        catch (Exception e) {e.printStackTrace();}
+        catch (Exception e) {
+            // TODO handle exception
+            e.printStackTrace();
+        }
     }
 }
