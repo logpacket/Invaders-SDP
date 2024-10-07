@@ -2,6 +2,7 @@ package screen;
 
 import engine.GameSettings;
 import engine.GameState;
+import entity.Wallet;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,6 +20,8 @@ public class TwoPlayerScreen extends Screen {
     private final ExecutorService executor;
     /** Current game difficulty settings **/
     private final GameSettings gameSettings;
+    /** Current game wallet **/
+    private final Wallet wallet;
 
     /** Game state for player 1 **/
     private GameState gameState1;
@@ -44,11 +47,12 @@ public class TwoPlayerScreen extends Screen {
      */
     public TwoPlayerScreen(final GameState gameState,
                            final GameSettings gameSettings, final int extraLifeFrequency,
-                           final int width, final int height, final int fps) {
-        super(width * 2, height, fps / 2);
+                           final int width, final int height, final int fps, Wallet wallet) {
+        super(width * 2, height, fps * 2);
 
         gameState1 = new GameState(gameState);
         gameState2 = new GameState(gameState);
+        this.wallet = wallet;
         this.gameSettings = gameSettings;
         executor = Executors.newFixedThreadPool(2);
         this.returnCode = 1;
@@ -59,9 +63,9 @@ public class TwoPlayerScreen extends Screen {
      */
     public void runGameScreens() {
         GameScreen player1Screen = new GameScreen(gameState1, gameSettings,
-                false, width / 2 , height, fps, 0);
+                false, width / 2 , height, fps / 2, wallet, 0);
         GameScreen player2Screen = new GameScreen(gameState2, gameSettings,
-                false, width / 2 , height, fps, 1);
+                false, width / 2 , height, fps / 2, wallet, 1);
 
         player1Screen.initialize();
         player2Screen.initialize();

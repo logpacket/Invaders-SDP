@@ -136,7 +136,7 @@ public class GameSettingScreen extends Screen {
 				}
 			} else if (this.selectedRow == 2) {
 				if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
-					this.returnCode = 2;
+					this.returnCode = isMultiplayer ? 8: 2;
 					this.isRunning = false;
 					soundManager.playSound(Sound.MENU_CLICK);
 				}

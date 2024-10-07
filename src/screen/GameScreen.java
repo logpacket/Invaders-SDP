@@ -9,12 +9,7 @@ import engine.Cooldown;
 import engine.Core;
 import engine.GameSettings;
 import engine.GameState;
-import entity.Bullet;
-import entity.BulletPool;
-import entity.EnemyShip;
-import entity.EnemyShipFormation;
-import entity.Entity;
-import entity.Ship;
+import entity.*;
 
 /**
  * Implements the game screen, where the action happens.
@@ -73,6 +68,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	private boolean bonusLife;
 	/** Player number for two player mode **/
 	private int playerNumber;
+	private Wallet wallet;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -92,7 +88,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 */
 	public GameScreen(final GameState gameState,
 			final GameSettings gameSettings, final boolean bonusLife,
-			final int width, final int height, final int fps) {
+			final int width, final int height, final int fps, final Wallet wallet) {
 		super(width, height, fps);
 
 		this.gameSettings = gameSettings;
@@ -105,6 +101,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		this.bulletsShot = gameState.getBulletsShot();
 		this.shipsDestroyed = gameState.getShipsDestroyed();
 		this.playerNumber = -1;
+		this.wallet = wallet;
 	}
 
 	/**
@@ -127,9 +124,11 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 */
 	public GameScreen(final GameState gameState,
 					  final GameSettings gameSettings, final boolean bonusLife,
-					  final int width, final int height, final int fps, final int playerNumber) {
-		this(gameState, gameSettings, bonusLife, width, height, fps);
+					  final int width, final int height, final int fps, final Wallet wallet,
+					  final int playerNumber) {
+		this(gameState, gameSettings, bonusLife, width, height, fps, wallet);
 		this.playerNumber = playerNumber;
+
 	}
 
 	/**
@@ -141,6 +140,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		enemyShipFormation = new EnemyShipFormation(this.gameSettings);
 		enemyShipFormation.attach(this);
 		this.ship = new Ship(this.width / 2, this.height - 30);
+		ship.applyItem(wallet);
 		// Appears each 10-30 seconds.
 		this.enemyShipSpecialCooldown = Core.getVariableCooldown(
 				BONUS_SHIP_INTERVAL, BONUS_SHIP_VARIANCE);
