@@ -3,6 +3,7 @@ package screen;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import engine.Cooldown;
 import engine.Core;
@@ -21,55 +22,57 @@ import entity.Ship;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  * 
  */
-public class GameScreen extends Screen {
+public class GameScreen extends Screen implements Callable<GameState> {
 
 	/** Milliseconds until the screen accepts user input. */
-	protected static final int INPUT_DELAY = 6000;
+	private static final int INPUT_DELAY = 6000;
 	/** Bonus score for each life remaining at the end of the level. */
-	protected static final int LIFE_SCORE = 100;
+	private static final int LIFE_SCORE = 100;
 	/** Minimum time between bonus ship's appearances. */
-	protected static final int BONUS_SHIP_INTERVAL = 20000;
+	private static final int BONUS_SHIP_INTERVAL = 20000;
 	/** Maximum variance in the time between bonus ship's appearances. */
-	protected static final int BONUS_SHIP_VARIANCE = 10000;
+	private static final int BONUS_SHIP_VARIANCE = 10000;
 	/** Time until bonus ship explosion disappears. */
-	protected static final int BONUS_SHIP_EXPLOSION = 500;
+	private static final int BONUS_SHIP_EXPLOSION = 500;
 	/** Time from finishing the level to screen change. */
-	protected static final int SCREEN_CHANGE_INTERVAL = 1500;
+	private static final int SCREEN_CHANGE_INTERVAL = 1500;
 	/** Height of the interface separation line. */
-	protected static final int SEPARATION_LINE_HEIGHT = 40;
+	private static final int SEPARATION_LINE_HEIGHT = 40;
 
 	/** Current game difficulty settings. */
-	protected GameSettings gameSettings;
+	private GameSettings gameSettings;
 	/** Current difficulty level number. */
-	protected int level;
+	private int level;
 	/** Formation of enemy ships. */
-	protected EnemyShipFormation enemyShipFormation;
+	private EnemyShipFormation enemyShipFormation;
 	/** Player's ship. */
-	protected Ship ship;
+	private Ship ship;
 	/** Bonus enemy ship that appears sometimes. */
-	protected EnemyShip enemyShipSpecial;
+	private EnemyShip enemyShipSpecial;
 	/** Minimum time between bonus ship appearances. */
-	protected Cooldown enemyShipSpecialCooldown;
+	private Cooldown enemyShipSpecialCooldown;
 	/** Time until bonus ship explosion disappears. */
-	protected Cooldown enemyShipSpecialExplosionCooldown;
+	private Cooldown enemyShipSpecialExplosionCooldown;
 	/** Time from finishing the level to screen change. */
-	protected Cooldown screenFinishedCooldown;
+	private Cooldown screenFinishedCooldown;
 	/** Set of all bullets fired by on screen ships. */
-	protected Set<Bullet> bullets;
+	private Set<Bullet> bullets;
 	/** Current score. */
-	protected int score;
+	private int score;
 	/** Player lives left. */
-	protected int lives;
+	private int lives;
 	/** Total bullets shot by the player. */
-	protected int bulletsShot;
+	private int bulletsShot;
 	/** Total ships destroyed by the player. */
-	protected int shipsDestroyed;
+	private int shipsDestroyed;
 	/** Moment the game starts. */
-	protected long gameStartTime;
+	private long gameStartTime;
 	/** Checks if the level is finished. */
-	protected boolean levelFinished;
+	private boolean levelFinished;
 	/** Checks if a bonus life is received. */
-	protected boolean bonusLife;
+	private boolean bonusLife;
+	/** Player number for two player mode **/
+	private int playerNumber;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -101,6 +104,32 @@ public class GameScreen extends Screen {
 			this.lives++;
 		this.bulletsShot = gameState.getBulletsShot();
 		this.shipsDestroyed = gameState.getShipsDestroyed();
+		this.playerNumber = -1;
+	}
+
+	/**
+	 * Constructor, establishes the properties of the screen for two player mode.
+	 *
+	 * @param gameState
+	 *            Current game state.
+	 * @param gameSettings
+	 *            Current game settings.
+	 * @param bonusLife
+	 *            Checks if a bonus life is awarded this level.
+	 * @param width
+	 *            Screen width.
+	 * @param height
+	 *            Screen height.
+	 * @param fps
+	 *            Frames per second, frame rate at which the game is run.
+	 * @param playerNumber
+	 *            Player number for two player mode
+	 */
+	public GameScreen(final GameState gameState,
+					  final GameSettings gameSettings, final boolean bonusLife,
+					  final int width, final int height, final int fps, final int playerNumber) {
+		this(gameState, gameSettings, bonusLife, width, height, fps);
+		this.playerNumber = playerNumber;
 	}
 
 	/**
@@ -198,7 +227,10 @@ public class GameScreen extends Screen {
 
 		manageCollisions();
 		cleanBullets();
-		draw();
+		if (playerNumber >= 0)
+			drawThread();
+		else
+			draw();
 
 		if ((this.enemyShipFormation.isEmpty() || this.lives == 0)
 				&& !this.levelFinished) {
@@ -208,7 +240,6 @@ public class GameScreen extends Screen {
 
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished())
 			this.isRunning = false;
-
 	}
 
 	/**
@@ -249,6 +280,45 @@ public class GameScreen extends Screen {
 		}
 
 		drawManager.completeDrawing(this);
+	}
+
+	/**
+	 * Draws the elements associated with the screen to thread buffer.
+	 */
+	private void drawThread() {
+		drawManager.initThreadDrawing(this, playerNumber);
+
+		drawManager.drawEntity(this.ship, this.ship.getPositionX(),
+				this.ship.getPositionY(), playerNumber);
+		if (this.enemyShipSpecial != null)
+			drawManager.drawEntity(this.enemyShipSpecial,
+					this.enemyShipSpecial.getPositionX(),
+					this.enemyShipSpecial.getPositionY(), playerNumber);
+
+		enemyShipFormation.draw(playerNumber);
+
+		for (Bullet bullet : this.bullets)
+			drawManager.drawEntity(bullet, bullet.getPositionX(),
+					bullet.getPositionY(), playerNumber);
+
+		// Interface.
+		drawManager.drawScore(this, this.score, playerNumber);
+		drawManager.drawLives(this, this.lives, playerNumber);
+		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
+
+		// Countdown to game start.
+		if (!this.inputDelay.checkFinished()) {
+			int countdown = (int) ((INPUT_DELAY
+					- (System.currentTimeMillis()
+					- this.gameStartTime)) / 1000);
+			drawManager.drawCountDown(this, this.level, countdown,
+					this.bonusLife, playerNumber);
+			drawManager.drawHorizontalLine(this, this.height / 2 - this.height
+					/ 12, playerNumber);
+			drawManager.drawHorizontalLine(this, this.height / 2 + this.height
+					/ 12, playerNumber);
+		}
+		drawManager.flushBuffer(this, playerNumber);
 	}
 
 	/**
@@ -338,5 +408,17 @@ public class GameScreen extends Screen {
 	public GameState getGameState() {
 		return new GameState(this.level, this.score, this.lives,
 				this.bulletsShot, this.shipsDestroyed);
+	}
+
+
+	/**
+	 * Start the action for two player mode
+	 *
+	 * @return Current game state.
+	 */
+	@Override
+	public final GameState call() {
+		run();
+		return getGameState();
 	}
 }

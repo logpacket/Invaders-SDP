@@ -101,7 +101,6 @@ public final class Core {
 		DrawManager.getInstance().setFrame(frame);
 		int width = frame.getWidth();
 		int height = frame.getHeight();
-
 		gameSettings = new ArrayList<GameSettings>();
 		gameSettings.add(SETTINGS_LEVEL_1);
 		gameSettings.add(SETTINGS_LEVEL_2);
@@ -110,12 +109,12 @@ public final class Core {
 		gameSettings.add(SETTINGS_LEVEL_5);
 		gameSettings.add(SETTINGS_LEVEL_6);
 		gameSettings.add(SETTINGS_LEVEL_7);
-		
+
 		GameState gameState;
 
 		Wallet wallet = Wallet.getWallet();
 
-		int returnCode = 7;
+		int returnCode = 1;
 		do {
 			gameState = new GameState(1, 0, MAX_LIVES, 0, 0);
 
@@ -204,7 +203,7 @@ public final class Core {
 				//TwoPlayerScreen
 				frame.setSize(WIDTH*2, HEIGHT);
 
-				currentScreen = new Screen2P(gameState,
+				currentScreen = new TwoPlayerScreen(gameState,
 						gameSettings.get(gameState.getLevel() - 1),
 						EXTRA_LIFE_FRECUENCY, width, height, FPS);
 				LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
