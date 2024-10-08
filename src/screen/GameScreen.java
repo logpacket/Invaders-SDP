@@ -327,7 +327,6 @@ public class GameScreen extends Screen implements Callable<GameState> {
 			drawManager.drawHorizontalLine(this, this.height / 2 + this.height
 					/ 12, playerNumber);
 		}
-
 		drawManager.flushBuffer(this, playerNumber);
 	}
 

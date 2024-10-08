@@ -486,6 +486,7 @@ public final class DrawManager {
 	}
 
 
+
 	/**
 	 * Draws game results.
 	 * 
