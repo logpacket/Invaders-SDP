@@ -220,6 +220,7 @@ public final class Core {
 			case 8:
 				//TwoPlayerScreen
 				frame.setSize(WIDTH*2, HEIGHT);
+				frame.moveToMiddle();
 
 				currentScreen = new TwoPlayerScreen(gameState,
 						gameSettings.get(gameState.getLevel() - 1),
@@ -231,6 +232,7 @@ public final class Core {
 
 				//ScoreScreen
 				frame.setSize(WIDTH, HEIGHT);
+				frame.moveToMiddle();
 
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
 						+ " score screen at " + FPS + " fps, with a score of "
