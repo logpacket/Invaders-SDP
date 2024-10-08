@@ -611,6 +611,32 @@ public final class DrawManager {
 	}
 
 	/**
+	 * Draws game over for 2player mode
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param height
+	 *            Height of the drawing.
+	 * @param threadNumber
+	 *            Thread number for two player mode
+	 */
+	public void drawInGameOver(final Screen screen,
+							 final int height, final int threadNumber) {
+		String gameOverString = "Game Over";
+		String waitForPlayer = "Please Wait";
+
+		int rectWidth = screen.getWidth();
+		int rectHeight = screen.getHeight() / 6;
+		threadBufferGraphics[threadNumber].setColor(Color.BLACK);
+		threadBufferGraphics[threadNumber].fillRect(0, screen.getHeight() / 2 - rectHeight / 2, rectWidth, rectHeight);
+		threadBufferGraphics[threadNumber].setColor(Color.GREEN);
+
+		drawCenteredBigString(screen, gameOverString,
+				screen.getHeight() / 2 + fontBigMetrics.getHeight() / 3, threadNumber);
+
+	}
+
+	/**
 	 * Draws achievement screen title and instructions.
 	 * 
 	 * @param screen
