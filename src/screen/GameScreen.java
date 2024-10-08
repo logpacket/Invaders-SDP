@@ -307,6 +307,14 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		drawManager.drawLives(this, this.lives, playerNumber);
 		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
 
+		if (this.levelFinished && this.screenFinishedCooldown.checkFinished()) {
+			drawManager.drawInGameOver(this, this.height, playerNumber);
+			drawManager.drawHorizontalLine(this, this.height / 2 - this.height
+					/ 12, playerNumber);
+			drawManager.drawHorizontalLine(this, this.height / 2 + this.height
+					/ 12, playerNumber);
+		}
+
 		// Countdown to game start.
 		if (!this.inputDelay.checkFinished()) {
 			int countdown = (int) ((INPUT_DELAY
@@ -319,6 +327,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 			drawManager.drawHorizontalLine(this, this.height / 2 + this.height
 					/ 12, playerNumber);
 		}
+
 		drawManager.flushBuffer(this, playerNumber);
 	}
 
