@@ -48,7 +48,7 @@ public class TwoPlayerScreen extends Screen {
     public TwoPlayerScreen(final GameState gameState,
                            final GameSettings gameSettings, final int extraLifeFrequency,
                            final int width, final int height, final int fps, Wallet wallet) {
-        super(width * 2, height, fps * 2);
+        super(width * 2, height, fps / 2);
 
         gameState1 = new GameState(gameState);
         gameState2 = new GameState(gameState);
@@ -63,9 +63,9 @@ public class TwoPlayerScreen extends Screen {
      */
     public void runGameScreens() {
         GameScreen player1Screen = new GameScreen(gameState1, gameSettings,
-                false, width / 2 , height, fps / 2, wallet, 0);
+                false, width / 2 , height, fps, wallet, 0);
         GameScreen player2Screen = new GameScreen(gameState2, gameSettings,
-                false, width / 2 , height, fps / 2, wallet, 1);
+                false, width / 2 , height, fps, wallet, 1);
 
         player1Screen.initialize();
         player2Screen.initialize();
