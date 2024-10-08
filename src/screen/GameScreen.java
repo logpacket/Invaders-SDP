@@ -179,11 +179,37 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
 
+			switch(playerNumber) {
+				case 0 :
+					if (inputManager.isKeyDown(KeyEvent.VK_SPACE))
+					if (this.ship.shoot(this.bullets))
+						this.bulletsShot++;
+					break;
+				case 1:
+					if (inputManager.isKeyDown(KeyEvent.VK_SHIFT))
+						if (this.ship.shoot(this.bullets))
+							this.bulletsShot++;
+					break;
+
+			}
 			if (!this.ship.isDestroyed()) {
-				boolean moveRight = inputManager.isKeyDown(KeyEvent.VK_RIGHT)
-						|| inputManager.isKeyDown(KeyEvent.VK_D);
-				boolean moveLeft = inputManager.isKeyDown(KeyEvent.VK_LEFT)
-						|| inputManager.isKeyDown(KeyEvent.VK_A);
+				boolean moveRight;
+				boolean moveLeft;
+				switch (playerNumber) {
+					case 0:
+						moveRight = inputManager.isKeyDown(KeyEvent.VK_D);
+						moveLeft = inputManager.isKeyDown(KeyEvent.VK_A);
+						break;
+					case 1:
+						moveRight = inputManager.isKeyDown(KeyEvent.VK_RIGHT);
+						moveLeft = inputManager.isKeyDown(KeyEvent.VK_LEFT);
+						break;
+					default:
+						moveRight = inputManager.isKeyDown(KeyEvent.VK_RIGHT)
+								|| inputManager.isKeyDown(KeyEvent.VK_D);
+						moveLeft = inputManager.isKeyDown(KeyEvent.VK_LEFT)
+								|| inputManager.isKeyDown(KeyEvent.VK_A);
+				}
 
 				boolean isRightBorder = this.ship.getPositionX()
 						+ this.ship.getWidth() + this.ship.getSpeed() > this.width - 1;
@@ -196,9 +222,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 				if (moveLeft && !isLeftBorder) {
 					this.ship.moveLeft();
 				}
-				if (inputManager.isKeyDown(KeyEvent.VK_SPACE))
-					if (this.ship.shoot(this.bullets))
-						this.bulletsShot++;
+
 			}
 
 			if (this.enemyShipSpecial != null) {
