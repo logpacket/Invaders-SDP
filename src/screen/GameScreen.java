@@ -329,7 +329,9 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		drawManager.drawScore(this, this.score, playerNumber);
 		drawManager.drawLives(this, this.lives, playerNumber);
 		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
+		drawManager.drawVerticalLine(this, this.width  - 1, playerNumber);
 
+		// Show GameOver if one player ends first
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished()) {
 			drawManager.drawInGameOver(this, this.height, playerNumber);
 			drawManager.drawHorizontalLine(this, this.height / 2 - this.height

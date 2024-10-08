@@ -431,6 +431,21 @@ public final class DrawManager {
 	}
 
 	/**
+	 * Draws a thick line from side to side of the screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param positionX
+	 *            X coordinate of the line.
+	 * @param threadNumber
+	 *            Thread number for two player mode
+	 */
+	public void drawVerticalLine(final Screen screen, final int positionX, final int threadNumber) {
+		threadBufferGraphics[threadNumber].setColor(Color.GREEN);
+		threadBufferGraphics[threadNumber].drawLine(positionX, 0, positionX, screen.getHeight());
+	}
+
+	/**
 	 * Draws game title.
 	 * 
 	 * @param screen
