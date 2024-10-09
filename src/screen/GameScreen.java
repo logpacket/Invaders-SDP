@@ -178,19 +178,31 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		super.update();
 
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
+			boolean player1Attacking = inputManager.isKeyDown(KeyEvent.VK_SPACE);
+			boolean player2Attacking = inputManager.isKeyDown(KeyEvent.VK_SHIFT);
 
-			switch(playerNumber) {
-				case 0 :
-					if (inputManager.isKeyDown(KeyEvent.VK_SPACE))
-					if (this.ship.shoot(this.bullets))
-						this.bulletsShot++;
-					break;
-				case 1:
-					if (inputManager.isKeyDown(KeyEvent.VK_SHIFT))
-						if (this.ship.shoot(this.bullets))
-							this.bulletsShot++;
-					break;
-
+			if (player1Attacking && player2Attacking) {
+				// Both players are attacking
+				if (this.ship.shoot(this.bullets, 0.0f)) { // Both shoot with center balance
+					this.bulletsShot++;
+				}
+			} else {
+				switch (playerNumber) {
+					case 0:
+						if (player1Attacking) {
+							if (this.ship.shoot(this.bullets, -1.0f)) { // Player 1 attack
+								this.bulletsShot++;
+							}
+						}
+						break;
+					case 1:
+						if (player2Attacking) {
+							if (this.ship.shoot(this.bullets, 1.0f)) { // Player 2 attack
+								this.bulletsShot++;
+							}
+						}
+						break;
+				}
 			}
 			if (!this.ship.isDestroyed()) {
 				boolean moveRight;

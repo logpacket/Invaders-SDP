@@ -147,6 +147,26 @@ public class SoundManager {
     }
 
     /**
+     * Play the sound file.
+     *
+     * @param sound Key value of sound
+     * @param balance Balance value (-1.0 for left, 1.0 for right, 0.0 for center)
+     */
+    public void playSound(Sound sound, float balance) {
+        if (soundEnabled) {
+            Clip clip = soundClips.get(sound);
+            if (clip != null) {
+                clip.setFramePosition(0);
+                FloatControl panControl = (FloatControl) clip.getControl(FloatControl.Type.PAN);
+                panControl.setValue(balance);
+                clip.start();
+            } else {
+                System.out.println("Sound not found: " + sound);
+            }
+        }
+    }
+
+    /**
      * Stop the sound file.
      *
      * @param sound Key value of sound
