@@ -231,8 +231,12 @@ public final class DrawManager {
 	 *            Screen to draw on.
 	 */
 	public void mergeDrawing(final Screen screen) {
+		int verticalLineWidth = 1;
+
 		backBufferGraphics.drawImage(threadBuffers[2], 0, 0, frame);
-		backBufferGraphics.drawImage(threadBuffers[3], screen.getWidth() / 2, 0, frame);
+		backBufferGraphics.drawImage(threadBuffers[3], screen.getWidth() / 2 + verticalLineWidth, 0, frame);
+		backBufferGraphics.setColor(Color.GREEN);
+		backBufferGraphics.drawLine(screen.getWidth() / 2,0,screen.getWidth() / 2,screen.getHeight());
 	}
 
 	/**
@@ -440,9 +444,9 @@ public final class DrawManager {
 	 * @param threadNumber
 	 *            Thread number for two player mode
 	 */
-	public void drawVerticalLine(final Screen screen, final int positionX, final int threadNumber) {
-		threadBufferGraphics[threadNumber].setColor(Color.GREEN);
-		threadBufferGraphics[threadNumber].drawLine(positionX, 0, positionX, screen.getHeight());
+	public void drawVerticalLine(final Screen screen, final int positionX) {
+		backBufferGraphics.setColor(Color.GREEN);
+		backBufferGraphics.drawLine(positionX, 0, positionX, screen.getHeight());
 	}
 
 	/**
