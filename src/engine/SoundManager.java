@@ -22,7 +22,7 @@ public class SoundManager {
     private static Logger logger;
     /** Sound manager activation flag */
     private boolean soundEnabled;
-    /** Default value of currentVolume */
+    /** Value of current volume */
     private static int currentVolume = 10;
     /** Maximum and minimum values of volume */
     private final float MIN_VOL = -80.0f;
