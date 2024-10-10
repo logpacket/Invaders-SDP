@@ -50,7 +50,11 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	/** Set of all bullets fired by on screen ships. */
 	private Set<Bullet> bullets;
 	/** Current score. */
+	private String name1;
+
 	private int score;
+	/** Current ship type. */
+	private Ship.ShipType shipType;
 	/** Player lives left. */
 	private int lives;
 	/** Total bullets shot by the player. */
@@ -68,6 +72,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	private Wallet wallet;
 	/** Singleton instance of SoundManager */
 	private final SoundManager soundManager = SoundManager.getInstance();
+
+	private int playTime;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -94,6 +100,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		this.bonusLife = bonusLife;
 		this.level = gameState.getLevel();
 		this.score = gameState.getScore();
+		this.shipType = gameState.getShipType();
 		this.lives = gameState.getLivesRemaining();
 		if (this.bonusLife)
 			this.lives++;
@@ -138,9 +145,9 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		enemyShipFormation = new EnemyShipFormation(this.gameSettings);
 		enemyShipFormation.attach(this);
-		this.ship = new Ship(this.width / 2, this.height - 30);
-		ship.applyItem(wallet);
-		// Appears each 10-30 seconds.
+		this.ship = ShipFactory.create(this.shipType, this.width / 2, this.height - 70);
+        ship.applyItem(wallet);
+        // Appears each 10-30 seconds.
 		this.enemyShipSpecialCooldown = Core.getVariableCooldown(
 				BONUS_SHIP_INTERVAL, BONUS_SHIP_VARIANCE);
 		this.enemyShipSpecialCooldown.reset();
@@ -180,15 +187,15 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
 
 			switch(playerNumber) {
-				case 0 :
-					if (inputManager.isKeyDown(KeyEvent.VK_SPACE))
-					if (this.ship.shoot(this.bullets))
-						this.bulletsShot++;
-					break;
 				case 1:
 					if (inputManager.isKeyDown(KeyEvent.VK_SHIFT))
 						if (this.ship.shoot(this.bullets))
 							this.bulletsShot++;
+					break;
+				default :
+					if (inputManager.isKeyDown(KeyEvent.VK_SPACE))
+					if (this.ship.shoot(this.bullets))
+						this.bulletsShot++;
 					break;
 
 			}
@@ -287,7 +294,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		// Interface.
 		drawManager.drawScore(this, this.score);
-		drawManager.drawLives(this, this.lives);
+		drawManager.drawLives(this, this.lives, this.shipType);
 		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1);
 
 		// Countdown to game start.
@@ -327,7 +334,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		// Interface.
 		drawManager.drawScore(this, this.score, playerNumber);
-		drawManager.drawLives(this, this.lives, playerNumber);
+		drawManager.drawLives(this, this.lives, this.shipType, playerNumber);
 		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
 
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished()) {
@@ -438,7 +445,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 * @return Current game state.
 	 */
 	public final GameState getGameState() {
-		return new GameState(this.level, this.score, this.lives,
+		return new GameState(this.level, this.score, this.shipType, this.lives,
 				this.bulletsShot, this.shipsDestroyed);
 	}
 
