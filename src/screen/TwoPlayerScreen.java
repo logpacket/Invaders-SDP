@@ -1,5 +1,6 @@
 package screen;
 
+import engine.Core;
 import engine.GameSettings;
 import engine.GameState;
 import engine.Frame;
@@ -7,6 +8,7 @@ import entity.Wallet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 /**
  * Implements the Two player mode screen, where the action happens.
@@ -36,6 +38,8 @@ public class TwoPlayerScreen extends Screen {
     /** Total number of levels. */
     private static final int NUM_LEVELS = 7;
     private Frame frame;
+    private static final Logger LOGGER = Logger.getLogger(Core.class
+            .getSimpleName());
 
     /** Difficulty settings for level 1. */
     private static final GameSettings SETTINGS_LEVEL_1 =
@@ -138,13 +142,15 @@ public class TwoPlayerScreen extends Screen {
                 }
 
                 if (gameState1.getLivesRemaining() <= 0 && gameState2.getLivesRemaining() <= 0) {
+                    showScoreScreen();
                     executor.shutdown();
                     isRunning = false;
                 }
 
                 if (player1.isDone() && player2.isDone()) {
-                    executor.shutdown();
+                    showScoreScreen();
                     isRunning = false;
+                    executor.shutdown();
                 }
 
                 draw();
@@ -254,6 +260,14 @@ public class TwoPlayerScreen extends Screen {
             default:
                 return null;
         }
+    }
+    private void showScoreScreen() {
+        LOGGER.info("Closing game screen.");
+        // Compare score
+        GameState higherScoreGameState = (gameState1.getScore() >= gameState2.getScore()) ? gameState1 : gameState2;
+        // Switch to ScoreScreen
+        ScoreScreen scoreScreen = new ScoreScreen(width, height, fps, higherScoreGameState, wallet);
+        frame.setScreen(scoreScreen);
 
     }
 

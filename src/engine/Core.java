@@ -230,7 +230,7 @@ public final class Core {
 				frame.setScreen(currentScreen);
 				LOGGER.info("Closing game screen.");
 
-				//ScoreScreen
+				/**ScoreScreen
 				frame.setSize(WIDTH, HEIGHT);
 				frame.moveToMiddle();
 
@@ -244,6 +244,7 @@ public final class Core {
 				currentScreen = new ScoreScreen(width, height, FPS, gameState, wallet);
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing score screen.");
+				 **/
 				break;
 			default:
 				break;
