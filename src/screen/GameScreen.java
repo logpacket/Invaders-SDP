@@ -5,10 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import engine.Cooldown;
-import engine.Core;
-import engine.GameSettings;
-import engine.GameState;
+import engine.*;
 import entity.*;
 
 /**
@@ -69,6 +66,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	/** Player number for two player mode **/
 	private int playerNumber;
 	private Wallet wallet;
+	/** Singleton instance of SoundManager */
+	private final SoundManager soundManager = SoundManager.getInstance();
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -154,6 +153,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		this.gameStartTime = System.currentTimeMillis();
 		this.inputDelay = Core.getCooldown(INPUT_DELAY);
 		this.inputDelay.reset();
+		soundManager.playSound(Sound.COUNTDOWN);
 	}
 
 	/**
@@ -264,7 +264,6 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished())
 			this.isRunning = false;
-
 	}
 
 	/**
