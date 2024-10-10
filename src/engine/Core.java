@@ -224,7 +224,7 @@ public final class Core {
 
 				currentScreen = new TwoPlayerScreen(gameState,
 						gameSettings.get(gameState.getLevel() - 1),
-						EXTRA_LIFE_FRECUENCY, width, height, FPS, wallet);
+						EXTRA_LIFE_FRECUENCY, width, height, FPS, wallet, frame);
 				LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
 						+ " game screen at " + FPS + " fps.");
 				frame.setScreen(currentScreen);
