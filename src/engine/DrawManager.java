@@ -57,6 +57,8 @@ public final class DrawManager {
 	private static Font fontBig;
 	/** Big sized font properties. */
 	private static FontMetrics fontBigMetrics;
+	/** Vertical line width for two player mode **/
+	private static final int LINE_WIDTH = 1;
 
 	/** Sprite types mapped to their images. */
 	private static Map<SpriteType, boolean[][]> spriteMap;
@@ -231,12 +233,8 @@ public final class DrawManager {
 	 *            Screen to draw on.
 	 */
 	public void mergeDrawing(final Screen screen) {
-		int verticalLineWidth = 1;
-
 		backBufferGraphics.drawImage(threadBuffers[2], 0, 0, frame);
-		backBufferGraphics.drawImage(threadBuffers[3], screen.getWidth() / 2 + verticalLineWidth, 0, frame);
-		backBufferGraphics.setColor(Color.GREEN);
-		backBufferGraphics.drawLine(screen.getWidth() / 2,0,screen.getWidth() / 2,screen.getHeight());
+		backBufferGraphics.drawImage(threadBuffers[3], screen.getWidth() / 2 + LINE_WIDTH, 0, frame);
 	}
 
 	/**
@@ -439,14 +437,10 @@ public final class DrawManager {
 	 *
 	 * @param screen
 	 *            Screen to draw on.
-	 * @param positionX
-	 *            X coordinate of the line.
-	 * @param threadNumber
-	 *            Thread number for two player mode
 	 */
-	public void drawVerticalLine(final Screen screen, final int positionX) {
+	public void drawVerticalLine(final Screen screen) {
 		backBufferGraphics.setColor(Color.GREEN);
-		backBufferGraphics.drawLine(positionX, 0, positionX, screen.getHeight());
+		backBufferGraphics.drawLine(screen.getWidth() /2  ,0,screen.getWidth() / 2,screen.getHeight());
 	}
 
 	/**

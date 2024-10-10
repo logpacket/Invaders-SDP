@@ -1,5 +1,6 @@
 package screen;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
@@ -329,7 +330,6 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		drawManager.drawScore(this, this.score, playerNumber);
 		drawManager.drawLives(this, this.lives, playerNumber);
 		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
-		// drawManager.drawVerticalLine(this, this.width  - 1, playerNumber);
 
 		// Show GameOver if one player ends first
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished() && this.lives <= 0) {

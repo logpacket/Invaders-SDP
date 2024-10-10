@@ -97,7 +97,7 @@ public class TwoPlayerScreen extends Screen {
     private void draw(){
         drawManager.initDrawing(this);
         drawManager.mergeDrawing(this);
-        //drawManager.drawVerticalLine(this, this.width );
+        drawManager.drawVerticalLine(this);
         drawManager.completeDrawing(this);
     }
 
