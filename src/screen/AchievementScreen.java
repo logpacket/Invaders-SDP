@@ -12,7 +12,7 @@ import engine.SoundManager;
 
 /**
  * Implements the achievement screen.
- * 
+ *
  * Team NOF
  * 
  */
