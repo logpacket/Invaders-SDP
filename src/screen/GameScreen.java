@@ -337,7 +337,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		drawManager.drawLives(this, this.lives, this.shipType, playerNumber);
 		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
 
-		if (this.levelFinished && this.screenFinishedCooldown.checkFinished()) {
+		// Show GameOver if one player ends first
+		if (this.levelFinished && this.screenFinishedCooldown.checkFinished() && this.lives <= 0) {
 			drawManager.drawInGameOver(this, this.height, playerNumber);
 			drawManager.drawHorizontalLine(this, this.height / 2 - this.height
 					/ 12, playerNumber);
@@ -388,6 +389,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 						this.ship.destroy();
 						this.lives--;
 						this.logger.info("Hit on player ship, " + this.lives
+
 								+ " lives remaining.");
 					}
 				}
