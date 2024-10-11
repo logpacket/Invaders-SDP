@@ -1,77 +1,69 @@
 package screen;
 
+import engine.Core;
 import engine.GameSettings;
 import engine.GameState;
 import entity.Wallet;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-
 /**
  * Implements the Two player mode screen, where the action happens.
- *
- * @author ZARA Team
  */
-
 public class TwoPlayerScreen extends Screen {
     /** Thread pool executor **/
     private final ExecutorService executor;
-    /** Current game difficulty settings **/
-    private final GameSettings gameSettings;
+    /** List of game difficulty settings **/
+    private final List<GameSettings> gameSettings;
     /** Current game wallet **/
     private final Wallet wallet;
 
-    /** Game state for player 1 **/
-    private GameState gameState1;
-    /** Game state for player 2 **/
-    private GameState gameState2;
+    /** Game states for each player **/
+    private final GameState[] gameStates = new GameState[2];
 
-    /** Player 1's game task **/
-    private Future<GameState> player1;
-    /** Player 2's game task **/
-    private Future<GameState> player2;
+    /** Players game task **/
+    private final Future<GameState>[] players = new Future[2];
+
+    /** Player game finished flags **/
+    private final boolean[] gameFinished = new boolean[2];
+
+    /** Player 1's number**/
+    private final int PLAYER1_NUMBER = 0;
+    /** Player 2's number**/
+    private final int PLAYER2_NUMBER = 1;
 
     /**
      * Constructor, establishes the properties of the screen.
      *
+     *
+     * @param gameState
+     *            Initial game state
      * @param gameSettings
-     *            Current game settings.
+     *            Game settings list.
      * @param width
      *            Screen width.
      * @param height
      *            Screen height.
      * @param fps
      *            Frames per second, frame rate at which the game is run.
+     * @param wallet
+     *            Wallet for each game.
      */
-    public TwoPlayerScreen(final GameState gameState,
-                           final GameSettings gameSettings, final int extraLifeFrequency,
+    public TwoPlayerScreen(final GameState gameState, final List<GameSettings> gameSettings,
                            final int width, final int height, final int fps, Wallet wallet) {
         super(width * 2, height, fps * 2);
 
-        gameState1 = new GameState(gameState);
-        gameState2 = new GameState(gameState);
-        this.wallet = wallet;
         this.gameSettings = gameSettings;
+        this.gameStates[PLAYER1_NUMBER] = new GameState(gameState);
+        this.gameStates[PLAYER2_NUMBER] = new GameState(gameState);
+        this.wallet = wallet;
         executor = Executors.newFixedThreadPool(2);
         this.returnCode = 1;
-    }
-
-    /**
-     * Run each game screens.
-     */
-    public void runGameScreens() {
-        GameScreen player1Screen = new GameScreen(gameState1, gameSettings,
-                false, width / 2 , height, fps / 2, wallet, 0);
-        GameScreen player2Screen = new GameScreen(gameState2, gameSettings,
-                false, width / 2 , height, fps / 2, wallet, 1);
-
-        player1Screen.initialize();
-        player2Screen.initialize();
-
-        player1 = executor.submit(player1Screen);
-        player2 = executor.submit(player2Screen);
+        gameFinished[PLAYER1_NUMBER] = false;
+        gameFinished[PLAYER2_NUMBER] = false;
     }
 
     /**
@@ -81,7 +73,8 @@ public class TwoPlayerScreen extends Screen {
      */
     public int run(){
         try {
-            runGameScreens();
+            runGameScreen(PLAYER1_NUMBER);
+            runGameScreen(PLAYER2_NUMBER);
         }
         catch (Exception e) {
             // TODO handle exception
@@ -94,7 +87,7 @@ public class TwoPlayerScreen extends Screen {
     /**
      * Draws the elements associated with the screen.
      */
-    private void draw(){
+    private void draw() {
         drawManager.initDrawing(this);
         drawManager.mergeDrawing(this);
         drawManager.drawVerticalLine(this);
@@ -106,17 +99,52 @@ public class TwoPlayerScreen extends Screen {
      */
     protected final void update() {
         try {
-            if (player1.isDone()) gameState1 = player1.get();
-            if (player2.isDone()) gameState2 = player2.get();
-            if (player1.isDone() && player2.isDone()) {
-                executor.shutdown();
-                isRunning = false;
+            if (players[PLAYER1_NUMBER].isDone()) {
+                gameStates[PLAYER1_NUMBER] = players[PLAYER1_NUMBER].get();
+                gameStates[PLAYER1_NUMBER] = new GameState(gameStates[PLAYER1_NUMBER], gameStates[PLAYER1_NUMBER].getLevel() + 1);
+                runGameScreen(PLAYER1_NUMBER);
             }
-            else {draw();}
-        }
-        catch (Exception e) {
-            // TODO handle exception
+            if (players[PLAYER2_NUMBER].isDone()) {
+                gameStates[PLAYER2_NUMBER] = players[PLAYER2_NUMBER].get();
+                gameStates[PLAYER2_NUMBER] = new GameState(gameStates[PLAYER2_NUMBER], gameStates[PLAYER2_NUMBER].getLevel() + 1);
+                runGameScreen(PLAYER2_NUMBER);
+            }
+
+            if (gameFinished[PLAYER1_NUMBER] && gameFinished[PLAYER2_NUMBER]) {
+                isRunning = false;
+                executor.shutdown();
+            }
+
+            draw();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    /**
+     * Progression logic each games.
+     */
+    private  void runGameScreen(int playerNumber){
+        GameState gameState = playerNumber == 0 ? gameStates[PLAYER1_NUMBER] : gameStates[PLAYER2_NUMBER];
+
+        if (gameState.getLivesRemaining() > 0) {
+            if (gameState.getLevel() <= Core.NUM_LEVELS) {
+                boolean bonusLife = gameState.getLevel()
+                        % Core.EXTRA_LIFE_FRECUENCY == 0
+                        && gameState.getLivesRemaining() < Core.MAX_LIVES;
+                GameScreen gameScreen = new GameScreen(gameState, gameSettings.get(gameState.getLevel()-1),
+                        bonusLife, width / 2, height, fps / 2, wallet, playerNumber);
+                gameScreen.initialize();
+                players[playerNumber] = executor.submit(gameScreen);
+            }
+        }
+        else gameFinished[playerNumber] = true;
+    }
+
+    public GameState getWinnerGameState() {
+        return gameStates[getWinnerNumber() - 1];
+    }
+
+    public int getWinnerNumber() {
+        return ((gameStates[PLAYER1_NUMBER].getScore() >= gameStates[PLAYER2_NUMBER].getScore()) ? PLAYER1_NUMBER : PLAYER2_NUMBER) + 1;
     }
 }

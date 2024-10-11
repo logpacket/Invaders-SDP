@@ -1,5 +1,9 @@
 package screen;
 
+import engine.Cooldown;
+import engine.Core;
+import engine.GameSettings;
+import engine.InputManager;
 import engine.*;
 
 import java.awt.event.KeyEvent;
@@ -11,19 +15,21 @@ import java.awt.event.KeyEvent;
  * 
  */
 public class GameSettingScreen extends Screen {
+	private static GameSettingScreen instance;
 
 	/** Milliseconds between changes in user selection. */
 	private static final int SELECTION_TIME = 200;
-	/** Maximum number of characters for player name. */
-	private static final int NAME_LIMIT = 6;
+	/** Maximum number of characters for player name.
+	 * draw를 용이하게 하기 위해 NAME_LIMIT을 4로 제한 */
+	private static final int NAME_LIMIT = 4;
 
 
 	/** Player name1 for record input. */
-	private String name1;
+	private static String name1;
 	/** Player name2 for record input. */
-	private String name2;
+	private static String name2;
 	/** Multiplayer mode. */
-	private boolean isMultiplayer;
+	private static boolean isMultiplayer = false;
 	/** Difficulty level. */
 	private int difficultyLevel;
 	/** Selected row. */
@@ -176,6 +182,22 @@ public class GameSettingScreen extends Screen {
 			}
 		}
 	}
+	public static GameSettingScreen getInstance() {
+		if (instance == null) {
+			instance = new GameSettingScreen(0,0,0);
+		}
+		return instance;
+	}
+	public static boolean getMultiPlay() {return isMultiplayer; }
+
+	/**
+	 * Get player's name by number
+	 *
+	 * @param playerNumber
+	 * 			Player's number
+	 * @return Player's name
+	 */
+	public static String getName(int playerNumber) { return playerNumber == 0 ? name1 : name2; }
 
 	/**
 	 * Draws the elements associated with the screen.
@@ -187,7 +209,7 @@ public class GameSettingScreen extends Screen {
 
 		drawManager.drawGameSettingRow(this, this.selectedRow);
 
-		drawManager.drawGameSettingElements(this, this.selectedRow, this.isMultiplayer, this.name1, this.name2,this.difficultyLevel);
+		drawManager.drawGameSettingElements(this, this.selectedRow, isMultiplayer, name1, name2,this.difficultyLevel);
 
 		drawManager.completeDrawing(this);
 	}
