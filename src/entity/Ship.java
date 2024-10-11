@@ -133,6 +133,30 @@ public abstract class Ship extends Entity {
 		return false;
 	}
 
+	/** Singleton instance of SoundManager */
+	private final SoundManager soundManager = SoundManager.getInstance();
+	/**
+	 * bullet sound (2-players)
+	 * @param bullets
+	 *          List of bullets on screen, to add the new bullet.
+	 * @param balance
+	 * 			1p -1.0, 2p 1.0, both 0.0
+	 *
+	 * @return Checks if the bullet was shot correctly.
+	 */
+	public final boolean shoot(final Set<Bullet> bullets, float balance) {
+		if (this.shootingCooldown.checkFinished()) {
+			this.shootingCooldown.reset();
+			bullets.add(BulletPool.getBullet(positionX + this.width / 2,
+					positionY, BULLET_SPEED));
+
+			//TODO - Since there is no attack sound, using the menu click sound instead
+			soundManager.playSound(Sound.MENU_CLICK, balance);
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Updates status of the ship.
 	 */
