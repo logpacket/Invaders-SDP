@@ -3,12 +3,12 @@ package screen;
 import engine.Core;
 import engine.GameSettings;
 import engine.GameState;
-import engine.Frame;
 import entity.Wallet;
+
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
 
 /**
  * Implements the Two player mode screen, where the action happens.
@@ -16,52 +16,24 @@ import java.util.logging.Logger;
 public class TwoPlayerScreen extends Screen {
     /** Thread pool executor **/
     private final ExecutorService executor;
-    /** Current game difficulty settings **/
-    private GameSettings gameSettings;
+    /** List of game difficulty settings **/
+    private List<GameSettings> gameSettings;
     /** Current game wallet **/
     private final Wallet wallet;
 
-    /** Game state for player 1 **/
-    private GameState gameState1;
-    /** Game state for player 2 **/
-    private GameState gameState2;
+    /** Game states for each players **/
+    private GameState gameStates[] = new GameState[2];
 
-    /** Player 1's game task **/
-    private Future<GameState> player1;
-    /** Player 2's game task **/
-    private Future<GameState> player2;
+    /** Players game task **/
+    private Future<GameState> players[] = new Future[2];
 
-    /** Max lives. */
-    private static int MAX_LIVES;
-    /** Levels between extra life. */
-    private static final int EXTRA_LIFE_FRECUENCY = 3;
-    /** Total number of levels. */
-    private static final int NUM_LEVELS = 7;
-    private Frame frame;
-    private static final Logger LOGGER = Logger.getLogger(Core.class
-            .getSimpleName());
+    /** Player game finished flags **/
+    private boolean gameFinished[] = new boolean[2];
 
-    /** Difficulty settings for level 1. */
-    private static final GameSettings SETTINGS_LEVEL_1 =
-            new GameSettings(5, 4, 60, 2500);
-    /** Difficulty settings for level 2. */
-    private static final GameSettings SETTINGS_LEVEL_2 =
-            new GameSettings(5, 5, 50, 2500);
-    /** Difficulty settings for level 3. */
-    private static final GameSettings SETTINGS_LEVEL_3 =
-            new GameSettings(6, 5, 40, 1500);
-    /** Difficulty settings for level 4. */
-    private static final GameSettings SETTINGS_LEVEL_4 =
-            new GameSettings(6, 6, 30, 1500);
-    /** Difficulty settings for level 5. */
-    private static final GameSettings SETTINGS_LEVEL_5 =
-            new GameSettings(7, 6, 20, 1000);
-    /** Difficulty settings for level 6. */
-    private static final GameSettings SETTINGS_LEVEL_6 =
-            new GameSettings(7, 7, 10, 1000);
-    /** Difficulty settings for level 7. */
-    private static final GameSettings SETTINGS_LEVEL_7 =
-            new GameSettings(8, 7, 2, 500);
+    /** Player 1's number**/
+    private int PLAYER1_NUMBER = 0;
+    /** Player 2's number**/
+    private int PLAYER2_NUMBER = 1;
 
     /**
      * Constructor, establishes the properties of the screen.
@@ -71,33 +43,18 @@ public class TwoPlayerScreen extends Screen {
      * @param height       Screen height.
      * @param fps          Frames per second, frame rate at which the game is run.
      */
-    public TwoPlayerScreen(final GameState gameState, final GameSettings gameSettings, final int extraLifeFrequency,
-                           final int width, final int height, final int fps, Wallet wallet, Frame frame) {
+    public TwoPlayerScreen(final GameState gameState, final List<GameSettings> gameSettings,
+                           final int width, final int height, final int fps, Wallet wallet) {
         super(width * 2, height, fps * 2);
 
-        this.frame = frame;
-        this.gameState1 = new GameState(gameState);
-        this.gameState2 = new GameState(gameState);
+        this.gameSettings = gameSettings;
+        this.gameStates[PLAYER1_NUMBER] = new GameState(gameState);
+        this.gameStates[PLAYER2_NUMBER] = new GameState(gameState);
         this.wallet = wallet;
-        this.gameSettings = gameSettings;  // 단일 GameSettings 사용
         executor = Executors.newFixedThreadPool(2);
         this.returnCode = 1;
-    }
-
-    /**
-     * Run each game screen.
-     */
-    public void runGameScreens() {
-        GameScreen player1Screen = new GameScreen(gameState1, gameSettings,
-                false, width / 2, height, fps / 2, wallet, 0);
-        GameScreen player2Screen = new GameScreen(gameState2, gameSettings,
-                false, width / 2, height, fps / 2, wallet, 1);
-
-        player1Screen.initialize();
-        player2Screen.initialize();
-
-        player1 = executor.submit(player1Screen);
-        player2 = executor.submit(player2Screen);
+        gameFinished[PLAYER1_NUMBER] = false;
+        gameFinished[PLAYER2_NUMBER] = false;
     }
 
     /**
@@ -107,7 +64,8 @@ public class TwoPlayerScreen extends Screen {
      */
     public int run(){
         try {
-            runGameScreens();
+            runGameScreen(PLAYER1_NUMBER);
+            runGameScreen(PLAYER2_NUMBER);
         }
         catch (Exception e) {
             // TODO handle exception
@@ -131,31 +89,23 @@ public class TwoPlayerScreen extends Screen {
      */
     protected final void update() {
         try {
-            do{
-                if (player1.isDone()) {
-                    gameState1 = player1.get();
-                    processPlayer1();
-                }
-                if (player2.isDone()) {
-                    gameState2 = player2.get();
-                    processPlayer2();
-                }
+            if (players[PLAYER1_NUMBER].isDone()) {
+                gameStates[PLAYER1_NUMBER] = players[PLAYER1_NUMBER].get();
+                gameStates[PLAYER1_NUMBER] = new GameState(gameStates[PLAYER1_NUMBER], gameStates[PLAYER1_NUMBER].getLevel() + 1);
+                runGameScreen(PLAYER1_NUMBER);
+            }
+            if (players[PLAYER2_NUMBER].isDone()) {
+                gameStates[PLAYER2_NUMBER] = players[PLAYER2_NUMBER].get();
+                gameStates[PLAYER2_NUMBER] = new GameState(gameStates[PLAYER2_NUMBER], gameStates[PLAYER2_NUMBER].getLevel() + 1);
+                runGameScreen(PLAYER2_NUMBER);
+            }
 
-                if (gameState1.getLivesRemaining() <= 0 && gameState2.getLivesRemaining() <= 0) {
-                    showScoreScreen();
-                    executor.shutdown();
-                    isRunning = false;
-                }
+            if (gameFinished[PLAYER1_NUMBER] && gameFinished[PLAYER2_NUMBER]) {
+                isRunning = false;
+                executor.shutdown();
+            }
 
-                if (player1.isDone() && player2.isDone()) {
-                    showScoreScreen();
-                    isRunning = false;
-                    executor.shutdown();
-                }
-
-                draw();
-
-            } while (isRunning);
+            draw();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -163,113 +113,28 @@ public class TwoPlayerScreen extends Screen {
     /**
      * Player 1's game progression logic.
      */
-    private  void processPlayer1(){
-        if (gameState1.getLivesRemaining() > 0) {
-            if (gameState1.getLevel() <= NUM_LEVELS) {
-                updatePlayerLevelSettings(gameState1);
-                restartPlayer1();
-            } else {
-                player1.cancel(true);
+    private  void runGameScreen(int playerNumber){
+        GameState gameState = playerNumber == 0 ? gameStates[PLAYER1_NUMBER] : gameStates[PLAYER2_NUMBER];
+
+        if (gameState.getLivesRemaining() > 0) {
+            if (gameState.getLevel() <= Core.NUM_LEVELS) {
+                boolean bonusLife = gameState.getLevel()
+                        % Core.EXTRA_LIFE_FRECUENCY == 0
+                        && gameState.getLivesRemaining() < Core.MAX_LIVES;
+                GameScreen gameScreen = new GameScreen(gameState, gameSettings.get(gameState.getLevel()-1),
+                        bonusLife, width / 2, height, fps / 2, wallet, playerNumber);
+                gameScreen.initialize();
+                players[playerNumber] = executor.submit(gameScreen);
             }
         }
-    }
-    /**
-     * Player 2's game progression logic.
-     */
-    private void processPlayer2() {
-        if (gameState2.getLivesRemaining() > 0) {
-            if (gameState2.getLevel() <= NUM_LEVELS) {
-                updatePlayerLevelSettings(gameState2);  // Player 2 레벨 업데이트
-                restartPlayer2();  // Player 2 게임 재시작
-            } else {
-                player2.cancel(true);  // Player 2 게임 종료
-            }
-        }
-    }
-    /**
-     * Restarts Player 1's game with updated settings.
-     */
-    private void restartPlayer1() {
-        GameScreen player1Screen = new GameScreen(gameState1, gameSettings,
-                false, width / 2, height, fps / 2, wallet, 0);
-        player1Screen.initialize();
-        player1 = executor.submit(player1Screen);
+        else gameFinished[playerNumber] = true;
     }
 
-    /**
-     * Restarts Player 2's game with updated settings.
-     */
-    private void restartPlayer2() {
-        GameScreen player2Screen = new GameScreen(gameState2, gameSettings,
-                false, width / 2, height, fps / 2, wallet, 1);
-        player2Screen.initialize();
-        player2 = executor.submit(player2Screen);
+    public GameState getWinnerGameState() {
+        return gameStates[getWinnerNumber() - 1];
     }
 
-
-    /**
-     * Update Player's level settings.
-     */
-    private void updatePlayerLevelSettings(GameState gameState) {
-        int nextLevel = gameState.getLevel() + 1;
-
-        gameState = new GameState(nextLevel,
-                gameState.getScore(),
-                gameState.getLivesRemaining(),
-                gameState.getBulletsShot(),
-                gameState.getShipsDestroyed());
-
-        // Check if player should receive a bonus life
-        increaseLives(gameState);
-
-        if(nextLevel <= NUM_LEVELS)
-            gameSettings = getUpdatedGameSettings(nextLevel);
+    public int getWinnerNumber() {
+        return ((gameStates[PLAYER1_NUMBER].getScore() >= gameStates[PLAYER2_NUMBER].getScore()) ? PLAYER1_NUMBER : PLAYER2_NUMBER) + 1;
     }
-
-    /**
-     * Increase lives if the player meets the criteria.
-     */
-    private void increaseLives(GameState gameState) {
-        int currentLives = gameState.getLivesRemaining();
-        if (gameState.getLevel() % EXTRA_LIFE_FRECUENCY == 0 && currentLives < MAX_LIVES) {
-            if (gameState == gameState1) {
-                gameState1 = new GameState(gameState.getLevel(), gameState.getScore(),
-                        currentLives + 1, gameState.getBulletsShot(), gameState.getShipsDestroyed());
-            } else if (gameState == gameState2) {
-                gameState2 = new GameState(gameState.getLevel(), gameState.getScore(),
-                        currentLives + 1, gameState.getBulletsShot(), gameState.getShipsDestroyed());
-            }
-        }
-    }
-    private GameSettings getUpdatedGameSettings(int level) {
-        switch (level) {
-            case 1:
-                return SETTINGS_LEVEL_1;
-            case 2:
-                return SETTINGS_LEVEL_2;
-            case 3:
-                return SETTINGS_LEVEL_3;
-            case 4:
-                return SETTINGS_LEVEL_4;
-            case 5:
-                return SETTINGS_LEVEL_5;
-            case 6:
-                return SETTINGS_LEVEL_6;
-            case 7:
-                return SETTINGS_LEVEL_7;
-            default:
-                return null;
-        }
-    }
-    private void showScoreScreen() {
-        LOGGER.info("Closing game screen.");
-        // Compare score
-        GameState higherScoreGameState = (gameState1.getScore() >= gameState2.getScore()) ? gameState1 : gameState2;
-        // Switch to ScoreScreen
-        ScoreScreen scoreScreen = new ScoreScreen(width, height, fps, higherScoreGameState, wallet);
-        frame.setScreen(scoreScreen);
-
-    }
-
-
 }
