@@ -112,8 +112,6 @@ public abstract class Ship extends Entity {
 		return false;
 	}
 
-	/** Singleton instance of SoundManager */
-	private final SoundManager soundManager = SoundManager.getInstance();
 	/**
 	 * bullet sound (2-players)
 	 * @param bullets
@@ -129,8 +127,7 @@ public abstract class Ship extends Entity {
 			bullets.add(BulletPool.getBullet(positionX + this.width / 2,
 					positionY, BULLET_SPEED));
 
-			//TODO - Since there is no attack sound, using the menu click sound instead
-			soundManager.playSound(Sound.MENU_CLICK, balance);
+			soundManager.playSound(Sound.PLAYER_LASER, balance);
 			return true;
 		}
 		return false;

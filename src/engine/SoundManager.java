@@ -28,6 +28,11 @@ public class SoundManager {
     private final float MIN_VOL = -80.0f;
     private final float MAX_VOL = 6.0f;
 
+    /** Sound clip pools for simultaneous playback */
+    private static Map<Sound, List<Clip>> soundPools;
+    /** Pool size for each sound */
+    private static final int POOL_SIZE = 8;
+
     /**
      * Private constructor.
      */
@@ -36,6 +41,8 @@ public class SoundManager {
         logger.info("Started loading sound resources.");
 
         soundClips = new HashMap<>();
+        soundPools = new HashMap<>();
+
         soundEnabled = true;
         try {
             loadSound(Sound.MENU_BACK, "res/sound/SFX/menuBack.wav");
@@ -88,6 +95,17 @@ public class SoundManager {
             throw new IOException("Sound file not found: " + filePath);
         }
 
+        List<Clip> clipPool = new ArrayList<>();
+        for (int i = 0; i < POOL_SIZE; i++) {
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clipPool.add(clip);
+        }
+
+        soundPools.put(sound, clipPool);
+        soundClips.put(sound, clipPool.get(0));
+
         AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
         Clip clip = AudioSystem.getClip();
         clip.open(audioStream);
@@ -103,12 +121,14 @@ public class SoundManager {
     private void setVolume(int volume) {
         float newVolume = MIN_VOL + (float)(Math.log(volume + 1) / Math.log(11)) * (MAX_VOL - MIN_VOL);
 
-        for (Clip clip : soundClips.values()) {
-            try {
-                FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                volumeControl.setValue(newVolume);
-            } catch (IllegalArgumentException e) {
-                logger.warning("Failed to set volume: " + e.getMessage());
+        for (List<Clip> clipPool : soundPools.values()) {
+            for (Clip clip : clipPool) {
+                try {
+                    FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                    volumeControl.setValue(newVolume);
+                } catch (IllegalArgumentException e) {
+                    logger.warning("Failed to set volume: " + e.getMessage());
+                }
             }
         }
     }
@@ -144,15 +164,7 @@ public class SoundManager {
      * @param sound Key value of sound
      */
     public void playSound(Sound sound) {
-        if (soundEnabled) {
-            Clip clip = soundClips.get(sound);
-            if (clip != null) {
-                clip.setFramePosition(0);
-                clip.start();
-            } else {
-                System.out.println("Sound not found: " + sound);
-            }
-        }
+        playSound(sound, 0.0f);
     }
 
     /**
@@ -163,14 +175,27 @@ public class SoundManager {
      */
     public void playSound(Sound sound, float balance) {
         if (soundEnabled) {
-            Clip clip = soundClips.get(sound);
-            if (clip != null) {
-                clip.setFramePosition(0);
-                FloatControl panControl = (FloatControl) clip.getControl(FloatControl.Type.PAN);
-                panControl.setValue(balance);
-                clip.start();
+            List<Clip> clipPool = soundPools.get(sound);
+            if (clipPool != null) {
+                Clip availableClip = clipPool.stream()
+                        .filter(clip -> !clip.isRunning())
+                        .findFirst()
+                        .orElse(null);
+
+                if (availableClip != null) {
+                    availableClip.setFramePosition(0);
+                    try {
+                        FloatControl panControl = (FloatControl) availableClip.getControl(FloatControl.Type.PAN);
+                        panControl.setValue(balance);
+                    } catch (IllegalArgumentException e) {
+                        logger.warning("Failed to set balance for sound: " + sound);
+                    }
+                    availableClip.start();
+                } else {
+                    logger.warning("No available clips in pool for sound: " + sound);
+                }
             } else {
-                System.out.println("Sound not found: " + sound);
+                logger.warning("Sound not found: " + sound);
             }
         }
     }
@@ -182,11 +207,15 @@ public class SoundManager {
      */
     public void stopSound(Sound sound) {
         if (soundEnabled) {
-            Clip clip = soundClips.get(sound);
-            if (clip != null && clip.isRunning()) {
-                clip.stop();
+            List<Clip> clipPool = soundPools.get(sound);
+            if (clipPool != null) {
+                clipPool.forEach(clip -> {
+                    if (clip.isRunning()) {
+                        clip.stop();
+                    }
+                });
             } else {
-                System.out.println("Sound not playing or not found: " + sound);
+                logger.warning("Sound not found: " + sound);
             }
         }
     }
@@ -210,10 +239,11 @@ public class SoundManager {
     /** Close all sound files **/
     public void closeAllSounds() {
         if (soundEnabled) {
-            for (Sound sound : soundClips.keySet()) {
-                Clip clip = soundClips.get(sound);
-                if (clip != null) {
-                    clip.close();
+            for (List<Clip> clipPool : soundPools.values()) {
+                for (Clip clip : clipPool) {
+                    if (clip != null) {
+                        clip.close();
+                    }
                 }
             }
         }
