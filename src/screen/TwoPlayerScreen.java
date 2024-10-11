@@ -17,31 +17,40 @@ public class TwoPlayerScreen extends Screen {
     /** Thread pool executor **/
     private final ExecutorService executor;
     /** List of game difficulty settings **/
-    private List<GameSettings> gameSettings;
+    private final List<GameSettings> gameSettings;
     /** Current game wallet **/
     private final Wallet wallet;
 
-    /** Game states for each players **/
-    private GameState gameStates[] = new GameState[2];
+    /** Game states for each player **/
+    private final GameState[] gameStates = new GameState[2];
 
     /** Players game task **/
-    private Future<GameState> players[] = new Future[2];
+    private final Future<GameState>[] players = new Future[2];
 
     /** Player game finished flags **/
-    private boolean gameFinished[] = new boolean[2];
+    private final boolean[] gameFinished = new boolean[2];
 
     /** Player 1's number**/
-    private int PLAYER1_NUMBER = 0;
+    private final int PLAYER1_NUMBER = 0;
     /** Player 2's number**/
-    private int PLAYER2_NUMBER = 1;
+    private final int PLAYER2_NUMBER = 1;
 
     /**
      * Constructor, establishes the properties of the screen.
      *
-     * @param gameSettings Current game settings.
-     * @param width        Screen width.
-     * @param height       Screen height.
-     * @param fps          Frames per second, frame rate at which the game is run.
+     *
+     * @param gameState
+     *            Initial game state
+     * @param gameSettings
+     *            Game settings list.
+     * @param width
+     *            Screen width.
+     * @param height
+     *            Screen height.
+     * @param fps
+     *            Frames per second, frame rate at which the game is run.
+     * @param wallet
+     *            Wallet for each game.
      */
     public TwoPlayerScreen(final GameState gameState, final List<GameSettings> gameSettings,
                            final int width, final int height, final int fps, Wallet wallet) {
@@ -111,7 +120,7 @@ public class TwoPlayerScreen extends Screen {
         }
     }
     /**
-     * Player 1's game progression logic.
+     * Progression logic each games.
      */
     private  void runGameScreen(int playerNumber){
         GameState gameState = playerNumber == 0 ? gameStates[PLAYER1_NUMBER] : gameStates[PLAYER2_NUMBER];
