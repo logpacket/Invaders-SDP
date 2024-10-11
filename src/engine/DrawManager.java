@@ -60,6 +60,8 @@ public final class DrawManager {
 	private static Font fontBig;
 	/** Big sized font properties. */
 	private static FontMetrics fontBigMetrics;
+	/** Vertical line width for two player mode **/
+	private static final int LINE_WIDTH = 1;
 
 	/** Sprite types mapped to their images. */
 	private static Map<SpriteType, boolean[][]> spriteMap;
@@ -245,7 +247,7 @@ public final class DrawManager {
 	 */
 	public void mergeDrawing(final Screen screen) {
 		backBufferGraphics.drawImage(threadBuffers[2], 0, 0, frame);
-		backBufferGraphics.drawImage(threadBuffers[3], screen.getWidth() / 2, 0, frame);
+		backBufferGraphics.drawImage(threadBuffers[3], screen.getWidth() / 2 + LINE_WIDTH, 0, frame);
 	}
 
 	/**
@@ -441,6 +443,17 @@ public final class DrawManager {
 		threadBufferGraphics[threadNumber].drawLine(0, positionY, screen.getWidth(), positionY);
 		threadBufferGraphics[threadNumber].drawLine(0, positionY + 1, screen.getWidth(),
 				positionY + 1);
+	}
+
+	/**
+	 * Draws a thick line from side to side of the screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 */
+	public void drawVerticalLine(final Screen screen) {
+		backBufferGraphics.setColor(Color.GREEN);
+		backBufferGraphics.drawLine(screen.getWidth() /2  ,0,screen.getWidth() / 2,screen.getHeight());
 	}
 
 	/**
