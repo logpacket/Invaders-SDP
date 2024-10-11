@@ -32,11 +32,11 @@ public final class Core {
 	/** Base ship type. */
 	private static final Ship.ShipType BASE_SHIP = Ship.ShipType.StarDefender;
 	/** Max lives. */
-	private static int MAX_LIVES;
+	public static int MAX_LIVES;
 	/** Levels between extra life. */
-	private static final int EXTRA_LIFE_FRECUENCY = 3;
+	public static final int EXTRA_LIFE_FRECUENCY = 3;
 	/** Total number of levels. */
-	private static final int NUM_LEVELS = 7;
+	public static final int NUM_LEVELS = 7;
 	
 	/** Difficulty settings for level 1. */
 	private static final GameSettings SETTINGS_LEVEL_1 =
@@ -153,13 +153,7 @@ public final class Core {
 
 					gameState = ((GameScreen) currentScreen).getGameState();
 
-					gameState = new GameState(
-							gameState.getLevel() + 1,
-							gameState.getScore(),
-							gameState.getShipType(),
-							gameState.getLivesRemaining(),
-							gameState.getBulletsShot(),
-							gameState.getShipsDestroyed());
+					gameState = new GameState(gameState, gameState.getLevel() + 1);
 					endTime = System.currentTimeMillis();
 					achievementManager.updatePlaying((int) (endTime - startTime) / 1000, MAX_LIVES, gameState.getLivesRemaining(), gameState.getLevel()-1);
 				} while (gameState.getLivesRemaining() > 0
@@ -173,7 +167,7 @@ public final class Core {
 						+ gameState.getLivesRemaining() + " lives remaining, "
 						+ gameState.getBulletsShot() + " bullets shot and "
 						+ gameState.getShipsDestroyed() + " ships destroyed.");
-				currentScreen = new ScoreScreen(GameSettingScreen.getName1(), width, height, FPS, gameState, wallet, achievementManager);
+				currentScreen = new ScoreScreen(GameSettingScreen.getName(0), width, height, FPS, gameState, wallet, achievementManager);
 
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing score screen.");
@@ -213,7 +207,7 @@ public final class Core {
 						+ " game setting screen at " + FPS + " fps.");
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing game setting screen.");
-        break;
+        		break;
 
 			case 7:
 				//Credit Screen
@@ -224,21 +218,21 @@ public final class Core {
 				LOGGER.info("Closing credit screen.");
 				break;
 			case 8:
-				//TwoPlayerScreen
+				// TwoPlayerScreen
 				frame.setSize(WIDTH*2, HEIGHT);
 				frame.moveToMiddle();
 
-				currentScreen = new TwoPlayerScreen(gameState,
-						gameSettings.get(gameState.getLevel() - 1),
-						EXTRA_LIFE_FRECUENCY, width, height, FPS, wallet);
+				currentScreen = new TwoPlayerScreen(gameState, gameSettings, width, height, FPS, wallet);
 				LOGGER.info("Two player starting " + WIDTH + "x" + HEIGHT
 						+ " game screen at " + FPS + " fps.");
 				frame.setScreen(currentScreen);
 				LOGGER.info("Closing game screen.");
 
-				//ScoreScreen
 				frame.setSize(WIDTH, HEIGHT);
 				frame.moveToMiddle();
+
+				gameState = ((TwoPlayerScreen) currentScreen).getWinnerGameState();
+				int winnerNumber = ((TwoPlayerScreen) currentScreen).getWinnerNumber();
 
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
 						+ " score screen at " + FPS + " fps, with a score of "
@@ -247,7 +241,7 @@ public final class Core {
 						+ gameState.getBulletsShot() + " bullets shot and "
 						+ gameState.getShipsDestroyed() + " ships destroyed.");
 				DrawManager.getInstance().setFrame(frame);
-				currentScreen = new ScoreScreen(GameSettingScreen.getName1(), width, height, FPS, gameState, wallet, achievementManager);
+				currentScreen = new ScoreScreen(GameSettingScreen.getName(winnerNumber), width, height, FPS, gameState, wallet, achievementManager);
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing score screen.");
 				break;
