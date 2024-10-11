@@ -283,11 +283,17 @@ public class SoundManager {
             for (List<Clip> clipPool : soundPools.values()) {
                 for (Clip clip : clipPool) {
                     if (clip != null) {
-                        if (clip != null && clip.isRunning())
+                        if (clip.isRunning())
                             clip.stop();
-                        if (clip != null)
-                            clip.close();
+                        clip.close();
                     }
+                }
+            }
+            for (Clip clip : soundClips.values()) {
+                if (clip != null) {
+                    if (clip.isRunning())
+                        clip.stop();
+                    clip.close();
                 }
             }
         }
