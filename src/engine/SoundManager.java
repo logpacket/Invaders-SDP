@@ -27,6 +27,8 @@ public class SoundManager {
     /** Maximum and minimum values of volume */
     private final float MIN_VOL = -80.0f;
     private final float MAX_VOL = 6.0f;
+    /** Current playing BGM */
+    private Sound currentBGM;
 
     /** Sound clip pools for simultaneous playback */
     private static Map<Sound, List<Clip>> soundPools;
@@ -57,13 +59,27 @@ public class SoundManager {
             loadSound(Sound.PLAYER_MOVE, "res/sound/SFX/playerMove.wav");
             loadSound(Sound.COIN_INSUFFICIENT, "res/sound/SFX/coinInsufficient.wav");
             loadSound(Sound.COIN_USE, "res/sound/SFX/coinUse.wav");
+            loadSound(Sound.GAME_END, "res/sound/SFX/gameEnd.wav");
+            loadSound(Sound.UFO_APPEAR, "res/sound/SFX/ufoAppear.wav");
+            loadSound(Sound.BGM_MAIN, "res/sound/BGM/MainTheme.wav");
+            loadSound(Sound.BGM_GAMEOVER, "res/sound/BGM/GameOver.wav");
+            loadSound(Sound.BGM_SHOP, "res/sound/BGM/Shop.wav");
+            loadSound(Sound.BGM_LV1, "res/sound/BGM/Lv1.wav");
+            loadSound(Sound.BGM_LV2, "res/sound/BGM/Lv2.wav");
+            loadSound(Sound.BGM_LV3, "res/sound/BGM/Lv3.wav");
+            loadSound(Sound.BGM_LV4, "res/sound/BGM/Lv4.wav");
+            loadSound(Sound.BGM_LV5, "res/sound/BGM/Lv5.wav");
+            loadSound(Sound.BGM_LV6, "res/sound/BGM/Lv6.wav");
+            loadSound(Sound.BGM_LV7, "res/sound/BGM/Lv7.wav");
 
             setVolume(currentVolume);
             logger.info("Finished loading all sounds.");
 
         } catch (IOException e) {
+            soundEnabled = false;
             logger.warning("Loading failed: IO Exception");
         } catch (UnsupportedAudioFileException e) {
+            soundEnabled = false;
             logger.warning("Loading failed: Unsupported audio file.");
         } catch (LineUnavailableException | IllegalArgumentException e) {
             soundEnabled = false;
@@ -137,6 +153,11 @@ public class SoundManager {
      * @return current volume
      * */
     public int getVolume() { return currentVolume; }
+
+    /**
+     * @return current playing BGM
+     * */
+    public Sound getCurrentBGM() { return currentBGM; }
 
     /**
      * Increases the volume of all sounds by 1.
@@ -215,9 +236,27 @@ public class SoundManager {
                     }
                 });
             } else {
+                logger.warning("Sound not playing or not found: " + sound);
+            }
+        }
+    }
+
+    /**
+     * Checks if the specified sound is currently playing.
+     *
+     * @param sound Key value of the sound to check.
+     * @return true if the sound is playing, false otherwise.
+     */
+    public boolean isSoundPlaying(Sound sound) {
+        if (soundEnabled) {
+            Clip clip = soundClips.get(sound);
+            if (clip != null) {
+                return clip.isRunning();
+            } else {
                 logger.warning("Sound not found: " + sound);
             }
         }
+        return false;  // Return false if sound is not enabled or not found
     }
 
     /**
@@ -229,20 +268,25 @@ public class SoundManager {
         if (soundEnabled) {
             Clip clip = soundClips.get(sound);
             if (clip != null) {
+                currentBGM = sound;
+                clip.setFramePosition(0);
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
             } else {
-                System.out.println("Sound not found: " + sound);
+                logger.warning("Sound not found: " + sound);
             }
         }
     }
 
-    /** Close all sound files **/
+    /** Stop and close all sound files **/
     public void closeAllSounds() {
         if (soundEnabled) {
             for (List<Clip> clipPool : soundPools.values()) {
                 for (Clip clip : clipPool) {
                     if (clip != null) {
-                        clip.close();
+                        if (clip != null && clip.isRunning())
+                            clip.stop();
+                        if (clip != null)
+                            clip.close();
                     }
                 }
             }

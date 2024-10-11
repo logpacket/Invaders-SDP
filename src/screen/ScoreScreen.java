@@ -83,6 +83,8 @@ public class ScoreScreen extends Screen {
 		this.accuracy = gameState.getAccuracy();
 		wallet.deposit(coinsEarned);
 
+		soundManager.loopSound(Sound.BGM_GAMEOVER);
+
 		try {
 			this.highScores = Core.getFileManager().loadHighScores();
 		} catch (IOException e) {
@@ -113,12 +115,14 @@ public class ScoreScreen extends Screen {
 				// Return to main menu.
 				this.returnCode = 1;
 				this.isRunning = false;
+				soundManager.stopSound(Sound.BGM_GAMEOVER);
 				soundManager.playSound(Sound.MENU_BACK);
 				saveScore();
 			} else if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
 				// Play again.
 				this.returnCode = 2;
 				this.isRunning = false;
+				soundManager.stopSound(Sound.BGM_GAMEOVER);
 				soundManager.playSound(Sound.MENU_CLICK);
 				saveScore();
 			}

@@ -59,6 +59,9 @@ public class ShopScreen extends Screen {
         this.max_alertCooldown = Core.getCooldown(ALERT_TIME);
         this.wallet = wallet;
         selected_item = 1;
+
+        soundManager.stopSound(Sound.BGM_MAIN);
+        soundManager.loopSound(Sound.BGM_SHOP);
     }
 
     /**
@@ -131,6 +134,7 @@ public class ShopScreen extends Screen {
             if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
                 this.isRunning = false;
                 soundManager.playSound(Sound.MENU_BACK);
+                soundManager.stopSound(Sound.BGM_SHOP);
             }
         }
     }

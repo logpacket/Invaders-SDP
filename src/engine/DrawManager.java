@@ -5,7 +5,9 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -100,7 +102,14 @@ public final class DrawManager {
 		EnemyShipSpecial,
 		/** Destroyed enemy ship. */
 		Explosion,
-
+		/** Spider webs restricting player movement */
+		Web,
+		/** Obstacles preventing a player's bullet */
+		Block,
+		/** Obstruction 1 (satellite) */
+		Blocker1,
+		/** Obstruction 2 (Astronaut) */
+		Blocker2,
 		/** 2nd player ship. */
 		Ship2,
 		/** 3rd player ship. */
@@ -132,6 +141,10 @@ public final class DrawManager {
 			spriteMap.put(SpriteType.EnemyShipC2, new boolean[12][8]);
 			spriteMap.put(SpriteType.EnemyShipSpecial, new boolean[16][7]);
 			spriteMap.put(SpriteType.Explosion, new boolean[13][7]);
+			spriteMap.put(SpriteType.Web, new boolean[12][8]);
+			spriteMap.put(SpriteType.Block, new boolean[20][7]);
+			spriteMap.put(SpriteType.Blocker1, new boolean[182][93]); // artificial satellite
+			spriteMap.put(SpriteType.Blocker2, new boolean[82][81]); // astronaut
 			spriteMap.put(SpriteType.Ship2, new boolean[13][8]);
 			spriteMap.put(SpriteType.Ship3, new boolean[13][8]);
 			spriteMap.put(SpriteType.Ship4, new boolean[13][8]);
@@ -166,7 +179,7 @@ public final class DrawManager {
 
 	/**
 	 * Returns shared instance of DrawManager.
-	 * 
+	 *
 	 * @return Shared instance of DrawManager.
 	 */
 	protected static DrawManager getInstance() {
@@ -177,7 +190,7 @@ public final class DrawManager {
 
 	/**
 	 * Sets the frame to draw the image on.
-	 * 
+	 *
 	 * @param currentFrame
 	 *            Frame to draw on.
 	 */
@@ -188,7 +201,7 @@ public final class DrawManager {
 	/**
 	 * First part of the drawing process. Initializes buffers, draws the
 	 * background and prepares the images.
-	 * 
+	 *
 	 * @param screen
 	 *            Screen to draw in.
 	 */
@@ -207,7 +220,7 @@ public final class DrawManager {
 		fontRegularMetrics = backBufferGraphics.getFontMetrics(fontRegular);
 		fontBigMetrics = backBufferGraphics.getFontMetrics(fontBig);
 
-		// drawBorders(screen);
+		//drawBorders(screen);
 		//drawGrid(screen);
 	}
 	/**
@@ -230,7 +243,7 @@ public final class DrawManager {
 
 	/**
 	 * Draws the completed drawing on screen.
-	 * 
+	 *
 	 * @param screen
 	 *            Screen to draw on.
 	 */
@@ -286,6 +299,24 @@ public final class DrawManager {
 				if (image[i][j])
 					backBufferGraphics.drawRect(positionX + i * 2, positionY
 							+ j * 2, 1, 1);
+	}
+
+	//Drawing an Entity (Blocker) that requires angle setting
+	public void drawRotatedEntity(Entity entity, int x, int y, double angle) {
+		Graphics2D g2d = (Graphics2D) backBufferGraphics; // Convert to Graphics2D
+		AffineTransform oldTransform = g2d.getTransform(); // Save previous conversion
+
+		//Set center point to rotate
+		int centerX = x + entity.getWidth() / 2;
+		int centerY = y + entity.getHeight() / 2;
+
+		//rotate by a given angle
+		g2d.rotate(Math.toRadians(angle), centerX, centerY);
+
+		//Drawing entities
+		drawEntity(entity, x, y);
+
+		g2d.setTransform(oldTransform); // Restore to original conversion state
 	}
 
 	/**
@@ -346,7 +377,7 @@ public final class DrawManager {
 
 	/**
 	 * Draws current score on screen.
-	 * 
+	 *
 	 * @param screen
 	 *            Screen to draw on.
 	 * @param score
@@ -357,6 +388,20 @@ public final class DrawManager {
 		backBufferGraphics.setColor(Color.WHITE);
 		String scoreString = String.format("%04d", score);
 		backBufferGraphics.drawString(scoreString, screen.getWidth() - 60, 25);
+	}
+    /**
+	 * Draws level on screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param level
+	 *            Current level.
+	 */
+	public void drawLevel(final Screen screen, final int level) {
+		backBufferGraphics.setFont(fontRegular);
+		backBufferGraphics.setColor(Color.WHITE);
+		String scoreString = String.format("lv.%d", level);
+		backBufferGraphics.drawString(scoreString, screen.getWidth() / 2 - 60, 25);
 	}
 
 	/**
@@ -377,6 +422,50 @@ public final class DrawManager {
 	}
 
 	/**
+	 * Draws elapsed time on screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param elapsedTime
+	 *            Elapsed time.
+	 */
+	public void drawElapsedTime(final Screen screen, final int elapsedTime) {
+		backBufferGraphics.setFont(fontRegular);
+		backBufferGraphics.setColor(Color.LIGHT_GRAY);
+
+		int fps = 1000;
+		int cent = (elapsedTime % fps)/10;
+		int seconds = elapsedTime / fps;
+		int sec = seconds % 60;
+		int min = seconds / 60;
+
+        String elapsedTimeString;
+        if (min < 1){
+            elapsedTimeString = String.format("%d.%02d", sec, cent);
+        } else {
+            elapsedTimeString = String.format("%d:%02d.%02d", min, sec, cent);
+        }
+        backBufferGraphics.drawString(elapsedTimeString, screen.getWidth()/2, 25);
+    }
+
+	/**
+
+	 * Draws alert message on screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param alertMessage
+	 *            Alert message.
+	 */
+	public void drawAlertMessage(final Screen screen, final String alertMessage) {
+		backBufferGraphics.setFont(fontRegular);
+		backBufferGraphics.setColor(Color.RED);
+		backBufferGraphics.drawString(alertMessage,
+				(screen.getWidth() - fontRegularMetrics.stringWidth(alertMessage))/2, 65);
+	}
+
+	/**
+
 	 * Draws number of remaining lives on screen.
 	 * 
 	 * @param screen
@@ -411,6 +500,26 @@ public final class DrawManager {
 		Ship dummyShip = ShipFactory.create(shipType, 0, 0);
 		for (int i = 0; i < lives; i++)
 			drawEntity(dummyShip, 40 + 35 * i, 10, threadNumber);
+	}
+
+	/**
+	 * Draws launch trajectory on screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param positionX
+	 *            X coordinate of the line.
+	 */
+
+	public void drawLaunchTrajectory(final Screen screen, final int positionX) {
+		backBufferGraphics.setColor(Color.DARK_GRAY);
+		for (int i = 0; i < screen.getHeight() - 60; i += 20){
+			backBufferGraphics.drawRect(positionX + 13, screen.getHeight() - 30 - i,1,10);
+
+		}
+
+
+
 	}
 
 	/**
@@ -474,6 +583,13 @@ public final class DrawManager {
 		backBufferGraphics.setColor(Color.GREEN);
 		drawCenteredBigString(screen, titleString, screen.getHeight() / 5);
 	}
+
+	public void drawGameTitle(final Screen screen) {
+		String titleString = "Invaders";
+		backBufferGraphics.setColor(Color.DARK_GRAY);
+		drawCenteredBigString(screen, titleString, screen.getHeight() / 2);
+	}
+
 
 	/**
 	 * Draws main menu.
@@ -1128,6 +1244,79 @@ public final class DrawManager {
 			drawCenteredBigString(screen, "GO!", screen.getHeight() / 2
 					+ fontBigMetrics.getHeight() / 3);
 	}
+   /**
+	 * Draws recorded highscores on screen.
+	 *
+	 * @param highScores
+	 *            Recorded highscores.
+   */
+  
+	public void drawRecord(List<Score> highScores, final Screen screen) {
+
+		//add variable for highest score
+		int highestScore = -1;
+		String highestPlayer = "";
+
+		// find the highest score from highScores list
+		for (Score entry : highScores) {
+			if (entry.getScore() > highestScore) {
+				highestScore = entry.getScore();
+				highestPlayer = entry.getName();
+			}
+		}
+
+
+		backBufferGraphics.setFont(fontRegular);
+		backBufferGraphics.setColor(Color.LIGHT_GRAY);
+		FontMetrics metrics = backBufferGraphics.getFontMetrics(fontRegular);
+		String highScoreDisplay = highestPlayer + " " + highestScore;
+
+		backBufferGraphics.drawString(highScoreDisplay,
+				screen.getWidth() - metrics.stringWidth(highScoreDisplay) - 76, 25);
+	}
+  /**
+	 * Draws ReloadTimer on screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param ship
+	 *            player's ship.
+   * @param remainingTime
+	 *            remaining reload time.
+	 */
+	public void drawReloadTimer(final Screen screen,final Ship ship,final long remainingTime) {
+		backBufferGraphics.setFont(fontRegular);
+		backBufferGraphics.setColor(Color.WHITE);
+		if(remainingTime > 0){
+			String timerText = String.format("%d",remainingTime/200);
+
+			int shipX = ship.getPositionX();
+			int shipY = ship.getPositionY();
+			int shipWidth = ship.getWidth();
+			int circleSize = 16;
+			int startAngle = 0;
+			int endAngle = startAngle - (360 * (int)remainingTime / 600);
+			backBufferGraphics.fillArc(shipX + shipWidth/2 - circleSize/2, shipY - 3*circleSize/2,
+					circleSize, circleSize, startAngle, endAngle);
+		}
+	}
+  
+  /**
+	 * Draws Combo on screen.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param combo
+	 *            Number of enemies killed in a row.
+	 */
+	public void drawCombo(final Screen screen, final int combo) {
+		backBufferGraphics.setFont(fontRegular);
+		backBufferGraphics.setColor(Color.WHITE);
+		if (combo >= 2) {
+			String comboString = String.format("Combo %03d", combo);
+			backBufferGraphics.drawString(comboString, screen.getWidth() - 100, 85);
+		}
+	}
 
 	/**
 	 * Countdown to game start.
@@ -1393,6 +1582,7 @@ public final class DrawManager {
 			backBufferGraphics.fillRect((screen.getWidth()-300)/2, (screen.getHeight()-100)/2, 300, 80);
 			backBufferGraphics.setColor(Color.black);
 			drawCenteredBigString(screen, "Already max level", screen.getHeight()/2);
+
 		}
 	}
 }

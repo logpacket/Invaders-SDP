@@ -10,9 +10,9 @@ import java.awt.event.KeyEvent;
 
 /**
  * Implements the game setting screen.
- * 
+ *
  * @author <a href="mailto:dayeon.dev@gmail.com">Dayeon Oh</a>
- * 
+ *
  */
 public class GameSettingScreen extends Screen {
 	private static GameSettingScreen instance;
@@ -74,7 +74,7 @@ public class GameSettingScreen extends Screen {
 
 	/**
 	 * Starts the action.
-	 * 
+	 *
 	 * @return Next screen code.
 	 */
 	public final int run() {
@@ -212,5 +212,7 @@ public class GameSettingScreen extends Screen {
 		drawManager.drawGameSettingElements(this, this.selectedRow, isMultiplayer, name1, name2,this.difficultyLevel);
 
 		drawManager.completeDrawing(this);
+
+		Core.setLevelSetting(this.difficultyLevel);
 	}
 }

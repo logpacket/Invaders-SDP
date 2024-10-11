@@ -10,7 +10,6 @@ import entity.Ship;
  */
 public class GameState {
 
-	private GameState instance;
 	/** Current game level. */
 	private int level;
 	/** Current score. */
@@ -23,6 +22,12 @@ public class GameState {
 	private int bulletsShot;
 	/** Ships destroyed until now. */
 	private int shipsDestroyed;
+	/** Elapsed time */
+	private int elapsedTime;
+	/** Special enemy appearances alert message */
+	private String alertMessage;
+    /** Ships destroyed consecutive. */
+	private int combo;
 
 	/**
 	 * Constructor.
@@ -39,17 +44,27 @@ public class GameState {
 	 *            Bullets shot until now.
 	 * @param shipsDestroyed
 	 *            Ships destroyed until now.
+	 * @param elapsedTime
+	 * 			  Elapsed time.
+	 * @param alertMessage
+	 *  		  Display alert message before a bonus enemy created.
+	 * @param combo
+	 *            Ships destroyed consequtive.
 	 */
 	public GameState(final int level, final int score,
 			final Ship.ShipType shipType,
 			final int livesRemaining, final int bulletsShot,
-			final int shipsDestroyed) {
+			final int shipsDestroyed, final int elapsedTime, final String alertMessage, final int combo) {
+				
 		this.level = level;
 		this.score = score;
 		this.shipType = shipType;
 		this.livesRemaining = livesRemaining;
 		this.bulletsShot = bulletsShot;
 		this.shipsDestroyed = shipsDestroyed;
+		this.elapsedTime = elapsedTime;
+		this.alertMessage = alertMessage;
+		this.combo = combo;
 	}
 
 	public GameState(GameState gameState) {
@@ -113,6 +128,17 @@ public class GameState {
 	public final int getShipsDestroyed() {
 		return shipsDestroyed;
 	}
+
+
+	/**
+	 * @return the elapsedTime
+	 */
+	public final int getElapsedTime() { return elapsedTime; }
+
+	/**
+	 * @return the alertMessage
+	 */
+	public final String getAlertMessage() { return alertMessage; }
 
 	public double getAccuracy() {
 		if (bulletsShot == 0){
