@@ -35,6 +35,10 @@ public class SoundManager {
     /** Pool size for each sound */
     private static final int POOL_SIZE = 8;
 
+    private static final Set<Sound> POSITIONAL_SOUNDS = Set.of(
+            Sound.ALIEN_HIT, Sound.ALIEN_LASER, Sound.PLAYER_HIT, Sound.PLAYER_MOVE, Sound.PLAYER_LASER
+    );
+
     /**
      * Private constructor.
      */
@@ -206,18 +210,39 @@ public class SoundManager {
                 if (availableClip != null) {
                     availableClip.setFramePosition(0);
                     try {
-                        FloatControl panControl = (FloatControl) availableClip.getControl(FloatControl.Type.PAN);
-                        panControl.setValue(balance);
-                    } catch (IllegalArgumentException e) {
-                        logger.warning("Failed to set balance for sound: " + sound);
+                        if (POSITIONAL_SOUNDS.contains(sound)) {
+                            setVolumeBalance(availableClip, balance, sound);
+                        }
+                        availableClip.start();
+                        logger.info("Started playing sound: " + sound + " with balance: " + balance);
+                    } catch (Exception e) {
+                        logger.warning("Error playing sound: " + sound + ". Error: " + e.getMessage());
+                        e.printStackTrace();
                     }
-                    availableClip.start();
                 } else {
                     logger.warning("No available clips in pool for sound: " + sound);
                 }
             } else {
                 logger.warning("Sound not found: " + sound);
             }
+        }
+    }
+
+    private void setVolumeBalance(Clip clip, float balance, Sound sound) {
+        try {
+            if (clip.isControlSupported(FloatControl.Type.BALANCE)) {
+                FloatControl balanceControl = (FloatControl) clip.getControl(FloatControl.Type.BALANCE);
+                balanceControl.setValue(balance);
+                logger.info("Set BALANCE: " + balance + " for sound: " + sound);
+            } else if (clip.isControlSupported(FloatControl.Type.PAN)) {
+                FloatControl panControl = (FloatControl) clip.getControl(FloatControl.Type.PAN);
+                panControl.setValue(balance);
+                logger.info("Set PAN: " + balance + " for sound: " + sound);
+            } else {
+                logger.info("No supported balance control. Playing in center for sound: " + sound);
+            }
+        } catch (Exception e) {
+            logger.warning("Failed to set balance for sound: " + sound + ". Error: " + e.getMessage());
         }
     }
 

@@ -110,7 +110,13 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	/** Singleton instance of SoundManager */
 	private final SoundManager soundManager = SoundManager.getInstance();
 
-
+	private float getBalanceForPlayer() {
+		switch (playerNumber) {
+			case 0: return -1.0f; // 1P
+			case 1: return 1.0f;  // 2P
+			default: return 0.0f; // default
+		}
+	}
 
 	private int MAX_BLOCKERS = 0;
 
@@ -321,6 +327,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 				this.elapsedTime += (int) (currentTime - this.prevTime);
 			this.prevTime = (int) currentTime;
 
+			float balance = getBalanceForPlayer();
+
 			if (!this.ship.isDestroyed()) {
 				boolean moveRight;
 				boolean moveLeft;
@@ -346,10 +354,10 @@ public class GameScreen extends Screen implements Callable<GameState> {
 						- this.ship.getSpeed() < 1;
 
 				if (moveRight && !isRightBorder) {
-					this.ship.moveRight();
+					this.ship.moveRight(balance);
 				}
 				if (moveLeft && !isLeftBorder) {
-					this.ship.moveLeft();
+					this.ship.moveLeft(balance);
 				}
 				for(int i = 0; i < web.size(); i++) {
 					//escape Spider Web
@@ -405,7 +413,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 			this.ship.update();
 			this.enemyShipFormation.update();
-			this.enemyShipFormation.shoot(this.bullets, this.level);
+			this.enemyShipFormation.shoot(this.bullets, this.level, balance);
 			 if (level >= 3) {//Events where vision obstructions appear start from level 3 onwards.
 				handleBlockerAppearance();
 			}
@@ -649,7 +657,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 				if (checkCollision(bullet, this.ship) && !this.levelFinished) {
 					recyclable.add(bullet);
 					if (!this.ship.isDestroyed()) {
-						this.ship.destroy();
+						this.ship.destroy(getBalanceForPlayer());
 						lvdamage();
 						this.logger.info("Hit on player ship, " + this.lives
 
