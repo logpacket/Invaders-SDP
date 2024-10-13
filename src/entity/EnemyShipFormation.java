@@ -345,7 +345,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	 * @param bullets
 	 *            Bullets set to add the bullet being shot.
 	 */
-	public final void shoot(final Set<Bullet> bullets, int level) {
+	public final void shoot(final Set<Bullet> bullets, int level, float balance) {
 		// Increasing the number of projectiles per level 3 (levels 1 to 3, 4 to 6, 2, 7 to 9, etc.)
 		int numberOfShooters = Math.min((level / 3) + 1, this.shooters.size());
 		int numberOfBullets = (level / 3) + 1;
@@ -372,7 +372,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 					bullets.add(BulletPool.getBullet(shooter.getPositionX()
 							+ shooter.width / 2 + (10 * (i + 1)), shooter.getPositionY(), BULLET_SPEED));
 				}
-				soundManager.playSound(Sound.ALIEN_LASER);
+				soundManager.playSound(Sound.ALIEN_LASER, balance);
 			}
 		}
 	}
