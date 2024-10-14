@@ -5,13 +5,9 @@ import engine.GameSettings;
 import engine.GameState;
 import entity.Wallet;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import static engine.Core.DifficultySetting;
-
 /**
  * Implements the Two player mode screen, where the action happens.
  */
@@ -139,7 +135,7 @@ public class TwoPlayerScreen extends Screen {
                 gameSettings[playerNumber].getBaseSpeed(),
                 gameSettings[playerNumber].getShootingFrecuency(),
                 gameState.getLevel(),
-                DifficultySetting
+                Core.getLevelSetting()
             ),
                     bonusLife, width / 2, height, fps / 2, wallet, playerNumber);
             gameScreen.initialize();

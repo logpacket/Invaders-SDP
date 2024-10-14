@@ -36,7 +36,9 @@ public class SoundManager {
     private static final int POOL_SIZE = 8;
 
     private static final Set<Sound> POSITIONAL_SOUNDS = Set.of(
-            Sound.ALIEN_HIT, Sound.ALIEN_LASER, Sound.PLAYER_HIT, Sound.PLAYER_MOVE, Sound.PLAYER_LASER
+            Sound.ALIEN_HIT, Sound.ALIEN_LASER, Sound.PLAYER_HIT, Sound.PLAYER_MOVE, Sound.PLAYER_LASER, Sound.ITEM_BOMB,
+            Sound.ITEM_SPAWN, Sound.ITEM_BARRIER_ON, Sound.ITEM_BARRIER_OFF, Sound.ITEM_TIMESTOP_ON, Sound.ITEM_TIMESTOP_OFF,
+            Sound.ITEM_2SHOT, Sound.ITEM_3SHOT, Sound.ITEM_GHOST, Sound.BULLET_BLOCKING
     );
 
     /**
@@ -65,6 +67,16 @@ public class SoundManager {
             loadSound(Sound.COIN_USE, "res/sound/SFX/coinUse.wav");
             loadSound(Sound.GAME_END, "res/sound/SFX/gameEnd.wav");
             loadSound(Sound.UFO_APPEAR, "res/sound/SFX/ufoAppear.wav");
+            loadSound(Sound.BULLET_BLOCKING, "res/sound/SFX/bulletBlocking.wav");
+            loadSound(Sound.ITEM_2SHOT, "res/sound/SFX/item_2shot.wav");
+            loadSound(Sound.ITEM_3SHOT, "res/sound/SFX/item_3shot.wav");
+            loadSound(Sound.ITEM_BARRIER_ON, "res/sound/SFX/item_barrierOn.wav");
+            loadSound(Sound.ITEM_BARRIER_OFF, "res/sound/SFX/item_barrierOff.wav");
+            loadSound(Sound.ITEM_BOMB, "res/sound/SFX/item_bomb.wav");
+            loadSound(Sound.ITEM_GHOST, "res/sound/SFX/item_ghost.wav");
+            loadSound(Sound.ITEM_TIMESTOP_ON, "res/sound/SFX/item_timestopOn.wav");
+            loadSound(Sound.ITEM_TIMESTOP_OFF, "res/sound/SFX/item_timestopOff.wav");
+            loadSound(Sound.ITEM_SPAWN, "res/sound/SFX/item_spawn.wav");
             loadSound(Sound.BGM_MAIN, "res/sound/BGM/MainTheme.wav");
             loadSound(Sound.BGM_GAMEOVER, "res/sound/BGM/GameOver.wav");
             loadSound(Sound.BGM_SHOP, "res/sound/BGM/Shop.wav");

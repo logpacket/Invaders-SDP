@@ -139,9 +139,8 @@ public abstract class Ship extends Entity {
 	 *            List of bullets on screen, to add the new bullet.
 	 * @return Checks if the bullet was shot correctly.
 	 */
-	public final boolean shoot(final Set<Bullet> bullets) {
-		shoot(bullets, 0.0f);
-		return false;
+	public final boolean shoot(final Set<Bullet> bullets, int shotNum) {
+		return shoot(bullets, shotNum, 0.0f);
 	}
 
 	/**
@@ -150,18 +149,38 @@ public abstract class Ship extends Entity {
 	 *          List of bullets on screen, to add the new bullet.
 	 * @param balance
 	 * 			1p -1.0, 2p 1.0, both 0.0
+	 * @param shotNum
+	 * 			Upgraded shot.
 	 *
 	 * @return Checks if the bullet was shot correctly.
 	 */
-	public final boolean shoot(final Set<Bullet> bullets, float balance) {
+	public final boolean shoot(final Set<Bullet> bullets, int shotNum, float balance) {
 		if (this.shootingCooldown.checkFinished()) {
+
 			this.shootingCooldown.reset();
-			bullets.add(BulletPool.getBullet(positionX + this.width / 2,
-					positionY,  this.getBulletSpeed()));
-			soundManager.playSound(Sound.PLAYER_LASER, balance);
 			this.lastShootTime = System.currentTimeMillis();
+
+			switch (shotNum) {
+				case 1:
+					bullets.add(BulletPool.getBullet(positionX + this.width / 2, positionY, this.getBulletSpeed()));
+					soundManager.playSound(Sound.PLAYER_LASER, balance);
+					break;
+				case 2:
+					bullets.add(BulletPool.getBullet(positionX + this.width, positionY, this.getBulletSpeed()));
+					bullets.add(BulletPool.getBullet(positionX, positionY, this.getBulletSpeed()));
+					soundManager.playSound(Sound.ITEM_2SHOT, balance);
+					break;
+				case 3:
+					bullets.add(BulletPool.getBullet(positionX + this.width, positionY, this.getBulletSpeed()));
+					bullets.add(BulletPool.getBullet(positionX, positionY, this.getBulletSpeed()));
+					bullets.add(BulletPool.getBullet(positionX + this.width / 2, positionY, this.getBulletSpeed()));
+					soundManager.playSound(Sound.ITEM_3SHOT, balance);
+					break;
+			}
+
 			return true;
 		}
+
 		return false;
 	}
 

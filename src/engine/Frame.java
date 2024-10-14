@@ -32,7 +32,7 @@ public class Frame extends JFrame {
 	 */
 	public Frame(final int width, final int height) {
 		setSize(width, height);
-		setResizable(true);
+		setResizable(false);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		setLocationRelativeTo(null);

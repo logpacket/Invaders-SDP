@@ -30,7 +30,7 @@ public final class Core {
 	private static final int FPS = 60;
 
 	/** Base ship type. */
-	private static final Ship.ShipType BASE_SHIP = Ship.ShipType.StarDefender;
+	public static Ship.ShipType BASE_SHIP = Ship.ShipType.StarDefender;
 	/** Max lives. */
 	public static int MAX_LIVES;
 	/** Levels between extra life. */
@@ -51,7 +51,7 @@ public final class Core {
 
 	private static long startTime, endTime;
 
-	public static int DifficultySetting;// <- setting EASY(0), NORMAL(1), HARD(2);
+	private static int DifficultySetting;// <- setting EASY(0), NORMAL(1), HARD(2);
 
 
 	/**
@@ -146,7 +146,7 @@ public final class Core {
 						+ gameState.getLivesRemaining() + " lives remaining, "
 						+ gameState.getBulletsShot() + " bullets shot and "
 						+ gameState.getShipsDestroyed() + " ships destroyed.");
-				currentScreen = new ScoreScreen(GameSettingScreen.getName(0), width, height, FPS, gameState, wallet, achievementManager);
+				currentScreen = new ScoreScreen(GameSettingScreen.getName(0), width, height, FPS, gameState, wallet, achievementManager, false);
 
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing score screen.");
@@ -220,7 +220,7 @@ public final class Core {
 						+ gameState.getBulletsShot() + " bullets shot and "
 						+ gameState.getShipsDestroyed() + " ships destroyed.");
 				DrawManager.getInstance().setFrame(frame);
-				currentScreen = new ScoreScreen(GameSettingScreen.getName(winnerNumber), width, height, FPS, gameState, wallet, achievementManager);
+				currentScreen = new ScoreScreen(GameSettingScreen.getName(winnerNumber), width, height, FPS, gameState, wallet, achievementManager, true);
 				returnCode = frame.setScreen(currentScreen);
 				LOGGER.info("Closing score screen.");
 				break;
