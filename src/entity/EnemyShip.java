@@ -32,11 +32,11 @@ public class EnemyShip extends Entity {
 	private static final int BONUS_TYPE_POINTS = 100;
 
 	/** Cooldown between sprite changes. */
-	private Cooldown animationCooldown;
+	protected Cooldown animationCooldown;
 	/** Checks if the ship has been hit by a bullet. */
-	private boolean isDestroyed;
+	protected boolean isDestroyed;
 	/** Values of the ship, in points, when destroyed. */
-	private int pointValue;
+	protected int pointValue;
 
 	/** Singleton instance of SoundManager */
 	private final SoundManager soundManager = SoundManager.getInstance();
@@ -115,6 +115,10 @@ public class EnemyShip extends Entity {
 				case EnemyShipE1:
 				case EnemyShipE2:
 					return Color.ORANGE; // Цвет для типа E
+				case EnemyShipF1:
+					return Color.YELLOW;
+				case EnemyShipF2:
+					return Color.RED;
 				default:
 					return Color.WHITE; // Цвет по умолчанию
 			}
@@ -157,7 +161,7 @@ public class EnemyShip extends Entity {
 	/**
 	 * Updates attributes, mainly used for animation purposes.
 	 */
-	public final void update() {
+	public void update() {
 		if (this.animationCooldown.checkFinished()) {
 			this.animationCooldown.reset();
 
@@ -228,4 +232,5 @@ public class EnemyShip extends Entity {
 	public final boolean isDestroyed() {
 		return this.isDestroyed;
 	}
+
 }

@@ -96,8 +96,8 @@ public final class DrawManager {
 		Explosion,
 		/** Barrier. */
 		Barrier,
-        /** Item Box. */
-        ItemBox,
+    /** Item Box. */
+    ItemBox,
 		/** Spider webs restricting player movement */
 		Web,
 		/** Obstacles preventing a player's bullet */
@@ -106,12 +106,12 @@ public final class DrawManager {
 		Blocker1,
 		/** Obstruction 2 (Astronaut) */
 		Blocker2,
-        /** 2nd player ship. */
-        Ship2,
-        /** 3rd player ship. */
-        Ship3,
-        /** 4th player ship. */
-        Ship4,
+    /** 2nd player ship. */
+    Ship2,
+    /** 3rd player ship. */
+    Ship3,
+    /** 4th player ship. */
+    Ship4,
 		/** Fourth enemy ship - first form. */
 		EnemyShipD1,
 		/** Fourth enemy ship - second form. */
@@ -120,8 +120,10 @@ public final class DrawManager {
 		EnemyShipE1,
 		/** Fifth enemy ship - second form. */
 		EnemyShipE2,
-		/** Elite enemy ship - first form. */
-		EnemyShipF1
+		/** Diver enemy ship - first form. */
+		EnemyShipF1,
+		/** Diver enemy ship - first form. */
+		EnemyShipF2
 	};
 
 	/**
@@ -161,6 +163,7 @@ public final class DrawManager {
 			spriteMap.put(SpriteType.EnemyShipE1, new boolean[12][8]);
 			spriteMap.put(SpriteType.EnemyShipE2, new boolean[12][8]);
 			spriteMap.put(SpriteType.EnemyShipF1, new boolean[16][7]);
+			spriteMap.put(SpriteType.EnemyShipF2, new boolean[16][7]);
 
 			fileManager.loadSprite(spriteMap);
 			logger.info("Finished loading the sprites.");

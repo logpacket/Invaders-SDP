@@ -383,6 +383,10 @@ public class GameScreen extends Screen {
 			}
 		}
 
+		if(this.inputDelay.checkFinished() && !itemManager.isTimeStopActive()) {
+			this.enemyShipFormation.updateSmooth();
+		}
+
 		manageCollisions();
 		cleanBullets();
 		draw();
@@ -570,8 +574,18 @@ public class GameScreen extends Screen {
 
 	/**
 	 * Manages collisions between bullets and ships.
+	 * Also manages collisions between diver enemies and ships.
 	 */
 	private void manageCollisions() {
+		for (EnemyShip diver : this.enemyShipFormation.getDivingShips()) {
+			if(checkCollision(diver, this.ship) && !this.levelFinished && !this.ship.isDestroyed()) {
+				this.ship.destroy();
+				this.lives--;
+				this.logger.info("Hit on player ship, " + this.lives
+						+ " lives remaining.");
+			}
+		}
+
 		Set<Bullet> recyclable = new HashSet<Bullet>();
 
 		if (isExecuted == false){
@@ -639,7 +653,8 @@ public class GameScreen extends Screen {
 						isExecuted = false;
 						recyclable.add(bullet);
 
-						if (itemManager.dropItem()) {
+						if (!this.enemyShipFormation.getEnemyDivers().contains(enemyShip) &&
+								itemManager.dropItem()) {
 							this.itemBoxes.add(new ItemBox(enemyShip.getPositionX() + 6, enemyShip.getPositionY() + 1));
 							logger.info("Item box dropped");
 						}
@@ -741,7 +756,8 @@ public class GameScreen extends Screen {
 	 */
 	public final GameState getGameState() {
 		return new GameState(this.level, this.score, this.shipType, this.lives,
-				this.bulletsShot, this.shipsDestroyed, this.elapsedTime, this.alertMessage, 0, this.maxCombo, this.lapTime, this.tempScore);
+				this.bulletsShot, this.shipsDestroyed, this.elapsedTime, this.alertMessage, 0, this.maxCombo, this.lapTime, this.tempScore, 0);
+
 	}
 
 	//Enemy bullet damage increases depending on stage level
