@@ -751,7 +751,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	private void manageCollisions() {
 		for (EnemyShip diver : this.enemyShipFormation.getDivingShips()) {
 			if(checkCollision(diver, this.ship) && !this.levelFinished && !this.ship.isDestroyed()) {
-				this.ship.destroy();
+				this.ship.destroy(balance);
 				this.lives--;
 				this.logger.info("Hit on player ship, " + this.lives
 						+ " lives remaining.");

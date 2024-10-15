@@ -594,7 +594,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 		for (int i = 0; i < this.enemyShipsDivers.size(); i++)
 			if (this.enemyShipsDivers.get(i) != null
 					&& this.enemyShipsDivers.get(i).equals(destroyedShip)) {
-				this.enemyShipsDivers.get(i).destroy();
+				this.enemyShipsDivers.get(i).destroy(balance);
 				this.logger.info("Destroyed diver ship " + i);
 			}
 
@@ -654,7 +654,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 					point = 0;
 					distroyedship = 0;
 				}
-				destroyedShip.HealthManageDestroy();
+				destroyedShip.HealthManageDestroy(balance);
 			}
 		}
 
