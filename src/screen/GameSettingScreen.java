@@ -5,6 +5,7 @@ import engine.Core;
 import engine.GameSettings;
 import engine.InputManager;
 import engine.*;
+import entity.Ship;
 
 import java.awt.event.KeyEvent;
 
@@ -34,11 +35,13 @@ public class GameSettingScreen extends Screen {
 	private int difficultyLevel;
 	/** Selected row. */
 	private int selectedRow;
+	/** Ship type. */
+	private Ship.ShipType shipType;
 	/** Time between changes in user selection. */
 	private final Cooldown selectionCooldown;
 
 	/** Total number of rows for selection. */
-	private static final int TOTAL_ROWS = 3; // Multiplayer, Difficulty, Start
+	private static final int TOTAL_ROWS = 4; // Multiplayer, Difficulty, Ship Type, Start
 
 	/** Singleton instance of SoundManager */
 	private final SoundManager soundManager = SoundManager.getInstance();
@@ -53,7 +56,7 @@ public class GameSettingScreen extends Screen {
 	 * @param fps
 	 *            Frames per second, frame rate at which the game is run.
 	 */
-	public GameSettingScreen(final int width, final int height, final int fps) {
+	public GameSettingScreen(final int width, final int height, final int fps, final Ship.ShipType shipType) {
 		super(width, height, fps);
 
 		// row 0: multiplayer
@@ -63,6 +66,9 @@ public class GameSettingScreen extends Screen {
 
 		// row 1: difficulty level
 		this.difficultyLevel = 1; 	// 0: easy, 1: normal, 2: hard
+
+		// row 2: ship type
+		this.shipType = shipType;
 
 		// row 3: start
 
@@ -141,6 +147,28 @@ public class GameSettingScreen extends Screen {
 					}
 				}
 			} else if (this.selectedRow == 2) {
+				if (inputManager.isKeyDown(KeyEvent.VK_LEFT) || inputManager.isKeyDown(KeyEvent.VK_RIGHT)) {
+					Ship.ShipType[] shipTypes = Ship.ShipType.values();
+					int index = 0;
+					for (int i = 0; i < shipTypes.length; i++) {
+						if (shipTypes[i] == this.shipType) {
+							index = i;
+							break;
+						}
+					}
+
+					if (inputManager.isKeyDown(KeyEvent.VK_RIGHT)) {
+						if (index < shipTypes.length - 1) {
+							this.shipType = shipTypes[index + 1];
+						}
+					} else {
+						if (index > 0) {
+							this.shipType = shipTypes[index - 1];
+						}
+					}
+					this.selectionCooldown.reset();
+				}
+			} else if (this.selectedRow == 3) {
 				if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
 					this.returnCode = 2;
 					this.isRunning = false;
@@ -184,7 +212,7 @@ public class GameSettingScreen extends Screen {
 	}
 	public static GameSettingScreen getInstance() {
 		if (instance == null) {
-			instance = new GameSettingScreen(0,0,0);
+			instance = new GameSettingScreen(0,0,0, Ship.ShipType.StarDefender);
 		}
 		return instance;
 	}
@@ -203,10 +231,11 @@ public class GameSettingScreen extends Screen {
 
 		drawManager.drawGameSettingRow(this, this.selectedRow);
 
-		drawManager.drawGameSettingElements(this, this.selectedRow, this.isMultiplayer, this.name1, this.name2,this.difficultyLevel);
+		drawManager.drawGameSettingElements(this, this.selectedRow, this.isMultiplayer, this.name1, this.name2,this.difficultyLevel, this.shipType);
 
 		drawManager.completeDrawing(this);
 
 		Core.setLevelSetting(this.difficultyLevel);
+		Core.BASE_SHIP = this.shipType;
 	}
 }

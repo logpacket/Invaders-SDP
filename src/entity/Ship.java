@@ -215,6 +215,14 @@ public abstract class Ship extends Entity {
 		return Math.round(SHOOTING_INTERVAL * this.multipliers.shootingInterval());
 	}
 
+	/**
+	 * Getter for the ship's multipliers.
+	 * @return Multipliers for the ship's properties.
+	 */
+	public final ShipMultipliers getMultipliers() {
+		return this.multipliers;
+	}
+
 	public long getRemainingReloadTime(){
 		long currentTime = System.currentTimeMillis();
 		long elapsedTime = currentTime - this.lastShootTime;

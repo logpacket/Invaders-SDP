@@ -198,7 +198,7 @@ public final class Core {
 
 			case 6:
 				//Game Setting
-				currentScreen = new GameSettingScreen(width, height, FPS);
+				currentScreen = new GameSettingScreen(width, height, FPS, gameState.getShipType());
 				LOGGER.info("Starting " + WIDTH + "x" + HEIGHT
 						+ " game setting screen at " + FPS + " fps.");
 				returnCode = frame.setScreen(currentScreen);
