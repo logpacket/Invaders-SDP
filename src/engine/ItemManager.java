@@ -159,7 +159,7 @@ public class ItemManager {
 
                     List<EnemyShip> subRowShips = enemyships.get(x);
 
-                    for (int y = j; y < j + 3; y++) {
+                    for (int y = j; y < j + 3 && y < subRowShips.size(); y++) {
                         EnemyShip ship = subRowShips.get(y);
 
                         if (ship != null && !ship.isDestroyed())
@@ -178,7 +178,7 @@ public class ItemManager {
         List<EnemyShip> targetEnemyShips = new ArrayList<>();
         for (int i = maxRow; i < maxRow + 3; i++) {
             List<EnemyShip> subRowShips = enemyships.get(i);
-            for (int j = maxCol; j < maxCol + 3; j++) {
+            for (int j = maxCol; j < maxCol + 3 && j < subRowShips.size(); j++) {
                 EnemyShip ship = subRowShips.get(j);
 
                 if (ship != null && !ship.isDestroyed())
