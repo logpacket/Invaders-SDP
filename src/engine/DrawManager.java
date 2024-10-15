@@ -74,8 +74,14 @@ public final class DrawManager {
 		Ship,
 		/** Destroyed player ship. */
 		ShipDestroyed,
-		/** Player bullet. */
-		Bullet,
+		/** Ship 1 bullet. */
+		BulletType1,
+		/** Ship 2 bullet. */
+		BulletType2,
+		/** Ship 3 bullet. */
+		BulletType3,
+		/** Ship 4 bullet. */
+		BulletType4,
 		/** Enemy bullet. */
 		EnemyBullet,
 		/** First enemy ship - first form. */
@@ -139,7 +145,10 @@ public final class DrawManager {
 
 			spriteMap.put(SpriteType.Ship, new boolean[13][8]);
 			spriteMap.put(SpriteType.ShipDestroyed, new boolean[13][8]);
-			spriteMap.put(SpriteType.Bullet, new boolean[3][5]);
+			spriteMap.put(SpriteType.BulletType1, new boolean[3][5]);
+			spriteMap.put(SpriteType.BulletType2, new boolean[3][5]);
+			spriteMap.put(SpriteType.BulletType3, new boolean[3][5]);
+			spriteMap.put(SpriteType.BulletType4, new boolean[3][5]);
 			spriteMap.put(SpriteType.EnemyBullet, new boolean[3][5]);
 			spriteMap.put(SpriteType.EnemyShipA1, new boolean[12][8]);
 			spriteMap.put(SpriteType.EnemyShipA2, new boolean[12][8]);
@@ -1157,20 +1166,18 @@ public final class DrawManager {
 			int startAngle = 90;
 			int endAngle = 0;
 			switch(Core.BASE_SHIP){
-				case Ship.ShipType.VoidReaper:
+				case VoidReaper:
 					endAngle = 360 * (int)remainingTime / (int)(750 * 0.4);
 				    break;
-				case Ship.ShipType.CosmicCruiser:
+				case CosmicCruiser:
 					endAngle = 360 * (int)remainingTime / (int)(750 * 1.6);
 				    break;
-				case Ship.ShipType.StarDefender:
+				case StarDefender:
 					endAngle = 360 * (int)remainingTime / (int)(750 * 1.0);
 					break;
-				case Ship.ShipType.GalacticGuardian:
+				case GalacticGuardian:
 					endAngle = 360 * (int)remainingTime / (int)(750 * 1.2);
 					break;
-
-
 			}
 
 			backBufferGraphics.fillArc(shipX + shipWidth/2 - circleSize/2, shipY - 3*circleSize/2,
