@@ -18,6 +18,7 @@ import java.util.TimerTask;
 import engine.*;
 import entity.*;
 
+
 /**
  * Implements the game screen, where the action happens.
  * 
@@ -64,6 +65,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	private String name1;
 
 	private int score;
+	/** tempScore records the score up to the previous level. */
+	private int tempScore;
 	/** Current ship type. */
 	private Ship.ShipType shipType;
 	/** Player lives left. */
@@ -72,8 +75,10 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	private int bulletsShot;
 	/** Total ships destroyed by the player. */
 	private int shipsDestroyed;
-	/** Total ships destroyed consecutive by the player. */
-	private int combo = 0;
+	/** Number of consecutive hits.
+	 * maxCombo records the maximum value of combos in that level. */
+	private int combo;
+	private int maxCombo;
 	/** Moment the game starts. */
 	private long gameStartTime;
 	/** Checks if the level is finished. */
@@ -84,8 +89,10 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	private int playerNumber;
 	/** list of highScores for find recode. */
 	private List<Score>highScores;
-	/** Elapsed time while playing this game. */
+	/** Elapsed time while playing this game.
+	 * lapTime records the time to the previous level. */
 	private int elapsedTime;
+	private int lapTime;
 	/** Keep previous timestamp. */
 	private Integer prevTime;
 	/** Alert Message when a special enemy appears. */
@@ -161,6 +168,20 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		this.bulletsShot = gameState.getBulletsShot();
 		this.shipsDestroyed = gameState.getShipsDestroyed();
 		this.playerNumber = -1;
+		this.maxCombo = gameState.getMaxCombo();
+		this.lapTime = gameState.getPrevTime();
+		this.tempScore = gameState.getPrevScore();
+
+		try {
+			this.highScores = Core.getFileManager().loadHighScores();
+
+		} catch (IOException e) {
+			logger.warning("Couldn't load high scores!");
+		}
+
+		this.wallet = wallet;
+
+
 		this.random = new Random();
 		this.blockerVisible = false;
 		this.blockerCooldown = Core.getVariableCooldown(10000, 14000);
@@ -270,9 +291,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		this.gameStartTime = System.currentTimeMillis();
 		this.inputDelay = Core.getCooldown(INPUT_DELAY);
 		this.inputDelay.reset();
-
 		if (soundManager.isSoundPlaying(Sound.BGM_MAIN))
-        	soundManager.stopSound(Sound.BGM_MAIN);
+			soundManager.stopSound(Sound.BGM_MAIN);
 		soundManager.playSound(Sound.COUNTDOWN);
 
 		switch (this.level) {
@@ -448,14 +468,18 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		if ((this.enemyShipFormation.isEmpty() || this.lives <= 0)
 				&& !this.levelFinished) {
 			this.levelFinished = true;
+
 			soundManager.stopSound(soundManager.getCurrentBGM());
 			if (this.lives == 0)
 				soundManager.playSound(Sound.GAME_END);
 			this.screenFinishedCooldown.reset();
 		}
 
-		if (this.levelFinished && this.screenFinishedCooldown.checkFinished())
+		if (this.levelFinished && this.screenFinishedCooldown.checkFinished()) {
+			//Reset alert message when level is finished
+			this.alertMessage = "";
 			this.isRunning = false;
+		}
 	}
 
 	/**
@@ -464,7 +488,6 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	private void draw() {
 		drawManager.initDrawing(this);
 		drawManager.drawGameTitle(this);
-
 
 		drawManager.drawLaunchTrajectory( this,this.ship.getPositionX());
 
@@ -516,6 +539,19 @@ public class GameScreen extends Screen implements Callable<GameState> {
 			drawManager.drawCountDown(this, this.level, countdown, this.bonusLife);
 			drawManager.drawHorizontalLine(this, this.height / 2 - this.height / 12);
 			drawManager.drawHorizontalLine(this, this.height / 2 + this.height / 12);
+
+			//Intermediate aggregation
+			if (this.level > 1){
+                if (countdown == 0) {
+					//Reset mac combo and edit temporary values
+                    this.lapTime = this.elapsedTime;
+                    this.tempScore = this.score;
+                    this.maxCombo = 0;
+                } else {
+					// Don't show it just before the game starts, i.e. when the countdown is zero.
+                    drawManager.interAggre(this, this.level - 1, this.maxCombo, this.elapsedTime, this.lapTime, this.score, this.tempScore);
+                }
+			}
 		}
 
 
@@ -654,15 +690,26 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		// Countdown to game start.
 		if (!this.inputDelay.checkFinished()) {
-			int countdown = (int) ((INPUT_DELAY
-					- (System.currentTimeMillis()
-					- this.gameStartTime)) / 1000);
+			int countdown = (int) ((INPUT_DELAY - (System.currentTimeMillis() - this.gameStartTime)) / 1000);
 			drawManager.drawCountDown(this, this.level, countdown,
 					this.bonusLife, playerNumber);
 			drawManager.drawHorizontalLine(this, this.height / 2 - this.height
 					/ 12, playerNumber);
 			drawManager.drawHorizontalLine(this, this.height / 2 + this.height
 					/ 12, playerNumber);
+
+			//Intermediate aggregation
+			if (this.level > 1){
+				if (countdown == 0) {
+					//Reset mac combo and edit temporary values
+					this.lapTime = this.elapsedTime;
+					this.tempScore = this.score;
+					this.maxCombo = 0;
+				} else {
+					// Don't show it just before the game starts, i.e. when the countdown is zero.
+					drawManager.interAggre(this, this.level - 1, this.maxCombo, this.elapsedTime, this.lapTime, this.score, this.tempScore, playerNumber);
+				}
+			}
 		}
 
 		//add drawRecord method for drawing
@@ -710,6 +757,16 @@ public class GameScreen extends Screen implements Callable<GameState> {
 			timer.schedule(timerTask, 3000);
 		}
 
+		int topEnemyY = Integer.MAX_VALUE;
+		for (EnemyShip enemyShip : this.enemyShipFormation) {
+			if (enemyShip != null && !enemyShip.isDestroyed() && enemyShip.getPositionY() < topEnemyY) {
+				topEnemyY = enemyShip.getPositionY();
+			}
+		}
+		if (this.enemyShipSpecial != null && !this.enemyShipSpecial.isDestroyed() && this.enemyShipSpecial.getPositionY() < topEnemyY) {
+			topEnemyY = this.enemyShipSpecial.getPositionY();
+		}
+
 		for (Bullet bullet : this.bullets) {
 
 			// Enemy ship's bullets
@@ -747,12 +804,10 @@ public class GameScreen extends Screen implements Callable<GameState> {
 						this.enemyShipFormation.HealthManageDestroy(enemyShip, balance);
 						// If the enemy doesn't die, the combo increases;
 						// if the enemy dies, both the combo and score increase.
-						if (combo >= 5)
-							this.score += this.enemyShipFormation.getPoint() * (combo / 5 + 1);
-						else
-							this.score += this.enemyShipFormation.getPoint();
+						this.score += Score.comboScore(this.enemyShipFormation.getPoint(), this.combo);
 						this.shipsDestroyed += this.enemyShipFormation.getDistroyedship();
 						this.combo++;
+						if (this.combo > this.maxCombo) this.maxCombo = this.combo;
 						timer.cancel();
 						isExecuted = false;
 						recyclable.add(bullet);
@@ -766,18 +821,21 @@ public class GameScreen extends Screen implements Callable<GameState> {
 				if (this.enemyShipSpecial != null
 						&& !this.enemyShipSpecial.isDestroyed()
 						&& checkCollision(bullet, this.enemyShipSpecial)) {
-					if (combo >= 5)
-						this.score += enemyShipSpecial.getPointValue() * (combo / 5 + 1);
-					else
-						this.score += enemyShipSpecial.getPointValue();
+					this.score += Score.comboScore(this.enemyShipSpecial.getPointValue(), this.combo);
 					this.shipsDestroyed++;
 					this.combo++;
+					if (this.combo > this.maxCombo) this.maxCombo = this.combo;
 					this.enemyShipSpecial.destroy(balance);
 					this.enemyShipSpecialExplosionCooldown.reset();
 					timer.cancel();
 					isExecuted = false;
 
 					recyclable.add(bullet);
+				}
+
+				if (this.itemManager.getShotNum() == 1 && bullet.getPositionY() < topEnemyY) {
+					this.combo = 0;
+					isExecuted = true;
 				}
 
 				Iterator<ItemBox> itemBoxIterator = this.itemBoxes.iterator();
@@ -856,7 +914,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 */
 	public final GameState getGameState() {
 		return new GameState(this.level, this.score, this.shipType, this.lives,
-				this.bulletsShot, this.shipsDestroyed, this.elapsedTime, this.alertMessage, 0);
+				this.bulletsShot, this.shipsDestroyed, this.elapsedTime, this.alertMessage, 0, this.maxCombo, this.lapTime, this.tempScore);
 	}
 
 

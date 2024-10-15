@@ -239,7 +239,7 @@ public abstract class Ship extends Entity {
 	public long getRemainingReloadTime(){
 		long currentTime = System.currentTimeMillis();
 		long elapsedTime = currentTime - this.lastShootTime;
-		long remainingTime = SHOOTING_INTERVAL - elapsedTime;
+		long remainingTime = this.getShootingInterval() - elapsedTime;
 		return remainingTime > 0 ? remainingTime : 0;
 	}
 
