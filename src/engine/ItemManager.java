@@ -58,6 +58,8 @@ public class ItemManager {
     private boolean isMaxShotNum;
     /** Number of bullets that player's ship shoot. */
     private int shotNum;
+    /** Sound balance for each player*/
+    private float balance;
 
     /** Types of item */
     public enum ItemType {
@@ -75,15 +77,17 @@ public class ItemManager {
      * @param ship Player's ship.
      * @param enemyShipFormation Formation of enemy ships.
      * @param barriers Set of barriers in game screen.
+     * @param balance 1p -1.0, 2p 1.0, both 0.0
      *
      */
-    public ItemManager(Ship ship, EnemyShipFormation enemyShipFormation, Set<Barrier> barriers) {
+    public ItemManager(Ship ship, EnemyShipFormation enemyShipFormation, Set<Barrier> barriers, float balance) {
         this.shotNum = 1;
         this.rand = new Random();
         this.ship = ship;
         this.enemyShipFormation = enemyShipFormation;
         this.barriers = barriers;
         this.logger = Core.getLogger();
+        this.balance = balance;
     }
 
     /**
@@ -135,7 +139,7 @@ public class ItemManager {
      * @return The score to add and the number of ships destroyed.
      */
     private Entry<Integer, Integer> operateBomb() {
-        this.soundManager.playSound(Sound.ITEM_BOMB);
+        this.soundManager.playSound(Sound.ITEM_BOMB, balance);
 
         int addScore = 0;
         int addShipsDestroyed = 0;
@@ -190,7 +194,7 @@ public class ItemManager {
             for (EnemyShip destroyedShip : targetEnemyShips) {
                 addScore += destroyedShip.getPointValue();
                 addShipsDestroyed++;
-                enemyShipFormation.destroy(destroyedShip);
+                enemyShipFormation.destroy(destroyedShip, balance);
             }
         }
 
@@ -203,7 +207,7 @@ public class ItemManager {
      * @return The score to add and the number of ships destroyed.
      */
     private Entry<Integer, Integer> operateLineBomb() {
-        this.soundManager.playSound(Sound.ITEM_BOMB);
+        this.soundManager.playSound(Sound.ITEM_BOMB, balance);
 
         int addScore = 0;
         int addShipsDestroyed = 0;
@@ -233,7 +237,7 @@ public class ItemManager {
                 if (destroyedShip != null && !destroyedShip.isDestroyed()) {
                     addScore += destroyedShip.getPointValue();
                     addShipsDestroyed++;
-                    enemyShipFormation.destroy(destroyedShip);
+                    enemyShipFormation.destroy(destroyedShip, balance);
                 }
             }
         }
@@ -247,7 +251,7 @@ public class ItemManager {
      * @return null
      */
     private Entry<Integer, Integer> operateBarrier() {
-        this.soundManager.playSound(Sound.ITEM_BARRIER_ON);
+        this.soundManager.playSound(Sound.ITEM_BARRIER_ON, balance);
 
         int middle = WIDTH / 2 - 39;
         int range = 200;
@@ -266,7 +270,7 @@ public class ItemManager {
      * @return null
      */
     private Entry<Integer, Integer> operateGhost() {
-        this.soundManager.playSound(Sound.ITEM_GHOST);
+        this.soundManager.playSound(Sound.ITEM_GHOST, balance);
 
         this.ship.setColor(Color.DARK_GRAY);
         this.ghost_cooldown = Core.getCooldown(GHOST_COOLDOWN);
@@ -281,7 +285,7 @@ public class ItemManager {
      * @return null
      */
     private Entry<Integer, Integer> operateTimeStop() {
-        this.soundManager.playSound(Sound.ITEM_TIMESTOP_ON);
+        this.soundManager.playSound(Sound.ITEM_TIMESTOP_ON, balance);
 
         this.timeStop_cooldown = Core.getCooldown(TIMESTOP_COOLDOWN);
         this.timeStop_cooldown.reset();

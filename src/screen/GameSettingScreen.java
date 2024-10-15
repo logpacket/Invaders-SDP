@@ -28,7 +28,7 @@ public class GameSettingScreen extends Screen {
 	/** Player name1 for record input. */
 	private static String name1;
 	/** Player name2 for record input. */
-	private String name2;
+	private static String name2;
 	/** Multiplayer mode. */
 	private static boolean isMultiplayer = false;
 	/** Difficulty level. */
@@ -170,7 +170,7 @@ public class GameSettingScreen extends Screen {
 				}
 			} else if (this.selectedRow == 3) {
 				if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
-					this.returnCode = 2;
+					this.returnCode = isMultiplayer ? 8: 2;
 					this.isRunning = false;
 					soundManager.playSound(Sound.MENU_CLICK);
 				}
@@ -217,13 +217,19 @@ public class GameSettingScreen extends Screen {
 		return instance;
 	}
 	public static boolean getMultiPlay() {return isMultiplayer; }
+
+	/**
+	 * Get player's name by number
+	 *
+	 * @param playerNumber
+	 * 			Player's number
+	 * @return Player's name
+	 */
+	public static String getName(int playerNumber) { return playerNumber == 0 ? name1 : name2; }
+
 	/**
 	 * Draws the elements associated with the screen.
 	 */
-
-	// 1번째 플레이어 이름을 가져오기 위해 getName1 함수 생성.
-	public static String getName1() { return name1; }
-
 	private void draw() {
 		drawManager.initDrawing(this);
 
@@ -231,7 +237,7 @@ public class GameSettingScreen extends Screen {
 
 		drawManager.drawGameSettingRow(this, this.selectedRow);
 
-		drawManager.drawGameSettingElements(this, this.selectedRow, this.isMultiplayer, this.name1, this.name2,this.difficultyLevel, this.shipType);
+		drawManager.drawGameSettingElements(this, this.selectedRow, isMultiplayer, name1, name2,this.difficultyLevel, this.shipType);
 
 		drawManager.completeDrawing(this);
 

@@ -204,21 +204,23 @@ public class EnemyShip extends Entity {
 
 	/**
 	 * Destroys the ship, causing an explosion.
+	 *
+	 * @param balance 1p -1.0, 2p 1.0, both 0.0
 	 */
-	public final void destroy() {
+	public final void destroy(final float balance) {
 		this.isDestroyed = true;
 		this.spriteType = SpriteType.Explosion;
-        soundManager.playSound(Sound.ALIEN_HIT);
+        soundManager.playSound(Sound.ALIEN_HIT, balance);
 	}
 
-    public final void HealthManageDestroy() { //Determine whether to destroy the enemy ship based on its health
+    public final void HealthManageDestroy(final float balance) { //Determine whether to destroy the enemy ship based on its health
         if(this.health <= 0){
             this.isDestroyed = true;
             this.spriteType = SpriteType.Explosion;
         }else{
             this.health--;
         }
-        soundManager.playSound(Sound.ALIEN_HIT);
+        soundManager.playSound(Sound.ALIEN_HIT, balance);
     }
 
 	public int getHealth(){return this.health; }  //Receive enemy ship health
