@@ -128,21 +128,16 @@ public class SoundManager {
         }
 
         List<Clip> clipPool = new ArrayList<>();
-        for (int i = 0; i < POOL_SIZE; i++) {
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioStream);
-            clipPool.add(clip);
+        try (AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile)) {
+            for (int i = 0; i < POOL_SIZE; i++) {
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+                clipPool.add(clip);
+            }
+
+            soundPools.put(sound, clipPool);
+            soundClips.put(sound, clipPool.getFirst());
         }
-
-        soundPools.put(sound, clipPool);
-        soundClips.put(sound, clipPool.get(0));
-
-        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
-        Clip clip = AudioSystem.getClip();
-        clip.open(audioStream);
-
-        soundClips.put(sound, clip);
     }
 
     /**
