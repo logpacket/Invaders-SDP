@@ -936,9 +936,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 */
 	public final GameState getGameState() {
 		return new GameState(this.level, this.score, this.shipType, this.lives,
-				this.bulletsShot, this.shipsDestroyed, this.elapsedTime, this.alertMessage, 0, this.maxCombo, this.lapTime, this.tempScore, this.hitBullets, 0);
-	}
-
+				this.bulletsShot, this.shipsDestroyed, this.elapsedTime, this.alertMessage,
+				0, this.maxCombo, this.lapTime, this.tempScore, this.hitBullets, 0);
 	}
 
 	/**
