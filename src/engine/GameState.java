@@ -36,6 +36,7 @@ public class GameState {
 	private int prevTime;
 	private int prevScore;
 
+	private int hitBullets;
 
 	/**
 	 * Constructor.
@@ -63,7 +64,7 @@ public class GameState {
 			final Ship.ShipType shipType,
 			final int livesRemaining, final int bulletsShot,
 			final int shipsDestroyed, final int elapsedTime, final String alertMessage, final int combo,
-					 final int maxCombo, final int prevTime, final int prevScore, int difficulty) {
+					 final int maxCombo, final int prevTime, final int prevScore, final int hitBullets, final int difficulty) {
 				
 		this.level = level;
 		this.score = score;
@@ -78,7 +79,7 @@ public class GameState {
 		this.maxCombo = maxCombo;
 		this.prevTime = prevTime;
 		this.prevScore = prevScore;
-
+		this.hitBullets = hitBullets;
 	}
 
 	public GameState(GameState gameState) {
@@ -90,9 +91,11 @@ public class GameState {
 		this.shipsDestroyed = gameState.shipsDestroyed;
 		this.elapsedTime = gameState.elapsedTime;
 		this.combo = 0;
+        this.difficulty = gameState.difficulty;
 		this.maxCombo = gameState.maxCombo;
 		this.prevTime = gameState.prevTime;
 		this.prevScore = gameState.prevScore;
+		this.hitBullets = gameState.hitBullets;
 	}
 
 
@@ -105,9 +108,11 @@ public class GameState {
 		this.shipsDestroyed = gameState.shipsDestroyed;
 		this.elapsedTime = gameState.elapsedTime;
 		this.combo = 0;
+        this.difficulty = gameState.difficulty;
 		this.maxCombo = gameState.maxCombo;
 		this.prevTime = gameState.prevTime;
 		this.prevScore = gameState.prevScore;
+		this.hitBullets = gameState.hitBullets;
 	}
 
 
@@ -174,7 +179,7 @@ public class GameState {
 		if (bulletsShot == 0){
 			return 0;
 		}
-		return ((double) shipsDestroyed / bulletsShot) *100;
+		return ((double) hitBullets / bulletsShot) * 100;
 	}
 
 	/**
@@ -191,6 +196,8 @@ public class GameState {
 	 * @return the prevScore/tempScore
 	 */
 	public final int getPrevScore() { return prevScore;}
+
+	public final int getHitBullets() { return hitBullets;}
 
 }
 
