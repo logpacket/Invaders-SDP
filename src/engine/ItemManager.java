@@ -227,7 +227,9 @@ public class ItemManager {
 
         if (destroyRow != -1) {
             for (List<EnemyShip> column : enemyShips) {
-                if (column.get(destroyRow) != null && !column.get(destroyRow).isDestroyed()) {
+                if (destroyRow < column.size() &&
+                        column.get(destroyRow) != null &&
+                        !column.get(destroyRow).isDestroyed()) {
                     addScore += column.get(destroyRow).getPointValue();
                     addShipsDestroyed++;
                     enemyShipFormation.destroy(column.get(destroyRow), balance);
