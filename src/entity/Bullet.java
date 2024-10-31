@@ -2,6 +2,7 @@ package entity;
 
 import java.awt.Color;
 
+import engine.Core;
 import engine.DrawManager.SpriteType;
 
 /**
@@ -30,10 +31,23 @@ public class Bullet extends Entity {
 	 *            direction - positive is down.
 	 */
 	public Bullet(final int positionX, final int positionY, final int speed) {
-		super(positionX, positionY, 3 * 2, 5 * 2, Color.WHITE);
+		super(positionX, positionY, 3 * 2, 5 * 2, getDefaultColor());
 
 		this.speed = speed;
 		setSprite();
+	}
+
+	public static Color getDefaultColor() {
+		switch (Core.BASE_SHIP) {
+			case VoidReaper:
+				return Color.GREEN;
+			case CosmicCruiser:
+				return Color.BLUE;
+			case GalacticGuardian:
+				return Color.RED;
+			default:
+				return Color.WHITE;
+		}
 	}
 
 	/**
@@ -41,7 +55,20 @@ public class Bullet extends Entity {
 	 */
 	public final void setSprite() {
 		if (speed < 0)
-			this.spriteType = SpriteType.Bullet;
+			switch(Core.BASE_SHIP){
+				case VoidReaper:
+					this.spriteType = SpriteType.BulletType1;
+					break;
+				case CosmicCruiser:
+					this.spriteType = SpriteType.BulletType2;
+					break;
+				case StarDefender:
+					this.spriteType = SpriteType.BulletType3;
+					break;
+				case GalacticGuardian:
+					this.spriteType = SpriteType.BulletType4;
+					break;
+			}
 		else
 			this.spriteType = SpriteType.EnemyBullet;
 	}

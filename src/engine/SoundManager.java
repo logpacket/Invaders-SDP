@@ -284,7 +284,7 @@ public class SoundManager {
             if (clips != null && clips.isRunning()) {
                 clips.stop();
             } else {
-            logger.warning("Sound not playing or not found: " + sound);
+                logger.warning("Sound not playing or not found: " + sound);
             }
 
             List<Clip> clipPool = soundPools.get(sound);

@@ -165,7 +165,7 @@ public class ItemManager {
 
                     List<EnemyShip> subRowShips = enemyships.get(x);
 
-                    for (int y = j; y < j + 3; y++) {
+                    for (int y = j; y < j + 3 && y < subRowShips.size(); y++) {
                         EnemyShip ship = subRowShips.get(y);
 
                         if (ship != null && !ship.isDestroyed())
@@ -184,7 +184,7 @@ public class ItemManager {
         List<EnemyShip> targetEnemyShips = new ArrayList<>();
         for (int i = maxRow; i < maxRow + 3; i++) {
             List<EnemyShip> subRowShips = enemyships.get(i);
-            for (int j = maxCol; j < maxCol + 3; j++) {
+            for (int j = maxCol; j < maxCol + 3 && j < subRowShips.size(); j++) {
                 EnemyShip ship = subRowShips.get(j);
 
                 if (ship != null && !ship.isDestroyed())
@@ -227,7 +227,9 @@ public class ItemManager {
 
         if (destroyRow != -1) {
             for (List<EnemyShip> column : enemyShips) {
-                if (column.get(destroyRow) != null && !column.get(destroyRow).isDestroyed()) {
+                if (destroyRow < column.size() &&
+                        column.get(destroyRow) != null &&
+                        !column.get(destroyRow).isDestroyed()) {
                     addScore += column.get(destroyRow).getPointValue();
                     addShipsDestroyed++;
                     enemyShipFormation.destroy(column.get(destroyRow), balance);

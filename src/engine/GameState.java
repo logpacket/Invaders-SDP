@@ -27,6 +27,8 @@ public class GameState {
 	private String alertMessage;
     /** Number of consecutive hits */
 	private int combo;
+	/** Game Difficulty */
+	private int difficulty;
 	/** Intermediate aggregation variables
 	 * max combo, elapsed time and total score
 	 * you get from previous level */
@@ -62,7 +64,7 @@ public class GameState {
 			final Ship.ShipType shipType,
 			final int livesRemaining, final int bulletsShot,
 			final int shipsDestroyed, final int elapsedTime, final String alertMessage, final int combo,
-					 final int maxCombo, final int prevTime, final int prevScore, final int hitBullets) {
+					 final int maxCombo, final int prevTime, final int prevScore, final int hitBullets, final int difficulty) {
 				
 		this.level = level;
 		this.score = score;
@@ -73,6 +75,7 @@ public class GameState {
 		this.elapsedTime = elapsedTime;
 		this.alertMessage = alertMessage;
 		this.combo = combo;
+		this.difficulty = difficulty;
 		this.maxCombo = maxCombo;
 		this.prevTime = prevTime;
 		this.prevScore = prevScore;
@@ -88,6 +91,7 @@ public class GameState {
 		this.shipsDestroyed = gameState.shipsDestroyed;
 		this.elapsedTime = gameState.elapsedTime;
 		this.combo = 0;
+        this.difficulty = gameState.difficulty;
 		this.maxCombo = gameState.maxCombo;
 		this.prevTime = gameState.prevTime;
 		this.prevScore = gameState.prevScore;
@@ -104,6 +108,7 @@ public class GameState {
 		this.shipsDestroyed = gameState.shipsDestroyed;
 		this.elapsedTime = gameState.elapsedTime;
 		this.combo = 0;
+        this.difficulty = gameState.difficulty;
 		this.maxCombo = gameState.maxCombo;
 		this.prevTime = gameState.prevTime;
 		this.prevScore = gameState.prevScore;
@@ -164,6 +169,12 @@ public class GameState {
 	 */
 	public final String getAlertMessage() { return alertMessage; }
 
+	/**
+	 * @return the difficulty
+	 */
+	public final int getDifficulty() {
+		return difficulty;
+	}
 	public double getAccuracy() {
 		if (bulletsShot == 0){
 			return 0;

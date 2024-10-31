@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,8 +78,14 @@ public final class DrawManager {
 		Ship,
 		/** Destroyed player ship. */
 		ShipDestroyed,
-		/** Player bullet. */
-		Bullet,
+		/** Ship 1 bullet. */
+		BulletType1,
+		/** Ship 2 bullet. */
+		BulletType2,
+		/** Ship 3 bullet. */
+		BulletType3,
+		/** Ship 4 bullet. */
+		BulletType4,
 		/** Enemy bullet. */
 		EnemyBullet,
 		/** First enemy ship - first form. */
@@ -99,8 +106,8 @@ public final class DrawManager {
 		Explosion,
 		/** Barrier. */
 		Barrier,
-        /** Item Box. */
-        ItemBox,
+    /** Item Box. */
+    ItemBox,
 		/** Spider webs restricting player movement */
 		Web,
 		/** Obstacles preventing a player's bullet */
@@ -109,12 +116,12 @@ public final class DrawManager {
 		Blocker1,
 		/** Obstruction 2 (Astronaut) */
 		Blocker2,
-        /** 2nd player ship. */
-        Ship2,
-        /** 3rd player ship. */
-        Ship3,
-        /** 4th player ship. */
-        Ship4,
+    /** 2nd player ship. */
+    Ship2,
+    /** 3rd player ship. */
+    Ship3,
+    /** 4th player ship. */
+    Ship4,
 		/** Fourth enemy ship - first form. */
 		EnemyShipD1,
 		/** Fourth enemy ship - second form. */
@@ -123,8 +130,10 @@ public final class DrawManager {
 		EnemyShipE1,
 		/** Fifth enemy ship - second form. */
 		EnemyShipE2,
-		/** Elite enemy ship - first form. */
-		EnemyShipF1
+		/** Diver enemy ship - first form. */
+		EnemyShipF1,
+		/** Diver enemy ship - first form. */
+		EnemyShipF2
 	};
 
 	/**
@@ -140,7 +149,10 @@ public final class DrawManager {
 
 			spriteMap.put(SpriteType.Ship, new boolean[13][8]);
 			spriteMap.put(SpriteType.ShipDestroyed, new boolean[13][8]);
-			spriteMap.put(SpriteType.Bullet, new boolean[3][5]);
+			spriteMap.put(SpriteType.BulletType1, new boolean[3][5]);
+			spriteMap.put(SpriteType.BulletType2, new boolean[3][5]);
+			spriteMap.put(SpriteType.BulletType3, new boolean[3][5]);
+			spriteMap.put(SpriteType.BulletType4, new boolean[3][5]);
 			spriteMap.put(SpriteType.EnemyBullet, new boolean[3][5]);
 			spriteMap.put(SpriteType.EnemyShipA1, new boolean[12][8]);
 			spriteMap.put(SpriteType.EnemyShipA2, new boolean[12][8]);
@@ -164,6 +176,7 @@ public final class DrawManager {
 			spriteMap.put(SpriteType.EnemyShipE1, new boolean[12][8]);
 			spriteMap.put(SpriteType.EnemyShipE2, new boolean[12][8]);
 			spriteMap.put(SpriteType.EnemyShipF1, new boolean[16][7]);
+			spriteMap.put(SpriteType.EnemyShipF2, new boolean[16][7]);
 
 			fileManager.loadSprite(spriteMap);
 			logger.info("Finished loading the sprites.");
@@ -1187,6 +1200,30 @@ public final class DrawManager {
 	}
 
 	/**
+	 * Draws a regular string.
+	 * @param screen Screen to draw on.
+	 * @param string String to draw.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 */
+	public void drawRegularString(final Screen screen, final String string, final int x, final int y) {
+		backBufferGraphics.setFont(fontRegular);
+		backBufferGraphics.drawString(string, x, y);
+	}
+
+	/**
+	 * Draws a small string.
+	 * @param screen Screen to draw on.
+	 * @param string String to draw.
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 */
+	public void drawSmallString(final Screen screen, final String string, final int x, final int y) {
+		backBufferGraphics.setFont(fontSmall);
+		backBufferGraphics.drawString(string, x, y);
+	}
+
+	/**
 	 * Draws a centered string on big font.
 	 * 
 	 * @param screen
@@ -1446,20 +1483,18 @@ public final class DrawManager {
 			int startAngle = 90;
 			int endAngle = 0;
 			switch(Core.BASE_SHIP){
-				case Ship.ShipType.VoidReaper:
+				case VoidReaper:
 					endAngle = 360 * (int)remainingTime / (int)(750 * 0.4);
 				    break;
-				case Ship.ShipType.CosmicCruiser:
+				case CosmicCruiser:
 					endAngle = 360 * (int)remainingTime / (int)(750 * 1.6);
 				    break;
-				case Ship.ShipType.StarDefender:
+				case StarDefender:
 					endAngle = 360 * (int)remainingTime / (int)(750 * 1.0);
 					break;
-				case Ship.ShipType.GalacticGuardian:
+				case GalacticGuardian:
 					endAngle = 360 * (int)remainingTime / (int)(750 * 1.2);
 					break;
-
-
 			}
 
 			backBufferGraphics.fillArc(shipX + shipWidth/2 - circleSize/2, shipY - 3*circleSize/2,
@@ -1738,30 +1773,6 @@ public final class DrawManager {
 		drawCenteredRegularString(screen, volumeText, y); // 퍼센트 값을 중앙에 표시
 	}
 
-	/** Almost same function as drawVolumeBar to draw a bar to select the ship*/
-	public void drawShipBoxes(Screen screen, int x, int y, boolean isSelected, int index, boolean current) {
-		if(current){
-			// Ship box
-			backBufferGraphics.setColor(isSelected ? Color.GREEN : Color.WHITE);
-			backBufferGraphics.fillRect(x + index*60, y+index*20, isSelected ? 0 : 10, 10);
-			backBufferGraphics.setColor(Color.GREEN);
-			backBufferGraphics.fillRect(x + index*60, y+index*20, (isSelected ? 10 : 0), 10);
-			// Ship name
-			backBufferGraphics.setFont(fontRegular);
-			backBufferGraphics.drawString(Ship.ShipType.values()[index].name(), x + index*60 + 15, y+index*20);
-		} else {
-			// Ship box
-			backBufferGraphics.setColor(isSelected ? Color.GREEN : Color.WHITE);
-			backBufferGraphics.fillRect(x + index*60, y+index*20, isSelected ? 0 : 10, 10);
-			backBufferGraphics.setColor(Color.GRAY);
-			backBufferGraphics.fillRect(x + index*60, y+index*20, (isSelected ? 10 : 0), 10);
-			// Ship name
-			backBufferGraphics.setFont(fontRegular);
-			backBufferGraphics.drawString(Ship.ShipType.values()[index].name(), x + index*60 + 15, y + index*20);
-		}
-
-	}
-
 	public void drawCenteredRegularString(final Screen screen,
 										  final String string, final int height, boolean isSelected) {
 		backBufferGraphics.setFont(fontRegular);
@@ -1788,12 +1799,15 @@ public final class DrawManager {
 		int screenHeight = screen.getHeight();
 
 		if (selectedRow == 0) {
-			y = screenHeight / 100 * 35;
-			height = screen.getHeight() / 100 * 28;
+			y = screenHeight / 100 * 30;
+			height = screen.getHeight() / 100 * 22;
 		} else if (selectedRow == 1) {
-			y = screenHeight / 100 * 63;
+			y = screenHeight / 100 * 52;
 			height = screen.getHeight() / 100 * 18;
 		} else if (selectedRow == 2) {
+			y = screenHeight / 100 * 70;
+			height = screen.getHeight() / 100 * 22;
+		} else if (selectedRow == 3) {
 			y = screenHeight / 100 * 92;
 			height = screen.getHeight() / 100 * 10;
 		}
@@ -1822,7 +1836,8 @@ public final class DrawManager {
 	 *
 	 */
 	public void drawGameSettingElements(final Screen screen, final int selectedRow,
-		final boolean isMultiPlayer, final String name1, final String name2, final int difficultyLevel) {
+										final boolean isMultiPlayer, final String name1, final String name2, final int difficultyLevel,
+										final Ship.ShipType shipType) {
 		String spaceString = " ";
 		String player1String = "1 Player";
 		String player2String = "2 Player";
@@ -1834,28 +1849,114 @@ public final class DrawManager {
 		if (!isMultiPlayer) backBufferGraphics.setColor(Color.GREEN);
 		else backBufferGraphics.setColor(Color.WHITE);
 
-		drawCenteredRegularString(screen, player1String + spaceString.repeat(40), screen.getHeight() / 100 * 43);
-		drawCenteredRegularString(screen, name1 + spaceString.repeat(40), screen.getHeight() / 100 * 58);
+		drawCenteredRegularString(screen, player1String + spaceString.repeat(40), screen.getHeight() / 100 * 38);
+		drawCenteredRegularString(screen, name1 + spaceString.repeat(40), screen.getHeight() / 100 * 46);
 
 		if (!isMultiPlayer) backBufferGraphics.setColor(Color.WHITE);
 		else backBufferGraphics.setColor(Color.GREEN);
 
-		drawCenteredRegularString(screen, spaceString.repeat(40) + player2String, screen.getHeight() / 100 * 43);
-		drawCenteredRegularString(screen, spaceString.repeat(40) + name2, screen.getHeight() / 100 * 58);
+		drawCenteredRegularString(screen, spaceString.repeat(40) + player2String, screen.getHeight() / 100 * 38);
+		drawCenteredRegularString(screen, spaceString.repeat(40) + name2, screen.getHeight() / 100 * 46);
 
 		if (difficultyLevel==0) backBufferGraphics.setColor(Color.GREEN);
 		else backBufferGraphics.setColor(Color.WHITE);
-		drawCenteredRegularString(screen, levelEasyString + spaceString.repeat(60), screen.getHeight() / 100 * 73);
+		drawCenteredRegularString(screen, levelEasyString + spaceString.repeat(60), screen.getHeight() / 100 * 62);
 
 		if (difficultyLevel==1) backBufferGraphics.setColor(Color.GREEN);
 		else backBufferGraphics.setColor(Color.WHITE);
-		drawCenteredRegularString(screen, levelNormalString, screen.getHeight() / 100 * 73);
+		drawCenteredRegularString(screen, levelNormalString, screen.getHeight() / 100 * 62);
 
 		if (difficultyLevel==2) backBufferGraphics.setColor(Color.GREEN);
 		else backBufferGraphics.setColor(Color.WHITE);
-		drawCenteredRegularString(screen, spaceString.repeat(60) + levelHardString, screen.getHeight() / 100 * 73);
+		drawCenteredRegularString(screen, spaceString.repeat(60) + levelHardString, screen.getHeight() / 100 * 62);
 
-		if (selectedRow == 2) backBufferGraphics.setColor(Color.GREEN);
+		Ship.ShipType[] shipTypes = Ship.ShipType.values();
+		int shipIndex = 0;
+		for (int i = 0; i < shipTypes.length; i++) {
+			if (shipTypes[i] == shipType) {
+				shipIndex = i;
+				break;
+			}
+		}
+
+		// Ship selection
+		final int SHIP_OFFSET = screen.getWidth() / 100 * 30;
+		final int ARROW_OFFSET = 50;
+
+		Ship currentShip = ShipFactory.create(shipType, 0, 0);
+		currentShip.setColor(Color.GREEN);
+		drawEntity(currentShip, screen.getWidth() / 2 - 13, screen.getHeight() / 100 * 80);
+		drawRegularString(screen, shipType.name(),
+				screen.getWidth() / 2 - fontRegularMetrics.stringWidth(shipType.name()) / 2,
+				screen.getHeight() / 100 * 80 - 35
+		);
+
+		/// Draw ship stats
+		final ShipMultipliers multipliers = currentShip.getMultipliers();
+		final Object[][] stats = new Object[][]{
+				{"SPD", multipliers.speed()},
+				{"BUL SPD", multipliers.bulletSpeed()},
+				{"SHOT INT", multipliers.shootingInterval()},
+		};
+		List<String> statsStr = new ArrayList<>();
+        for (Object[] stat : stats) {
+            // Format it as percentage (+/-)
+            String mult;
+            if ((float) stat[1] < 1) {
+                mult = "-" + Math.round((1 - (float) stat[1]) * 100) + "%";
+            } else {
+                mult = "+" + Math.round(((float) stat[1] - 1) * 100) + "%";
+            }
+            statsStr.add(mult + " " + stat[0]);
+        }
+		drawCenteredSmallString(screen, String.join(", ", statsStr), screen.getHeight() / 100 * 80 + 38);
+
+		if (shipIndex > 0) {
+			Ship previousShip = ShipFactory.create(shipTypes[shipIndex - 1], 0, 0);
+			previousShip.setColor(Color.WHITE);
+			drawEntity(previousShip, screen.getWidth() / 2 - SHIP_OFFSET - 13, screen.getHeight() / 100 * 80);
+			drawRegularString(screen, shipTypes[shipIndex - 1].name(),
+					screen.getWidth() / 2 - SHIP_OFFSET - fontRegularMetrics.stringWidth(shipTypes[shipIndex - 1].name()) / 2,
+					screen.getHeight() / 100 * 80 - 35
+			);
+
+			// Draw arrow left
+			backBufferGraphics.setColor(Color.WHITE);
+			backBufferGraphics.fillPolygon(
+					new int[]{
+							screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 30,
+							screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15,
+							screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15},
+					new int[]{screen.getHeight() / 100 * 80,
+							screen.getHeight() / 100 * 80 - 15,
+							screen.getHeight() / 100 * 80 + 15},
+					3
+			);
+		}
+		if (shipIndex < shipTypes.length - 1) {
+			Ship nextShip = ShipFactory.create(shipTypes[shipIndex + 1], 0, 0);
+			nextShip.setColor(Color.WHITE);
+			drawEntity(nextShip, screen.getWidth() / 2 + SHIP_OFFSET - 13, screen.getHeight() / 100 * 80);
+			drawRegularString(screen, shipTypes[shipIndex + 1].name(),
+					screen.getWidth() / 2 + SHIP_OFFSET - fontRegularMetrics.stringWidth(shipTypes[shipIndex + 1].name()) / 2,
+					screen.getHeight() / 100 * 80 - 35
+			);
+
+			// Draw arrow right
+			backBufferGraphics.setColor(Color.WHITE);
+			backBufferGraphics.fillPolygon(
+					new int[]{screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 30,
+							screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15,
+							screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15},
+					new int[]{screen.getHeight() / 100 * 80,
+							screen.getHeight() / 100 * 80 - 15,
+							screen.getHeight() / 100 * 80 + 15},
+					3
+			);
+		}
+
+
+		if (selectedRow == 3) backBufferGraphics.setColor(Color.GREEN);
 		else backBufferGraphics.setColor(Color.WHITE);
 		drawCenteredRegularString(screen, startString, screen.getHeight() / 100 * 98);
 	}
