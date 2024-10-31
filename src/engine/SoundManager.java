@@ -16,8 +16,6 @@ public class SoundManager {
 
     /** Singleton instance of the class. */
     private static SoundManager instance;
-    /** Save the sound file **/
-    private static HashMap<Sound, Clip> soundClips;
     /** Application logger. */
     private static Logger logger;
     /** Sound manager activation flag */
@@ -30,10 +28,12 @@ public class SoundManager {
     /** Current playing BGM */
     private Sound currentBGM;
 
+    /** Save the sound file **/
+    private static HashMap<Sound, Clip> soundClips;
     /** Sound clip pools for simultaneous playback */
     private static Map<Sound, List<Clip>> soundPools;
     /** Pool size for each sound */
-    private static final int POOL_SIZE = 8;
+    private static final int POOL_SIZE = 2;
 
     private static final Set<Sound> POSITIONAL_SOUNDS = Set.of(
             Sound.ALIEN_HIT, Sound.ALIEN_LASER, Sound.PLAYER_HIT, Sound.PLAYER_MOVE, Sound.PLAYER_LASER, Sound.ITEM_BOMB,
@@ -134,9 +134,7 @@ public class SoundManager {
             clip.open(audioStream);
             clipPool.add(clip);
         }
-
         soundPools.put(sound, clipPool);
-        soundClips.put(sound, clipPool.get(0));
 
         AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
         Clip clip = AudioSystem.getClip();
@@ -152,6 +150,15 @@ public class SoundManager {
      */
     private void setVolume(int volume) {
         float newVolume = MIN_VOL + (float)(Math.log(volume + 1) / Math.log(11)) * (MAX_VOL - MIN_VOL);
+
+        for (Clip clip : soundClips.values()) {
+            try {
+                FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                volumeControl.setValue(newVolume);
+            } catch (IllegalArgumentException e) {
+                logger.warning("Failed to set volume: " + e.getMessage());
+            }
+        }
 
         for (List<Clip> clipPool : soundPools.values()) {
             for (Clip clip : clipPool) {
@@ -201,7 +208,15 @@ public class SoundManager {
      * @param sound Key value of sound
      */
     public void playSound(Sound sound) {
-        playSound(sound, 0.0f);
+        if (soundEnabled) {
+            Clip clip = soundClips.get(sound);
+            if (clip != null){
+                clip.setFramePosition(0);
+                clip.start();
+            } else {
+                logger.warning("Sound not found: " + sound);
+            }
+        }
     }
 
     /**
@@ -265,6 +280,13 @@ public class SoundManager {
      */
     public void stopSound(Sound sound) {
         if (soundEnabled) {
+            Clip clips = soundClips.get(sound);
+            if (clips != null && clips.isRunning()) {
+                clips.stop();
+            } else {
+            logger.warning("Sound not playing or not found: " + sound);
+            }
+
             List<Clip> clipPool = soundPools.get(sound);
             if (clipPool != null) {
                 clipPool.forEach(clip -> {

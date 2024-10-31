@@ -133,6 +133,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 	private GameState gameState;
 
+	private int hitBullets;
+
     /**
 	 * Constructor, establishes the properties of the screen.
 	 * 
@@ -171,6 +173,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		this.maxCombo = gameState.getMaxCombo();
 		this.lapTime = gameState.getPrevTime();
 		this.tempScore = gameState.getPrevScore();
+
+		this.hitBullets = gameState.getHitBullets();
 
 		try {
 			this.highScores = Core.getFileManager().loadHighScores();
@@ -238,14 +242,15 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		enemyShipFormation = new EnemyShipFormation(this.gameSettings, this.gameState);
 		enemyShipFormation.attach(this);
         // Appears each 10-30 seconds.
-        this.ship = ShipFactory.create(this.shipType, this.width / 2, this.height - 70);
+        this.ship = ShipFactory.create(this.shipType, this.width / 2, this.height - 30);
+		logger.info("Player ship created " + this.shipType + " at " + this.ship.getPositionX() + ", " + this.ship.getPositionY());
         ship.applyItem(wallet);
 		//Create random Spider Web.
 		int web_count = 1 + level / 3;
 		web = new ArrayList<>();
 		for(int i = 0; i < web_count; i++) {
 			double randomValue = Math.random();
-			this.web.add(new Web((int) Math.max(0, randomValue * width - 12 * 2), this.height - 70));
+			this.web.add(new Web((int) Math.max(0, randomValue * width - 12 * 2), this.height - 30));
 			this.logger.info("Spider web creation location : " + web.get(i).getPositionX());
 		}
 		//Create random Block.
@@ -284,8 +289,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		this.bullets = new HashSet<>();
 		this.barriers = new HashSet<>();
         this.itemBoxes = new HashSet<>();
-		this.itemManager = new ItemManager(this.ship, this.enemyShipFormation, this.barriers,
-				balance);
+		this.itemManager = new ItemManager(this.ship, this.enemyShipFormation, this.barriers, this.height, this.width, this.balance);
 
 		// Special input delay / countdown.
 		this.gameStartTime = System.currentTimeMillis();
@@ -344,9 +348,15 @@ public class GameScreen extends Screen implements Callable<GameState> {
 								this.bulletsShot += this.itemManager.getShotNum();
 						}
 						break;
-					default:
+					case 0:
 						if (player1Attacking) {
 							if (this.ship.shoot(this.bullets, this.itemManager.getShotNum(), -1.0f)) // Player 1 attack
+								this.bulletsShot += this.itemManager.getShotNum();
+						}
+						break;
+					default: //playerNumber = -1
+						if (player1Attacking) {
+							if (this.ship.shoot(this.bullets, this.itemManager.getShotNum(), 0.0f)) // Player 1 attack
 								this.bulletsShot += this.itemManager.getShotNum();
 						}
 						break;
@@ -388,10 +398,16 @@ public class GameScreen extends Screen implements Callable<GameState> {
 						- this.ship.getSpeed() < 1;
 
 				if (moveRight && !isRightBorder) {
-					this.ship.moveRight(balance);
+					if (playerNumber == -1)
+						this.ship.moveRight();
+					else
+						this.ship.moveRight(balance);
 				}
 				if (moveLeft && !isLeftBorder) {
-					this.ship.moveLeft(balance);
+					if (playerNumber == -1)
+						this.ship.moveLeft();
+					else
+						this.ship.moveLeft(balance);
 				}
 				for(int i = 0; i < web.size(); i++) {
 					//escape Spider Web
@@ -776,9 +792,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 					if (!this.ship.isDestroyed()) {
 						this.ship.destroy(balance);
 						lvdamage();
-						this.logger.info("Hit on player ship, " + this.lives
-
-								+ " lives remaining.");
+						this.logger.info("Hit on player ship, " + this.lives + " lives remaining.");
 					}
 				}
 
@@ -807,12 +821,13 @@ public class GameScreen extends Screen implements Callable<GameState> {
 						this.score += Score.comboScore(this.enemyShipFormation.getPoint(), this.combo);
 						this.shipsDestroyed += this.enemyShipFormation.getDistroyedship();
 						this.combo++;
+						this.hitBullets++;
 						if (this.combo > this.maxCombo) this.maxCombo = this.combo;
 						timer.cancel();
 						isExecuted = false;
 						recyclable.add(bullet);
 
-						if (itemManager.dropItem()) {
+						if (enemyShip.getHealth() < 0 && itemManager.dropItem()) {
 							this.itemBoxes.add(new ItemBox(enemyShip.getPositionX() + 6, enemyShip.getPositionY() + 1, balance));
 							logger.info("Item box dropped");
 						}
@@ -824,6 +839,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 					this.score += Score.comboScore(this.enemyShipSpecial.getPointValue(), this.combo);
 					this.shipsDestroyed++;
 					this.combo++;
+					this.hitBullets++;
 					if (this.combo > this.maxCombo) this.maxCombo = this.combo;
 					this.enemyShipSpecial.destroy(balance);
 					this.enemyShipSpecialExplosionCooldown.reset();
@@ -842,6 +858,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 				while (itemBoxIterator.hasNext()) {
 					ItemBox itemBox = itemBoxIterator.next();
 					if (checkCollision(bullet, itemBox) && !itemBox.isDroppedRightNow()) {
+						this.hitBullets++;
 						itemBoxIterator.remove();
 						recyclable.add(bullet);
 						Entry<Integer, Integer> itemResult = this.itemManager.useItem();
@@ -914,7 +931,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 */
 	public final GameState getGameState() {
 		return new GameState(this.level, this.score, this.shipType, this.lives,
-				this.bulletsShot, this.shipsDestroyed, this.elapsedTime, this.alertMessage, 0, this.maxCombo, this.lapTime, this.tempScore);
+				this.bulletsShot, this.shipsDestroyed, this.elapsedTime, this.alertMessage, 0, this.maxCombo, this.lapTime, this.tempScore, this.hitBullets);
 	}
 
 

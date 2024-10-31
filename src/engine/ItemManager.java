@@ -27,9 +27,9 @@ import java.util.logging.Logger;
  */
 public class ItemManager {
     /** Width of game screen. */
-    private static final int WIDTH = 600;
+    private int WIDTH;
     /** Height of game screen. */
-    private static final int HEIGHT = 650;
+    private int HEIGHT;
     /** Item drop probability, (1 ~ 100). */
     private static final int ITEM_DROP_PROBABILITY = 30;
     /** Cooldown of Ghost */
@@ -80,13 +80,15 @@ public class ItemManager {
      * @param balance 1p -1.0, 2p 1.0, both 0.0
      *
      */
-    public ItemManager(Ship ship, EnemyShipFormation enemyShipFormation, Set<Barrier> barriers, float balance) {
+    public ItemManager(Ship ship, EnemyShipFormation enemyShipFormation, Set<Barrier> barriers, int WIDTH, int HEIGHT, float balance) {
         this.shotNum = 1;
         this.rand = new Random();
         this.ship = ship;
         this.enemyShipFormation = enemyShipFormation;
         this.barriers = barriers;
         this.logger = Core.getLogger();
+        this.WIDTH = WIDTH;
+        this.HEIGHT = HEIGHT;
         this.balance = balance;
     }
 
@@ -212,32 +214,23 @@ public class ItemManager {
         int addScore = 0;
         int addShipsDestroyed = 0;
 
-        List<List<EnemyShip>> enemyships = this.enemyShipFormation.getEnemyShips();
+        List<List<EnemyShip>> enemyShips = this.enemyShipFormation.getEnemyShips();
 
-        int targetRow = -1;
-        int maxCnt = -1;
+        int destroyRow = -1;
 
-        for (int i = 0; i < enemyships.size(); i++) {
-            int aliveCnt = 0;
-            for (int j = 0; j < enemyships.get(i).size(); j++) {
-                if (enemyships.get(i).get(j) != null && !enemyships.get(i).get(j).isDestroyed()) {
-                    aliveCnt++;
-                }
-            }
-
-            if (aliveCnt > maxCnt) {
-                maxCnt = aliveCnt;
-                targetRow = i;
+        for (List<EnemyShip> column : enemyShips) {
+            for (int i = 0; i < column.size(); i++) {
+                if (column.get(i) != null && !column.get(i).isDestroyed())
+                    destroyRow = Math.max(destroyRow, i);
             }
         }
 
-        if (targetRow != -1) {
-            List<EnemyShip> destroyList = new ArrayList<>(enemyships.get(targetRow));
-            for (EnemyShip destroyedShip : destroyList) {
-                if (destroyedShip != null && !destroyedShip.isDestroyed()) {
-                    addScore += destroyedShip.getPointValue();
+        if (destroyRow != -1) {
+            for (List<EnemyShip> column : enemyShips) {
+                if (column.get(destroyRow) != null && !column.get(destroyRow).isDestroyed()) {
+                    addScore += column.get(destroyRow).getPointValue();
                     addShipsDestroyed++;
-                    enemyShipFormation.destroy(destroyedShip, balance);
+                    enemyShipFormation.destroy(column.get(destroyRow), balance);
                 }
             }
         }
@@ -253,14 +246,17 @@ public class ItemManager {
     private Entry<Integer, Integer> operateBarrier() {
         this.soundManager.playSound(Sound.ITEM_BARRIER_ON, balance);
 
+        int BarrierY = HEIGHT - 70;
         int middle = WIDTH / 2 - 39;
         int range = 200;
         this.barriers.clear();
 
-        this.barriers.add(new Barrier(middle, HEIGHT - 100));
-        this.barriers.add(new Barrier(middle - range, HEIGHT - 100));
-        this.barriers.add(new Barrier(middle + range, HEIGHT - 100));
-
+        this.barriers.add(new Barrier(middle, BarrierY));
+        this.barriers.add(new Barrier(middle - range, BarrierY));
+        this.barriers.add(new Barrier(middle + range, BarrierY));
+        logger.info("Barrier created at positions: (" + middle + ", " + (BarrierY) + "), ("
+                + (middle - range) + ", " + (BarrierY) + "), ("
+                + (middle + range) + ", " + (BarrierY) + ")");
         return null;
     }
 
