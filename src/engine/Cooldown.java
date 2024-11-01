@@ -9,15 +9,15 @@ package engine;
 public class Cooldown {
 
 	/** Cooldown duration. */
-	private int milliseconds;
+	private final int milliseconds;
 	/** Maximum difference between durations. */
-	private int variance;
+	private final int variance;
 	/** Duration of this run, varies between runs if variance > 0. */
 	private int duration;
 	/** Beginning time. */
 	private long time;
 	/** Special Enemy Alert. */
-	private int alert = 3000;
+	private final int alert = 3000;
 
 	/**
 	 * Constructor, established the time until the action can be performed
@@ -68,11 +68,9 @@ public class Cooldown {
 	 */
 
 	public final boolean checkAlert() {
-		if ((this.time > 0)
-				&& this.time + this.duration - this.alert <= System.currentTimeMillis())
-			return true;
-		return false;
-	}
+        return (this.time > 0)
+                && this.time + this.duration - this.alert <= System.currentTimeMillis();
+    }
 
 	/**
 	 * Controls the countdown animation when displaying 'alert'.

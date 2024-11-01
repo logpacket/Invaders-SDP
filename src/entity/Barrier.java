@@ -14,7 +14,7 @@ public class Barrier extends Entity{
 
     public Barrier(final int positionX, final int positionY) {
         super(positionX, positionY, 39 * 2, 11 * 2, Color.GREEN);
-        this.spriteType = SpriteType.Barrier;
+        this.spriteType = SpriteType.BARRIER;
         this.health = 1;
     }
 
@@ -26,10 +26,4 @@ public class Barrier extends Entity{
     public boolean isDestroyed() {
         return this.health <= 0;
     }
-
-    public int getHealth() {
-        return this.health;
-    }
-
-
 }

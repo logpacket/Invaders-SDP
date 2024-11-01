@@ -6,11 +6,11 @@ import java.awt.*;
 
 public class Blocker extends Entity {
 
-    private Random random;
+    private final Random random;
     /* angle */
     private double angle;
     /* Move left? */
-    private boolean moveLeft;
+    private final boolean moveLeft;
 
     public Blocker(int positionX, int positionY, final SpriteType spriteType, boolean moveLeft) {
         //super(positionX, positionY, 182 * 2, 93 * 2, Color.GREEN);
@@ -22,8 +22,8 @@ public class Blocker extends Entity {
     }
 
     public final void move(final double distanceX, final double distanceY) {
-        this.positionX += distanceX;
-        this.positionY += distanceY;
+        this.positionX += (int) distanceX;
+        this.positionY += (int) distanceY;
     }
 
     public final void rotate(final double degree) { angle += degree; }

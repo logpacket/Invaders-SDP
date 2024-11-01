@@ -13,31 +13,31 @@ import java.util.logging.Logger;
  */
 
 public class SoundManager {
-
     /** Singleton instance of the class. */
     private static SoundManager instance;
+
     /** Application logger. */
-    private static Logger logger;
+    private static final Logger logger = Core.getLogger();
     /** Sound manager activation flag */
     private boolean soundEnabled;
     /** Value of current volume */
-    private static int currentVolume = 10;
+    private int currentVolume = 10;
     /** Maximum and minimum values of volume */
-    private final float MIN_VOL = -80.0f;
-    private final float MAX_VOL = 6.0f;
+    private static final float MIN_VOL = -80.0f;
+    private static final float MAX_VOL = 6.0f;
     /** Current playing BGM */
     private Sound currentBGM;
 
     /** Save the sound file **/
-    private static HashMap<Sound, Clip> soundClips;
+    private final Map<Sound, Clip> soundClips;
     /** Sound clip pools for simultaneous playback */
-    private static Map<Sound, List<Clip>> soundPools;
+    private final Map<Sound, List<Clip>> soundPools;
     /** Pool size for each sound */
     private static final int POOL_SIZE = 2;
 
     private static final Set<Sound> POSITIONAL_SOUNDS = Set.of(
             Sound.ALIEN_HIT, Sound.ALIEN_LASER, Sound.PLAYER_HIT, Sound.PLAYER_MOVE, Sound.PLAYER_LASER, Sound.ITEM_BOMB,
-            Sound.ITEM_SPAWN, Sound.ITEM_BARRIER_ON, Sound.ITEM_BARRIER_OFF, Sound.ITEM_TIMESTOP_ON, Sound.ITEM_TIMESTOP_OFF,
+            Sound.ITEM_SPAWN, Sound.ITEM_BARRIER_ON, Sound.ITEM_BARRIER_OFF, Sound.ITEM_TIME_STOP_ON, Sound.ITEM_TIME_STOP_OFF,
             Sound.ITEM_2SHOT, Sound.ITEM_3SHOT, Sound.ITEM_GHOST, Sound.BULLET_BLOCKING
     );
 
@@ -45,11 +45,10 @@ public class SoundManager {
      * Private constructor.
      */
     private SoundManager() {
-        logger = Core.getLogger();
         logger.info("Started loading sound resources.");
 
-        soundClips = new HashMap<>();
-        soundPools = new HashMap<>();
+        soundClips = new EnumMap<>(Sound.class);
+        soundPools = new EnumMap<>(Sound.class);
 
         soundEnabled = true;
         try {
@@ -74,11 +73,11 @@ public class SoundManager {
             loadSound(Sound.ITEM_BARRIER_OFF, "res/sound/SFX/item_barrierOff.wav");
             loadSound(Sound.ITEM_BOMB, "res/sound/SFX/item_bomb.wav");
             loadSound(Sound.ITEM_GHOST, "res/sound/SFX/item_ghost.wav");
-            loadSound(Sound.ITEM_TIMESTOP_ON, "res/sound/SFX/item_timestopOn.wav");
-            loadSound(Sound.ITEM_TIMESTOP_OFF, "res/sound/SFX/item_timestopOff.wav");
+            loadSound(Sound.ITEM_TIME_STOP_ON, "res/sound/SFX/item_timestopOn.wav");
+            loadSound(Sound.ITEM_TIME_STOP_OFF, "res/sound/SFX/item_timestopOff.wav");
             loadSound(Sound.ITEM_SPAWN, "res/sound/SFX/item_spawn.wav");
             loadSound(Sound.BGM_MAIN, "res/sound/BGM/MainTheme.wav");
-            loadSound(Sound.BGM_GAMEOVER, "res/sound/BGM/GameOver.wav");
+            loadSound(Sound.BGM_GAME_OVER, "res/sound/BGM/GameOver.wav");
             loadSound(Sound.BGM_SHOP, "res/sound/BGM/Shop.wav");
             loadSound(Sound.BGM_LV1, "res/sound/BGM/Lv1.wav");
             loadSound(Sound.BGM_LV2, "res/sound/BGM/Lv2.wav");
@@ -93,7 +92,7 @@ public class SoundManager {
 
         } catch (IOException e) {
             soundEnabled = false;
-            logger.warning("Loading failed: IO Exception");
+            logger.warning("Loading failed: IO Exception" + e.getMessage());
         } catch (UnsupportedAudioFileException e) {
             soundEnabled = false;
             logger.warning("Loading failed: Unsupported audio file.");
@@ -149,7 +148,7 @@ public class SoundManager {
      * @param volume Int value of volume (0-10)
      */
     private void setVolume(int volume) {
-        float newVolume = MIN_VOL + (float)(Math.log(volume + 1) / Math.log(11)) * (MAX_VOL - MIN_VOL);
+        float newVolume = MIN_VOL + (float) (Math.log(volume + 1) / Math.log(11)) * (MAX_VOL - MIN_VOL);
 
         for (Clip clip : soundClips.values()) {
             try {
@@ -244,7 +243,6 @@ public class SoundManager {
                         logger.info("Started playing sound: " + sound + " with balance: " + balance);
                     } catch (Exception e) {
                         logger.warning("Error playing sound: " + sound + ". Error: " + e.getMessage());
-                        e.printStackTrace();
                     }
                 } else {
                     logger.warning("No available clips in pool for sound: " + sound);

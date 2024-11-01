@@ -33,7 +33,7 @@ public class ItemBox extends Entity {
      */
     public ItemBox(int positionX, int positionY, final float balance) {
         super(positionX, positionY, 7 * 2, 7 * 2, Color.YELLOW);
-        this.spriteType = SpriteType.ItemBox;
+        this.spriteType = SpriteType.ITEM_BOX;
         this.droppedRightNow = true;
         soundManager.playSound(Sound.ITEM_SPAWN, balance);
 

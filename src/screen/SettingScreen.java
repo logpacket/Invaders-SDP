@@ -1,11 +1,8 @@
 package screen;
 
 import java.awt.event.KeyEvent;
-import engine.Cooldown;
-import engine.Core;
-import engine.Sound;
-import engine.SoundManager;
-import entity.Ship;
+
+import engine.*;
 
 public class SettingScreen extends Screen {
 
@@ -23,13 +20,13 @@ public class SettingScreen extends Screen {
     private static final int COOLDOWN_TIME = 200;
 
     /** Menu item list */
-    private String[] menuItems = {"Sound", "Ending Credit"};
+    private final String[] menuItems = {"Sound", "Ending Credit"};
     /** Default selected menu item */
     private int selectedItem = 0;
     /** Default volume value */
     private int volumeLevel;
     /** Time between changes in user selection. */
-    private Cooldown selectionCooldown;
+    private final Cooldown selectionCooldown;
     /** Singleton instance of SoundManager */
     private final SoundManager soundManager = SoundManager.getInstance();
 
@@ -45,7 +42,6 @@ public class SettingScreen extends Screen {
      */
     public SettingScreen(int width, int height, int fps) {
         super(width, height, fps);
-        this.returnCode = 1;
         this.volumeLevel = soundManager.getVolume()*10;
         this.selectionCooldown = Core.getCooldown(COOLDOWN_TIME);
     }
@@ -58,7 +54,6 @@ public class SettingScreen extends Screen {
 
         if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
             this.isRunning = false;
-            this.returnCode = 1;
             soundManager.playSound(Sound.MENU_BACK);
             return;
         }
@@ -90,23 +85,13 @@ public class SettingScreen extends Screen {
             }
 
             if (inputManager.isKeyDown(KeyEvent.VK_SPACE) && selectedItem == 1) {
-                this.returnCode = 7;
+                this.menu = Menu.CREDIT;
                 this.isRunning = false;
                 soundManager.playSound(Sound.MENU_CLICK);
             }
         }
 
         draw();
-    }
-
-    /**
-     * Starts the action.
-     *
-     * @return Next screen code.
-     */
-    public int run() {
-        super.run();
-        return this.returnCode;
     }
 
     /**
@@ -127,7 +112,7 @@ public class SettingScreen extends Screen {
 
         drawManager.drawVolumeBar(this, this.getWidth() / 2 - VOLUME_BAR_WIDTH / 2, this.getHeight() / 3 + VOLUME_BAR_GAP, VOLUME_BAR_WIDTH, filledWidth, isVolumeSelected);
 
-        drawManager.drawVolumePercentage(this, this.getWidth() / 2, this.getHeight() / 3 + VOLUME_BAR_GAP + VOLUME_PERCENTAGE_GAP, volumeLevel, isVolumeSelected);
+        drawManager.drawVolumePercentage(this, this.getHeight() / 3 + VOLUME_BAR_GAP + VOLUME_PERCENTAGE_GAP, volumeLevel, isVolumeSelected);
 
         drawManager.completeDrawing(this);
     }

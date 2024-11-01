@@ -13,6 +13,6 @@ public class Block extends Entity {
      */
     public Block(int positionX, int positionY) {
         super(positionX, positionY, 20 * 2, 7 * 2, Color.WHITE);
-        this.spriteType = SpriteType.Block;
+        this.spriteType = SpriteType.BLOCK;
     }
 }
