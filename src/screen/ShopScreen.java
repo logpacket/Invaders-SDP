@@ -18,24 +18,22 @@ public class ShopScreen extends Screen {
     private final SoundManager soundManager = SoundManager.getInstance();
 
     /** Time between changes in user selection. */
-    private Cooldown selectionCooldown;
+    private final Cooldown selectionCooldown;
 
     /** Time until not enough coin alert disappear */
-    private Cooldown money_alertCooldown;
+    private final Cooldown moneyAlertCooldown;
 
-    /** Time until max_lv alert disappear */
-    private Cooldown max_alertCooldown;
+    /** Time until maxLevel alert disappear */
+    private final Cooldown maxAlertCooldown;
 
     /** Player's wallet */
-    private Wallet wallet;
+    private final Wallet wallet;
 
     /** 1-bullet speed 2-shot frequency 3-additional lives 4-gain coin upgrade */
-    private int selected_item;
+    private int selectedItem;
 
     /** price per upgrade level */
-    private int lv1cost = 2000;
-    private int lv2cost = 4000;
-    private int lv3cost = 8000;
+    private final int[] upgradeCost = {2000, 4000, 8000};
 
     /**
      * Constructor, establishes the properties of the screen.
@@ -46,33 +44,19 @@ public class ShopScreen extends Screen {
      *            Screen height.
      * @param fps
      *            Frames per second, frame rate at which the game is run.
-     * @param wallet
-     *            Player's wallet
      */
-    public ShopScreen(final int width, final int height, final int fps, final Wallet wallet) {
+    public ShopScreen(final int width, final int height, final int fps) {
         super(width, height, fps);
 
-        this.returnCode = 1;
         this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
         this.selectionCooldown.reset();
-        this.money_alertCooldown = Core.getCooldown(ALERT_TIME);
-        this.max_alertCooldown = Core.getCooldown(ALERT_TIME);
-        this.wallet = wallet;
-        selected_item = 1;
+        this.moneyAlertCooldown = Core.getCooldown(ALERT_TIME);
+        this.maxAlertCooldown = Core.getCooldown(ALERT_TIME);
+        this.wallet = Wallet.getWallet();
+        selectedItem = 1;
 
         soundManager.stopSound(Sound.BGM_MAIN);
         soundManager.loopSound(Sound.BGM_SHOP);
-    }
-
-    /**
-     * Starts the action.
-     *
-     * @return Next screen code(MainMenu) 1.
-     */
-    public final int run() {
-        super.run();
-
-        return this.returnCode;
     }
 
     /**
@@ -84,8 +68,8 @@ public class ShopScreen extends Screen {
         draw();
         if (this.selectionCooldown.checkFinished()
                 && this.inputDelay.checkFinished()
-                && this.money_alertCooldown.checkFinished()
-                && this.max_alertCooldown.checkFinished()) {
+                && this.moneyAlertCooldown.checkFinished()
+                && this.maxAlertCooldown.checkFinished()) {
 
             if (inputManager.isKeyDown(KeyEvent.VK_UP)
                     || inputManager.isKeyDown(KeyEvent.VK_W)) {
@@ -101,28 +85,28 @@ public class ShopScreen extends Screen {
             }
             if (inputManager.isKeyDown(KeyEvent.VK_SPACE))
             {
-                switch (selected_item) {
+                switch (selectedItem) {
                     case 1:
-                        if (upgrade(wallet.getBullet_lv())) {
-                            wallet.setBullet_lv(wallet.getBullet_lv() + 1);
+                        if (upgrade(wallet.getBulletLevel())) {
+                            wallet.setBulletLevel(wallet.getBulletLevel() + 1);
                             this.selectionCooldown.reset();
                         }
                         break;
                     case 2:
-                        if (upgrade(wallet.getShot_lv())) {
-                            wallet.setShot_lv(wallet.getShot_lv() + 1);
+                        if (upgrade(wallet.getShotLevel())) {
+                            wallet.setShotLevel(wallet.getShotLevel() + 1);
                             this.selectionCooldown.reset();
                         }
                         break;
                     case 3:
-                        if (upgrade(wallet.getLives_lv())) {
-                            wallet.setLives_lv(wallet.getLives_lv() + 1);
+                        if (upgrade(wallet.getLivesLevel())) {
+                            wallet.setLivesLevel(wallet.getLivesLevel() + 1);
                             this.selectionCooldown.reset();
                         }
                         break;
                     case 4:
-                        if (upgrade(wallet.getCoin_lv())) {
-                            wallet.setCoin_lv(wallet.getCoin_lv() + 1);
+                        if (upgrade(wallet.getCoinLevel())) {
+                            wallet.setCoinLevel(wallet.getCoinLevel() + 1);
                             this.selectionCooldown.reset();
                         }
                         break;
@@ -143,81 +127,46 @@ public class ShopScreen extends Screen {
      * Shifts the focus to the next shop item.
      */
     private void nextMenuItem() {
-        if (this.selected_item == 4)
-            this.selected_item = 1;
+        if (this.selectedItem == 4)
+            this.selectedItem = 1;
         else
-            this.selected_item++;
+            this.selectedItem++;
     }
 
     /**
      * Shifts the focus to the previous shop item.
      */
     private void previousMenuItem() {
-        if (this.selected_item == 1)
-            this.selected_item = 4;
+        if (this.selectedItem == 1)
+            this.selectedItem = 4;
         else
-            this.selected_item--;
+            this.selectedItem--;
     }
 
     private void draw() {
         drawManager.initDrawing(this);
 
-
-        drawManager.drawShop(this,selected_item,wallet,money_alertCooldown,max_alertCooldown);
+        drawManager.drawShop(this, selectedItem, wallet, moneyAlertCooldown, maxAlertCooldown);
 
         drawManager.completeDrawing(this);
     }
 
     public boolean upgrade(int level)
     {
-        if(level == 1)
-        {
-            if(wallet.withdraw(lv1cost))
-            {
-                soundManager.playSound(Sound.COIN_USE);
-                return true;
-            }
-            else
-            {
-                soundManager.playSound(Sound.COIN_INSUFFICIENT);
-                money_alertCooldown.reset();
-                return false;
-            }
-        }
-        else if(level == 2)
-        {
-            if(wallet.withdraw(lv2cost))
-            {
-                soundManager.playSound(Sound.COIN_USE);
-                return true;
-            }
-            else
-            {
-                soundManager.playSound(Sound.COIN_INSUFFICIENT);
-                money_alertCooldown.reset();
-                return false;
-            }
-        }
-        else if(level == 3)
-        {
-            if(wallet.withdraw(lv3cost))
-            {
-                soundManager.playSound(Sound.COIN_USE);
-                return true;
-            }
-            else
-            {
-                soundManager.playSound(Sound.COIN_INSUFFICIENT);
-                money_alertCooldown.reset();
-                return false;
-            }
-        }
-        else if(level==4)
-        {
+        if (level >= 4) {
             soundManager.playSound(Sound.COIN_INSUFFICIENT);
-            max_alertCooldown.reset();
+            moneyAlertCooldown.reset();
             return false;
         }
-        return false;
+
+        if (wallet.withdraw(upgradeCost[level-  1])) {
+            soundManager.playSound(Sound.COIN_USE);
+            return true;
+        }
+        else  {
+            soundManager.playSound(Sound.COIN_INSUFFICIENT);
+            moneyAlertCooldown.reset();
+            return false;
+        }
     }
 }

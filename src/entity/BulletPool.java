@@ -12,7 +12,7 @@ import java.util.Set;
 public final class BulletPool {
 
 	/** Set of already created bullets. */
-	private static Set<Bullet> pool = new HashSet<Bullet>();
+	private static final Set<Bullet> pool = new HashSet<>();
 
 	/**
 	 * Constructor, not called.
@@ -35,7 +35,7 @@ public final class BulletPool {
 	 * @return Requested bullet.
 	 */
 	public static Bullet getBullet(final int positionX,
-			final int positionY, final int speed) {
+								   final int positionY, final int speed, final Ship.ShipType shipType) {
 		Bullet bullet;
 		if (!pool.isEmpty()) {
 			bullet = pool.iterator().next();
@@ -43,9 +43,9 @@ public final class BulletPool {
 			bullet.setPositionX(positionX - bullet.getWidth() / 2);
 			bullet.setPositionY(positionY);
 			bullet.setSpeed(speed);
-			bullet.setSprite();
+			bullet.setSprite(shipType);
 		} else {
-			bullet = new Bullet(positionX, positionY, speed);
+			bullet = new Bullet(positionX, positionY, speed, shipType);
 			bullet.setPositionX(positionX - bullet.getWidth() / 2);
 		}
 		return bullet;

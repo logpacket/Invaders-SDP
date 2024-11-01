@@ -1,13 +1,9 @@
 package screen;
 
-import java.awt.Insets;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import engine.Cooldown;
-import engine.Core;
-import engine.DrawManager;
-import engine.InputManager;
+import engine.*;
 
 /**
  * Implements a generic screen.
@@ -33,15 +29,13 @@ public class Screen {
 	protected int height;
 	/** Frames per second shown on the screen. */
 	protected int fps;
-	/** Screen insets. */
-	protected Insets insets;
 	/** Time until the screen accepts user input. */
 	protected Cooldown inputDelay;
 
 	/** If the screen is running. */
 	protected boolean isRunning;
 	/** What kind of screen goes next. */
-	protected int returnCode;
+	protected Menu menu;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -58,12 +52,12 @@ public class Screen {
 		this.height = height;
 		this.fps = fps;
 
-		this.drawManager = Core.getDrawManager();
-		this.inputManager = Core.getInputManager();
+		this.drawManager = DrawManager.getInstance();
+		this.inputManager = InputManager.getInstance();
 		this.logger = Core.getLogger();
 		this.inputDelay = Core.getCooldown(INPUT_DELAY);
 		this.inputDelay.reset();
-		this.returnCode = 0;
+		this.menu = Menu.SCORE;
 	}
 
 	/**
@@ -78,7 +72,7 @@ public class Screen {
 	 * 
 	 * @return Next screen code.
 	 */
-	public int run() {
+	public Menu run() {
 		this.isRunning = true;
 
 		while (this.isRunning) {
@@ -91,12 +85,12 @@ public class Screen {
 				try {
 					TimeUnit.MILLISECONDS.sleep(time);
 				} catch (InterruptedException e) {
-					return 0;
+					return this.menu;
 				}
 			}
 		}
 
-		return 0;
+		return this.menu;
 	}
 
 	/**

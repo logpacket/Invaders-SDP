@@ -1,6 +1,7 @@
 package engine;
 
 import entity.Ship;
+import entity.Wallet;
 
 /**
  * Implements an object that stores the state of the game between levels.
@@ -10,33 +11,63 @@ import entity.Ship;
  */
 public class GameState {
 	/** Current game level. */
-	private int level;
+	public final int level;
 	/** Current score. */
-	private int score;
-	/** Current ship type. */
-	private Ship.ShipType shipType;
+	public final int score;
 	/** Lives currently remaining. */
-	private int livesRemaining;
+	public final int livesRemaining;
 	/** Bullets shot until now. */
-	private int bulletsShot;
+	public final int bulletsShot;
 	/** Ships destroyed until now. */
-	private int shipsDestroyed;
+	public final int shipsDestroyed;
 	/** Elapsed time */
-	private int elapsedTime;
-	/** Special enemy appearances alert message */
-	private String alertMessage;
-    /** Number of consecutive hits */
-	private int combo;
-	/** Game Difficulty */
-	private int difficulty;
+	public final int elapsedTime;
+	/** Bonus life */
+	public final boolean bonusLife;
+	/** Width of the level's enemy formation. */
+	private int formationWidth;
+	/** Height of the level's enemy formation. */
+	private int formationHeight;
+	/** Speed of the enemies, function of the remaining number. */
+	private int baseSpeed;
+	/** Frequency of enemy shotings, +/- 30%. */
+	private int shotFreq;
 	/** Intermediate aggregation variables
 	 * max combo, elapsed time and total score
 	 * you get from previous level */
-	private int maxCombo;
-	private int prevTime;
-	private int prevScore;
+	public final int maxCombo;
+	public final int prevTime;
+	public final int prevScore;
+	public final int hitBullets;
+	/** Levels between extra life. */
+	public static final int EXTRA_LIFE_FREQUENCY = 3;
 
-	private int hitBullets;
+	private static final int DEFAULT_FORMATION_SIZE = 4;
+	private static final int DEFAULT_SPEED = 60;
+	private static final int DEFAULT_SHOOT_FREQ = 2500;
+
+	@FunctionalInterface
+	interface CheckLambda {
+		boolean check (int inc, int threshold);
+	}
+
+	public GameState() {
+		this.level = 1;
+		this.score = 0;
+		this.livesRemaining = Wallet.getWallet().getLivesLevel() + 2 ;
+		this.bulletsShot = 0;
+		this.shipsDestroyed = 0;
+		this.elapsedTime = 0;
+		this.formationWidth = DEFAULT_FORMATION_SIZE;
+		this.formationHeight = DEFAULT_FORMATION_SIZE;
+		this.baseSpeed = DEFAULT_SPEED;
+		this.shotFreq = DEFAULT_SHOOT_FREQ;
+		this.maxCombo = 0;
+		this.prevTime = 0;
+		this.prevScore = 0;
+		this.hitBullets = 0;
+		this.bonusLife = false;
+	}
 
 	/**
 	 * Constructor.
@@ -45,8 +76,6 @@ public class GameState {
 	 *            Current game level.
 	 * @param score
 	 *            Current score.
-	 * @param shipType
-	 * 		  	  Current ship type.
 	 * @param livesRemaining
 	 *            Lives currently remaining.
 	 * @param bulletsShot
@@ -55,126 +84,141 @@ public class GameState {
 	 *            Ships destroyed until now.
 	 * @param elapsedTime
 	 * 			  Elapsed time.
-	 * @param alertMessage
-	 *  		  Display alert message before a bonus enemy created.
-	 * @param combo
-	 *            Ships destroyed consequtive.
+	 * @param formationWidth
+	 *            Width of the level's enemy formation.
+	 * @param formationHeight
+	 *            Height of the level's enemy formation.
+	 * @param baseSpeed
+	 *            Speed of the enemies.
+	 * @param shotFreq
+	 *            Frequency of enemy shootings, +/- 30%.
+	 * @param maxCombo
+	 * 			  Previous level's max combo
+	 * @param prevTime
+	 * 			  Previous time
+	 * @param prevScore
+	 * 			  Previous score
+	 * @param hitBullets
+	 * 			  Count of bullets that hit
 	 */
 	public GameState(final int level, final int score,
-			final Ship.ShipType shipType,
 			final int livesRemaining, final int bulletsShot,
-			final int shipsDestroyed, final int elapsedTime, final String alertMessage, final int combo,
-					 final int maxCombo, final int prevTime, final int prevScore, final int hitBullets, final int difficulty) {
+			final int shipsDestroyed, final int elapsedTime, final int formationWidth,
+			 final int formationHeight, final int baseSpeed, final int shotFreq,
+			 final int maxCombo, final int prevTime, final int prevScore, final int hitBullets) {
 				
 		this.level = level;
 		this.score = score;
-		this.shipType = shipType;
 		this.livesRemaining = livesRemaining;
 		this.bulletsShot = bulletsShot;
 		this.shipsDestroyed = shipsDestroyed;
 		this.elapsedTime = elapsedTime;
-		this.alertMessage = alertMessage;
-		this.combo = combo;
-		this.difficulty = difficulty;
+		this.formationWidth = formationWidth;
+		this.formationHeight = formationHeight;
+		this.baseSpeed = baseSpeed;
+		this.shotFreq = shotFreq;
 		this.maxCombo = maxCombo;
 		this.prevTime = prevTime;
 		this.prevScore = prevScore;
 		this.hitBullets = hitBullets;
+		this.bonusLife = false;
 	}
 
 	public GameState(GameState gameState) {
 		this.level = gameState.level;
 		this.score = gameState.score;
-		this.shipType = gameState.shipType;
 		this.livesRemaining = gameState.livesRemaining;
 		this.bulletsShot = gameState.bulletsShot;
 		this.shipsDestroyed = gameState.shipsDestroyed;
 		this.elapsedTime = gameState.elapsedTime;
-		this.combo = 0;
-        this.difficulty = gameState.difficulty;
+		this.formationWidth = gameState.formationWidth;
+		this.formationHeight = gameState.formationHeight;
+		this.baseSpeed = gameState.baseSpeed;
+		this.shotFreq = gameState.shotFreq;
 		this.maxCombo = gameState.maxCombo;
 		this.prevTime = gameState.prevTime;
 		this.prevScore = gameState.prevScore;
 		this.hitBullets = gameState.hitBullets;
+		this.bonusLife = gameState.bonusLife;
 	}
 
 
-	public GameState(GameState gameState, int nextLevel) {
-		this.level = nextLevel;
-		this.score = gameState.score;
-		this.shipType = gameState.shipType;
-		this.livesRemaining = gameState.livesRemaining;
-		this.bulletsShot = gameState.bulletsShot;
-		this.shipsDestroyed = gameState.shipsDestroyed;
-		this.elapsedTime = gameState.elapsedTime;
-		this.combo = 0;
-        this.difficulty = gameState.difficulty;
-		this.maxCombo = gameState.maxCombo;
-		this.prevTime = gameState.prevTime;
-		this.prevScore = gameState.prevScore;
-		this.hitBullets = gameState.hitBullets;
+	public GameState(GameState origin, GameSettings gameSettings) {
+		this.level = origin.level + 1;
+		this.score = origin.score;
+		this.bulletsShot = origin.bulletsShot;
+		this.shipsDestroyed = origin.shipsDestroyed;
+		this.elapsedTime = origin.elapsedTime;
+		this.maxCombo = origin.maxCombo;
+		this.prevTime = origin.prevTime;
+		this.prevScore = origin.prevScore;
+		this.hitBullets = origin.hitBullets;
+		this.bonusLife = level
+				% EXTRA_LIFE_FREQUENCY == 0
+				&& origin.livesRemaining < gameSettings.maxLives;
+		this.livesRemaining = bonusLife ? origin.livesRemaining + 1 : origin.livesRemaining;
+
+		boolean isUpgradeLevel = false;
+		boolean checkFormWidth = origin.formationWidth < 14;
+		boolean checkFormHeight = origin.formationHeight < 10;
+		boolean checkFormation = origin.formationWidth == origin.formationHeight && checkFormWidth;
+		CheckLambda checkSpeed = (int inc, int threshold) -> origin.baseSpeed - inc > threshold;
+		CheckLambda checkShotFreq = (int inc, int threshold) -> origin.shotFreq - inc > threshold;
+
+		int tempFormationWidth = origin.formationWidth;
+		int tempFormationHeight = origin.formationHeight;
+		int tempBaseSpeed = origin.baseSpeed;
+		int tempShotFreq = origin.shotFreq;
+
+		int speedInc = 10;
+		int speedThreshold = -150;
+		int shotFreqInc = 100;
+		int shotFreqThreshold = 100;
+		int baseShotFreq = 100;
+		int formInc = 1;
+
+		switch (gameSettings.difficulty) {
+			case 0 -> {
+				if ((level%3 == 0 && level < 5) || (level % 2 == 0 && level >= 5) ) isUpgradeLevel = true;
+			}
+			case 1 -> {
+				shotFreqInc = 200;
+				shotFreqThreshold = 200;
+				if(level % 2 == 0)  isUpgradeLevel = true;
+				else if (level >= 5) {
+					isUpgradeLevel = true;
+					speedInc = 20;
+				}
+			}
+			case 2 -> {
+				speedInc = 20;
+				shotFreqInc = 300;
+				if (level%2 == 0 && level < 5) isUpgradeLevel = true;
+				else if (level >= 5) {
+					isUpgradeLevel = true;
+					shotFreqInc = 400;
+					formInc = 2;
+				}
+			}
+		}
+
+		if (isUpgradeLevel) {
+			if (checkFormation) tempFormationWidth += formInc;
+			else if (checkFormHeight) tempFormationHeight += formInc;
+
+			tempBaseSpeed = checkSpeed.check(speedInc, speedThreshold) ?
+					origin.baseSpeed - speedInc : speedThreshold;
+
+			tempShotFreq = checkShotFreq.check(shotFreqInc, shotFreqThreshold) ?
+					origin.shotFreq - shotFreqInc : baseShotFreq;
+		}
+
+		this.formationWidth = tempFormationWidth;
+		this.formationHeight = tempFormationHeight;
+		this.baseSpeed = tempBaseSpeed;
+		this.shotFreq = tempShotFreq;
 	}
 
-
-	/**
-	 * @return the level
-	 */
-	public final int getLevel() {
-		return level;
-	}
-
-	/**
-	 * @return the score
-	 */
-	public final int getScore() {
-		return score;
-	}
-
-	/**
-	 * @return the shipType
-	 */
-	public final Ship.ShipType getShipType() {
-		return shipType;
-	}
-
-	/**
-	 * @return the livesRemaining
-	 */
-	public final int getLivesRemaining() {
-		return livesRemaining;
-	}
-
-	/**
-	 * @return the bulletsShot
-	 */
-	public final int getBulletsShot() {
-		return bulletsShot;
-	}
-
-	/**
-	 * @return the shipsDestroyed
-	 */
-	public final int getShipsDestroyed() {
-		return shipsDestroyed;
-	}
-
-
-	/**
-	 * @return the elapsedTime
-	 */
-	public final int getElapsedTime() { return elapsedTime; }
-
-	/**
-	 * @return the alertMessage
-	 */
-	public final String getAlertMessage() { return alertMessage; }
-
-	/**
-	 * @return the difficulty
-	 */
-	public final int getDifficulty() {
-		return difficulty;
-	}
 	public double getAccuracy() {
 		if (bulletsShot == 0){
 			return 0;
@@ -182,22 +226,9 @@ public class GameState {
 		return ((double) hitBullets / bulletsShot) * 100;
 	}
 
-	/**
-	 * @return the maxCombo
-	 */
-	public final int getMaxCombo() { return maxCombo;}
-
-	/**
-	 * @return the prevTime/lapTime
-	 */
-	public final int getPrevTime() { return prevTime;}
-
-	/**
-	 * @return the prevScore/tempScore
-	 */
-	public final int getPrevScore() { return prevScore;}
-
-	public final int getHitBullets() { return hitBullets;}
-
+	public int getFormationWidth() { return formationWidth; }
+	public int getFormationHeight() { return formationHeight; }
+	public int getBaseSpeed() { return baseSpeed; }
+	public int getShotFreq() { return shotFreq; }
 }
 

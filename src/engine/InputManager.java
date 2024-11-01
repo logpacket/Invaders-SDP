@@ -14,7 +14,7 @@ public final class InputManager implements KeyListener {
 	/** Number of recognised keys. */
 	private static final int NUM_KEYS = 256;
 	/** Array with the keys marked as pressed or not. */
-	private static boolean[] keys;
+	private final boolean[] keys;
 	/** Singleton instance of the class. */
 	private static InputManager instance;
 
@@ -30,7 +30,7 @@ public final class InputManager implements KeyListener {
 	 * 
 	 * @return Shared instance of InputManager.
 	 */
-	protected static InputManager getInstance() {
+	public static InputManager getInstance() {
 		if (instance == null)
 			instance = new InputManager();
 		return instance;
@@ -79,6 +79,6 @@ public final class InputManager implements KeyListener {
 	 */
 	@Override
 	public void keyTyped(final KeyEvent key) {
-
+		// We don't handle typed event
 	}
 }

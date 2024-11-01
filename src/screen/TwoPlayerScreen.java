@@ -1,9 +1,6 @@
 package screen;
 
-import engine.Core;
-import engine.GameSettings;
-import engine.GameState;
-import entity.Wallet;
+import engine.*;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,8 +13,6 @@ public class TwoPlayerScreen extends Screen {
     private final ExecutorService executor;
     /** Game difficulty settings each player **/
     private final GameSettings[] gameSettings = new GameSettings[2];
-    /** Current game wallet **/
-    private final Wallet wallet;
 
     /** Game states for each player **/
     private final GameState[] gameStates = new GameState[2];
@@ -29,9 +24,9 @@ public class TwoPlayerScreen extends Screen {
     private final boolean[] gameFinished = new boolean[2];
 
     /** Player 1's number**/
-    private final int PLAYER1_NUMBER = 0;
+    private static final int PLAYER1_NUMBER = 0;
     /** Player 2's number**/
-    private final int PLAYER2_NUMBER = 1;
+    private static final int PLAYER2_NUMBER = 1;
 
     /**
      * Constructor, establishes the properties of the screen.
@@ -47,11 +42,9 @@ public class TwoPlayerScreen extends Screen {
      *            Screen height.
      * @param fps
      *            Frames per second, frame rate at which the game is run.
-     * @param wallet
-     *            Wallet for each game.
      */
     public TwoPlayerScreen(final GameState gameState, final GameSettings gameSettings,
-                           final int width, final int height, final int fps, Wallet wallet) {
+                           final int width, final int height, final int fps) {
         super(width * 2, height, fps * 2);
 
         for (int playerNumber = 0; playerNumber < 2; playerNumber++) {
@@ -60,27 +53,20 @@ public class TwoPlayerScreen extends Screen {
             gameFinished[playerNumber] = false;
         }
 
-        this.wallet = wallet;
         executor = Executors.newFixedThreadPool(2);
-        this.returnCode = 1;
+        this.menu = Menu.SCORE;
     }
 
-    /**
-     * Starts the action.
-     *
-     * @return Next screen code.
-     */
-    public int run(){
+    @Override
+    public void initialize() {
+        super.initialize();
         try {
             runGameScreen(PLAYER1_NUMBER);
             runGameScreen(PLAYER2_NUMBER);
         }
         catch (Exception e) {
-            // TODO handle exception
-            e.printStackTrace();
+            logger.warning(e.getMessage());
         }
-        super.run();
-        return returnCode;
     }
 
     /**
@@ -96,16 +82,20 @@ public class TwoPlayerScreen extends Screen {
     /**
      * Updates the elements on screen and checks for events.
      */
+    @Override
     protected final void update() {
+        draw();
         try {
             if (players[PLAYER1_NUMBER].isDone()) {
                 gameStates[PLAYER1_NUMBER] = players[PLAYER1_NUMBER].get();
-                gameStates[PLAYER1_NUMBER] = new GameState(gameStates[PLAYER1_NUMBER], gameStates[PLAYER1_NUMBER].getLevel() + 1);
+                gameStates[PLAYER1_NUMBER] = new GameState(gameStates[PLAYER1_NUMBER],
+                        gameSettings[PLAYER1_NUMBER]);
                 runGameScreen(PLAYER1_NUMBER);
             }
             if (players[PLAYER2_NUMBER].isDone()) {
                 gameStates[PLAYER2_NUMBER] = players[PLAYER2_NUMBER].get();
-                gameStates[PLAYER2_NUMBER] = new GameState(gameStates[PLAYER2_NUMBER], gameStates[PLAYER2_NUMBER].getLevel() + 1);
+                gameStates[PLAYER2_NUMBER] = new GameState(gameStates[PLAYER2_NUMBER],
+                        gameSettings[PLAYER2_NUMBER]);
                 runGameScreen(PLAYER2_NUMBER);
             }
 
@@ -113,10 +103,8 @@ public class TwoPlayerScreen extends Screen {
                 isRunning = false;
                 executor.shutdown();
             }
-
-            draw();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warning(e.getMessage());
         }
     }
     /**
@@ -125,21 +113,9 @@ public class TwoPlayerScreen extends Screen {
     private void runGameScreen(int playerNumber){
         GameState gameState = playerNumber == 0 ? gameStates[PLAYER1_NUMBER] : gameStates[PLAYER2_NUMBER];
 
-        if (gameState.getLivesRemaining() > 0) {
-            boolean bonusLife = gameState.getLevel()
-                    % Core.EXTRA_LIFE_FRECUENCY == 0
-                    && gameState.getLivesRemaining() < Core.MAX_LIVES;
-            logger.info("difficulty is " + Core.getLevelSetting());
-            gameSettings[playerNumber] = gameSettings[playerNumber].LevelSettings(
-                gameSettings[playerNumber].getFormationWidth(),
-                gameSettings[playerNumber].getFormationHeight(),
-                gameSettings[playerNumber].getBaseSpeed(),
-                gameSettings[playerNumber].getShootingFrecuency(),
-                gameState.getLevel(),
-                Core.getLevelSetting()
-            );
-            GameScreen gameScreen = new GameScreen(gameState, gameSettings[playerNumber],
-                    bonusLife, width / 2, height, fps / 2, wallet, playerNumber);
+        if (gameState.livesRemaining > 0) {
+            logger.info("difficulty is " + gameSettings[playerNumber].difficulty);
+            GameScreen gameScreen = new GameScreen(gameState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
             gameScreen.initialize();
             players[playerNumber] = executor.submit(gameScreen);
         }
@@ -151,6 +127,6 @@ public class TwoPlayerScreen extends Screen {
     }
 
     public int getWinnerNumber() {
-        return ((gameStates[PLAYER1_NUMBER].getScore() >= gameStates[PLAYER2_NUMBER].getScore()) ? PLAYER1_NUMBER : PLAYER2_NUMBER) + 1;
+        return ((gameStates[PLAYER1_NUMBER].score >= gameStates[PLAYER2_NUMBER].score) ? PLAYER1_NUMBER : PLAYER2_NUMBER) + 1;
     }
 }

@@ -13,8 +13,6 @@ public class  Web extends Entity{
      */
     public Web(int positionX, int positionY) {
         super(positionX, positionY, 12 * 2, 8 * 2, Color.WHITE);
-        this.spriteType = SpriteType.Web;
+        this.spriteType = SpriteType.WEB;
     }
-
-
 }

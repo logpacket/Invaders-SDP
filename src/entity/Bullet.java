@@ -18,6 +18,7 @@ public class Bullet extends Entity {
 	 * positive is down.
 	 */
 	private int speed;
+	private Ship.ShipType shipType;
 
 	/**
 	 * Constructor, establishes the bullet's properties.
@@ -29,48 +30,41 @@ public class Bullet extends Entity {
 	 * @param speed
 	 *            Speed of the bullet, positive or negative depending on
 	 *            direction - positive is down.
+	 * @param shipType
+	 * 			  Ship type for sprite and color
 	 */
-	public Bullet(final int positionX, final int positionY, final int speed) {
-		super(positionX, positionY, 3 * 2, 5 * 2, getDefaultColor());
-
+	public Bullet(final int positionX, final int positionY, final int speed, final Ship.ShipType shipType) {
+		super(positionX, positionY, 3 * 2, 5 * 2, switch (shipType) {
+			case VOID_REAPER -> Color.GREEN;
+			case COSMIC_CRUISER -> Color.BLUE;
+			case GALACTIC_GUARDIAN -> Color.RED;
+			case STAR_DEFENDER -> Color.WHITE;
+		});
 		this.speed = speed;
-		setSprite();
+		setSprite(shipType);
 	}
 
-	public static Color getDefaultColor() {
-		switch (Core.BASE_SHIP) {
-			case VoidReaper:
-				return Color.GREEN;
-			case CosmicCruiser:
-				return Color.BLUE;
-			case GalacticGuardian:
-				return Color.RED;
-			default:
-				return Color.WHITE;
+	/**
+	 * Sets correct sprite for the bullet, based on speed.
+	 */
+	public final void setSprite(Ship.ShipType shipType) {
+		if (speed > 0) {
+			this.spriteType = SpriteType.ENEMY_BULLET;
+			return;
 		}
+		this.spriteType = switch(shipType) {
+			case VOID_REAPER -> SpriteType.BULLET_TYPE_1;
+			case COSMIC_CRUISER -> SpriteType.BULLET_TYPE_2;
+			case STAR_DEFENDER -> SpriteType.BULLET_TYPE_3;
+			case GALACTIC_GUARDIAN -> SpriteType.BULLET_TYPE_4;
+		};
 	}
 
 	/**
 	 * Sets correct sprite for the bullet, based on speed.
 	 */
 	public final void setSprite() {
-		if (speed < 0)
-			switch(Core.BASE_SHIP){
-				case VoidReaper:
-					this.spriteType = SpriteType.BulletType1;
-					break;
-				case CosmicCruiser:
-					this.spriteType = SpriteType.BulletType2;
-					break;
-				case StarDefender:
-					this.spriteType = SpriteType.BulletType3;
-					break;
-				case GalacticGuardian:
-					this.spriteType = SpriteType.BulletType4;
-					break;
-			}
-		else
-			this.spriteType = SpriteType.EnemyBullet;
+		this.spriteType = SpriteType.ENEMY_BULLET;
 	}
 
 	/**

@@ -53,7 +53,7 @@ public class EnemyShip extends Entity {
 	 *            Sprite type, image corresponding to the ship.
 	 */
 	public EnemyShip(final int positionX, final int positionY,
-			final SpriteType spriteType, final GameState gameState) {
+			final SpriteType spriteType, final GameState gameState, final int difficulty) {
 		super(positionX, positionY, 12 * 2, 8 * 2, getDefaultColor(spriteType));
 
 		this.spriteType = spriteType;
@@ -61,32 +61,27 @@ public class EnemyShip extends Entity {
 		this.isDestroyed = false;
         //Determine enemy health based on game level
 		this.health = 0;
-		for(int i =1; i<=gameState.getLevel()/3;i++){
+		for(int i =1; i<=gameState.level/3;i++){
 			this.health++;
 		}
 
 		switch (this.spriteType) {
-		case EnemyShipA1:
-		case EnemyShipA2:
-			this.pointValue = (int) (A_TYPE_POINTS+(gameState.getLevel()*0.1)+Core.getLevelSetting());
+		case ENEMY_SHIP_A1, ENEMY_SHIP_A2:
+			this.pointValue = (int) (A_TYPE_POINTS + (gameState.level * 0.1) + difficulty);
 			break;
-		case EnemyShipB1:
-		case EnemyShipB2:
-			this.pointValue = (int) (B_TYPE_POINTS+(gameState.getLevel()*0.1)+Core.getLevelSetting());
+		case ENEMY_SHIP_B1, ENEMY_SHIP_B2:
+			this.pointValue = (int) (B_TYPE_POINTS + (gameState.level * 0.1) + difficulty);
 			break;
-		case EnemyShipC1:
-		case EnemyShipC2:
-			this.pointValue = (int) (C_TYPE_POINTS+(gameState.getLevel()*0.1)+Core.getLevelSetting());
+		case ENEMY_SHIP_C1, ENEMY_SHIP_C2:
+			this.pointValue = (int) (C_TYPE_POINTS + (gameState.level * 0.1) + difficulty);
 			break;
-		case EnemyShipD1:
-		case EnemyShipD2:
+		case ENEMY_SHIP_D1, ENEMY_SHIP_D2:
 			this.pointValue = D_TYPE_POINTS;
 			break;
-		case EnemyShipE1:
-		case EnemyShipE2:
+		case ENEMY_SHIP_E1, ENEMY_SHIP_E2:
 			this.pointValue = E_TYPE_POINTS;
 			break;
-		case EnemyShipF1:
+		case ENEMY_SHIP_F1, ENEMY_SHIP_F2:
 			this.pointValue = F_TYPE_POINTS;
 			break;
 		default:
@@ -99,29 +94,15 @@ public class EnemyShip extends Entity {
 	 * Giving color for each enemy ship
 	 */
 		public static Color getDefaultColor(SpriteType spriteType) {
-			switch (spriteType) {
-				case EnemyShipA1:
-				case EnemyShipA2:
-					return Color.RED; // Цвет для типа A
-				case EnemyShipB1:
-				case EnemyShipB2:
-					return Color.GREEN; // Цвет для типа B
-				case EnemyShipC1:
-				case EnemyShipC2:
-					return Color.BLUE; // Цвет для типа C
-				case EnemyShipD1:
-				case EnemyShipD2:
-					return Color.YELLOW; // Цвет для типа D
-				case EnemyShipE1:
-				case EnemyShipE2:
-					return Color.ORANGE; // Цвет для типа E
-				case EnemyShipF1:
-					return Color.YELLOW;
-				case EnemyShipF2:
-					return Color.RED;
-				default:
-					return Color.WHITE; // Цвет по умолчанию
-			}
+            return switch (spriteType) {
+                case ENEMY_SHIP_A1, ENEMY_SHIP_A2 -> Color.RED;
+                case ENEMY_SHIP_B1, ENEMY_SHIP_B2 -> Color.GREEN;
+                case ENEMY_SHIP_C1, ENEMY_SHIP_C2 -> Color.BLUE;
+                case ENEMY_SHIP_D1, ENEMY_SHIP_D2 -> Color.YELLOW;
+                case ENEMY_SHIP_E1, ENEMY_SHIP_E2 -> Color.ORANGE;
+                case ENEMY_SHIP_F1, ENEMY_SHIP_F2 -> Color.PINK;
+                default -> Color.WHITE; // Цвет по умолчанию
+            };
 		}
 
 	/**
@@ -131,7 +112,7 @@ public class EnemyShip extends Entity {
 	public EnemyShip() {
 		super(-32, 60, 16 * 2, 7 * 2, Color.RED);
 
-		this.spriteType = SpriteType.EnemyShipSpecial;
+		this.spriteType = SpriteType.ENEMY_SHIP_SPECIAL;
 		this.isDestroyed = false;
 		this.pointValue = BONUS_TYPE_POINTS;
 	}
@@ -166,35 +147,35 @@ public class EnemyShip extends Entity {
 			this.animationCooldown.reset();
 
 			switch (this.spriteType) {
-			case EnemyShipA1:
-				this.spriteType = SpriteType.EnemyShipA2;
+			case ENEMY_SHIP_A1:
+				this.spriteType = SpriteType.ENEMY_SHIP_A2;
 				break;
-			case EnemyShipA2:
-				this.spriteType = SpriteType.EnemyShipA1;
+			case ENEMY_SHIP_A2:
+				this.spriteType = SpriteType.ENEMY_SHIP_A1;
 				break;
-			case EnemyShipB1:
-				this.spriteType = SpriteType.EnemyShipB2;
+			case ENEMY_SHIP_B1:
+				this.spriteType = SpriteType.ENEMY_SHIP_B2;
 				break;
-			case EnemyShipB2:
-				this.spriteType = SpriteType.EnemyShipB1;
+			case ENEMY_SHIP_B2:
+				this.spriteType = SpriteType.ENEMY_SHIP_B1;
 				break;
-			case EnemyShipC1:
-				this.spriteType = SpriteType.EnemyShipC2;
+			case ENEMY_SHIP_C1:
+				this.spriteType = SpriteType.ENEMY_SHIP_C2;
 				break;
-			case EnemyShipC2:
-				this.spriteType = SpriteType.EnemyShipC1;
+			case ENEMY_SHIP_C2:
+				this.spriteType = SpriteType.ENEMY_SHIP_C1;
 				break;
-			case EnemyShipD1:
-				this.spriteType = SpriteType.EnemyShipD2;
+			case ENEMY_SHIP_D1:
+				this.spriteType = SpriteType.ENEMY_SHIP_D2;
 				break;
-			case EnemyShipD2:
-				this.spriteType = SpriteType.EnemyShipD1;
+			case ENEMY_SHIP_D2:
+				this.spriteType = SpriteType.ENEMY_SHIP_D1;
 				break;
-			case EnemyShipE1:
-				this.spriteType = SpriteType.EnemyShipE2;
+			case ENEMY_SHIP_E1:
+				this.spriteType = SpriteType.ENEMY_SHIP_E2;
 				break;
-			case EnemyShipE2:
-				this.spriteType = SpriteType.EnemyShipE1;
+			case ENEMY_SHIP_E2:
+				this.spriteType = SpriteType.ENEMY_SHIP_E1;
 				break;
 			default:
 				break;
@@ -209,14 +190,14 @@ public class EnemyShip extends Entity {
 	 */
 	public final void destroy(final float balance) {
 		this.isDestroyed = true;
-		this.spriteType = SpriteType.Explosion;
+		this.spriteType = SpriteType.EXPLOSION;
         soundManager.playSound(Sound.ALIEN_HIT, balance);
 	}
 
-    public final void HealthManageDestroy(final float balance) { //Determine whether to destroy the enemy ship based on its health
+    public final void healthManageDestroy(final float balance) { //Determine whether to destroy the enemy ship based on its health
         if(this.health <= 0){
             this.isDestroyed = true;
-            this.spriteType = SpriteType.Explosion;
+            this.spriteType = SpriteType.EXPLOSION;
         }else{
             this.health--;
         }

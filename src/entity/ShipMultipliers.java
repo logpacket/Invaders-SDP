@@ -1,8 +1,8 @@
 package entity;
 
-public record ShipMultipliers(float speed, float bulletSpeed, float shootingInterval) {
+public record ShipMultipliers(float speed, float bulletSpeed, float shotFreq) {
     public ShipMultipliers {
-        if (speed <= 0 || bulletSpeed <= 0 || shootingInterval <= 0) {
+        if (speed <= 0 || bulletSpeed <= 0 || shotFreq <= 0) {
             throw new IllegalArgumentException("Ship multipliers must be positive.");
         }
     }
@@ -16,6 +16,6 @@ public record ShipMultipliers(float speed, float bulletSpeed, float shootingInte
 
         if (Float.compare(that.speed, speed) != 0) return false;
         if (Float.compare(that.bulletSpeed, bulletSpeed) != 0) return false;
-        return Float.compare(that.shootingInterval, shootingInterval) == 0;
+        return Float.compare(that.shotFreq, shotFreq) == 0;
     }
 }

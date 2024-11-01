@@ -1,5 +1,8 @@
 package engine;
 
+import entity.Ship;
+import entity.Wallet;
+
 /**
  * Implements an object that stores a single game's difficulty settings.
  * 
@@ -7,169 +10,62 @@ package engine;
  * 
  */
 public class GameSettings {
-	private int difficulty;
-	/** Width of the level's enemy formation. */
-	private int formationWidth;
-	/** Height of the level's enemy formation. */
-	private int formationHeight;
-	/** Speed of the enemies, function of the remaining number. */
-	private int baseSpeed;
-	/** Frequency of enemy shootings, +/- 30%. */
-	private int shootingFrecuency;
+	public final int difficulty;
+	/** Player name1 */
+	public final String playerName1;
+	/** Player name2 */
+	public final String playerName2;
+	/** Ship type */
+	public final Ship.ShipType shipType;
+	/** Max lives of game*/
+	public final int maxLives;
+	/** Flag of multi play mode */
+	public final boolean isMultiplayer;
+
+
+	public GameSettings() {
+		difficulty = 1;
+		playerName1 = "P1";
+		playerName2 = "P2";
+		shipType = Ship.ShipType.STAR_DEFENDER;
+		this.isMultiplayer = false;
+		this.maxLives = Wallet.getWallet().getLivesLevel() + 2;
+	}
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param formationWidth
-	 *            Width of the level's enemy formation.
-	 * @param formationHeight
-	 *            Height of the level's enemy formation.
-	 * @param baseSpeed
-	 *            Speed of the enemies.
-	 * @param shootingFrequency
-	 *            Frecuen
-	 *            cy of enemy shootings, +/- 30%.
-	 */
-	public GameSettings(final int formationWidth, final int formationHeight,
-			final int baseSpeed, final int shootingFrequency) { // fix typo
-		this.formationWidth = formationWidth;
-		this.formationHeight = formationHeight;
-		this.baseSpeed = baseSpeed;
-		this.shootingFrecuency = shootingFrequency;
-	}
-
-	public GameSettings(GameSettings gameSettings) { // fix typo
-		this.formationWidth = gameSettings.formationWidth;
-		this.formationHeight = gameSettings.formationHeight;
-		this.baseSpeed = gameSettings.baseSpeed;
-		this.shootingFrecuency = gameSettings.shootingFrecuency;
-	}
-
-	/**
-	 * @return the formationWidth
-	 */
-	public final int getFormationWidth() {
-		return formationWidth;
-	}
-
-	/**
-	 * @return the formationHeight
-	 */
-	public final int getFormationHeight() {
-		return formationHeight;
-	}
-
-	/**
-	 * @return the baseSpeed
-	 */
-	public final int getBaseSpeed() {
-		return baseSpeed;
-	}
-
-	/**
-	 * @return the shootingFrecuency
-	 */
-	public final int getShootingFrecuency() {
-		return shootingFrecuency;
-	}
-
-	/**
 	 *
-	 * @param formationWidth control Enemy width
-	 * @param formationHeight control Enemy height
-	 * @param baseSpeed control Enemy speed
-	 * @param shootingFrecuency control Enemy shooting Frequency
-	 * @param level Level
-	 * @param difficulty set difficulty
-	 * @return return type GameSettings
+	 * @param difficulty
+	 * 			  Difficulty of game
+	 * @param playerName1
+	 *            Player name 1
+	 * @param playerName2
+	 *            Player name 2
+	 * @param shipType
+	 *            Ship type
 	 */
-	public GameSettings LevelSettings(int formationWidth, int formationHeight,
-									  int baseSpeed, int shootingFrecuency, int level, int difficulty) {
+	public GameSettings(final int difficulty, final String playerName1, final String playerName2,
+						final Ship.ShipType shipType, final boolean isMultiplayer) {
 		this.difficulty = difficulty;
-		return switch (difficulty) {
-			case 0 -> {
-				if(level%3 == 0 && level < 5){
-					if(formationWidth == formationHeight){
-						if(formationWidth < 14) formationWidth += 1;
-                    } else {
-						if(formationHeight < 10) formationHeight += 1;
-                    }
-                    if(baseSpeed-10 > -150)baseSpeed -= 10;
-					else baseSpeed = -150;
-                    if(shootingFrecuency-100 > 100) shootingFrecuency -= 100;
-					else shootingFrecuency = 100;
-                }else if(level % 2 == 0 && level >= 5){
-					if(formationWidth == formationHeight){
-						if(formationWidth < 14) formationWidth += 1;
-					} else {
-						if(formationHeight < 10) formationHeight += 1;
-					}
-					if(baseSpeed-10 > -150)baseSpeed -= 10;
-					else baseSpeed = -150;
-					if(shootingFrecuency-100 > 100) shootingFrecuency -= 100;
-					else shootingFrecuency = 100;
-				}
-                yield new GameSettings(formationWidth, formationHeight, baseSpeed, shootingFrecuency);
-			}
-			case 1 -> {
-				if(level%2 == 0 && level < 5){
-					if(formationWidth == formationHeight){
-						if(formationWidth < 14) formationWidth += 1;
-					} else {
-						if(formationHeight < 10) formationHeight += 1;
-					}
-					if(baseSpeed-10 > -150)baseSpeed -= 10;
-					else baseSpeed = -150;
-					if(shootingFrecuency-200 > 200) shootingFrecuency -= 200;
-					else shootingFrecuency = 100;
-				}else if(level >= 5){
-					if(formationWidth == formationHeight){
-						if(formationWidth < 14) formationWidth += 1;
-					} else {
-						if(formationHeight < 10) formationHeight += 1;
-					}
-					if(baseSpeed-20 > -150)baseSpeed -= 20; //speed control
-					else baseSpeed = -150;
-					if(shootingFrecuency-300 > 300) shootingFrecuency -= 300; //Adjust firing interval
-					else shootingFrecuency = 100;
-				}
-                yield new GameSettings(formationWidth, formationHeight, baseSpeed, shootingFrecuency);
-			}
-			case 2 -> {
-				if(level%2 == 0 && level < 5){
-					if(formationWidth == formationHeight){
-						if(formationWidth < 14) formationWidth += 1;
-					} else {
-						if(formationHeight < 10) formationHeight += 1;
-					}
-					if(baseSpeed-20 > -150)baseSpeed -= 20;
-					else baseSpeed = -150;
-					if(shootingFrecuency-300 > 300) shootingFrecuency -= 300;
-					else shootingFrecuency = 100;
-				}else if(level >= 5){
-					if(formationWidth == formationHeight){
-						if(formationWidth < 14) formationWidth += 2;
-					} else {
-						if(formationHeight < 10) formationHeight += 2;
-					}
-					if(baseSpeed-20 > -150)baseSpeed -= 20;
-					else baseSpeed = -150;
-					if(shootingFrecuency-400 > 400) shootingFrecuency -= 400;
-					else shootingFrecuency = 100;
-				}
-                yield new GameSettings(formationWidth, formationHeight, baseSpeed, shootingFrecuency);
-			}
-			default -> {
-				yield null;
-			}
-		};
+		this.playerName1 = playerName1;
+		this.playerName2 = playerName2;
+		this.shipType = shipType;
+		this.isMultiplayer = isMultiplayer;
+		this.maxLives = Wallet.getWallet().getLivesLevel() + 2;
 	}
 
 	/**
-	 * @return difficulty
+	 * Clone constructor.
+	 *
+	 * @param origin
+	 * 			Origin game settings object
 	 */
-	public int getDifficulty() {
-		return difficulty;
+	public GameSettings(GameSettings origin) {
+		this.difficulty = origin.difficulty;
+		this.playerName1 = origin.playerName1;
+		this.playerName2 = origin.playerName2;
+		this.shipType = origin.shipType;
+		this.isMultiplayer = origin.isMultiplayer;
+		this.maxLives = origin.maxLives;
 	}
-
 }

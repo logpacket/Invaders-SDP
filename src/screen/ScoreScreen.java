@@ -23,26 +23,24 @@ public class ScoreScreen extends Screen {
 
 
 	/** Current score. */
-	private int score;
+	private final int score;
 	/** Player lives left. */
-	private int livesRemaining;
-	/** Total bullets shot by the player. */
-	private int bulletsShot;
+	private final int livesRemaining;
 	/** Total ships destroyed by the player. */
-	private int shipsDestroyed;
+	private final int shipsDestroyed;
 	/** List of past high scores. */
 	private List<Score> highScores;
 	/** Checks if current score is a new high score. */
-	private double accuracy;
+	private final double accuracy;
 	private boolean isNewRecord;
 	/** Number of coins earned in the game */
 	private int coinsEarned;
 	/** Player's name */
-	private String name1, name2;
+	private final String name1;
 	/** Two player mode flags*/
-	private boolean isMultiplay;
+	private final boolean isMultiplayer;
 
-	// Set ratios for each coin_lv - placed in an array in the order of lv1, lv2, lv3, lv4, and will be used accordingly,
+	// Set ratios for each coinLevel - placed in an array in the order of lv1, lv2, lv3, lv4, and will be used accordingly,
 	// e.g., lv1; score 100 * 0.1
 	private static final double[] COIN_RATIOS = {0.1, 0.13, 0.16, 0.19};
 
@@ -59,57 +57,47 @@ public class ScoreScreen extends Screen {
 	 *            Current game state.
 	 */
 	public ScoreScreen(final String name1, final int width, final int height, final int fps,
-			final GameState gameState, final Wallet wallet, final AchievementManager achievementManager,
-		    final boolean isMultiplay) {
+			final GameState gameState, final AchievementManager achievementManager,
+		    final boolean isMultiplayer) {
 		super(width, height, fps);
 
 		this.name1 = name1;
-		this.name2 = name2;
 
-		this.score = gameState.getScore();
-		this.livesRemaining = gameState.getLivesRemaining();
-		this.bulletsShot = gameState.getBulletsShot();
-		this.shipsDestroyed = gameState.getShipsDestroyed();
-		this.isMultiplay = isMultiplay;
+		this.score = gameState.score;
+		this.livesRemaining = gameState.livesRemaining;
+		this.shipsDestroyed = gameState.shipsDestroyed;
+		this.isMultiplayer = isMultiplayer;
 
-		// Get the user's coin_lv
-		int coin_lv = wallet.getCoin_lv();
+		Wallet wallet = Wallet.getWallet();
 
-		// Apply different ratios based on coin_lv
-		double coin_ratio = COIN_RATIOS[coin_lv-1];
+		// Get the user's coinLevel
+		int coinLevel = wallet.getCoinLevel();
+
+		// Apply different ratios based on coinLevel
+		double coinRatio = COIN_RATIOS[coinLevel-1];
 
 		// Adjust coin earning ratios based on the game level upgrade stage score
 		// Since coins are in integer units, round the decimal points and convert to int
-		this.coinsEarned = (int)Math.round(gameState.getScore() * coin_ratio);
+		this.coinsEarned = (int)Math.round(this.score * coinRatio);
 		this.coinsEarned += achievementManager.getAchievementReward();
 
 		// deposit the earned coins to wallet
 		this.accuracy = gameState.getAccuracy();
 		wallet.deposit(coinsEarned);
 
-		soundManager.loopSound(Sound.BGM_GAMEOVER);
+		soundManager.loopSound(Sound.BGM_GAME_OVER);
 
 		try {
-			this.highScores = Core.getFileManager().loadHighScores();
+			this.highScores = FileManager.getInstance().loadHighScores();
 		} catch (IOException e) {
 			logger.warning("Couldn't load high scores!");
 		}
 	}
 
 	/**
-	 * Starts the action.
-	 * 
-	 * @return Next screen code.
-	 */
-	public final int run() {
-		super.run();
-
-		return this.returnCode;
-	}
-
-	/**
 	 * Updates the elements on screen and checks for events.
 	 */
+	@Override
 	protected final void update() {
 		super.update();
 
@@ -117,22 +105,20 @@ public class ScoreScreen extends Screen {
 		if (this.inputDelay.checkFinished()) {
 			if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
 				// Return to main menu.
-				this.returnCode = 1;
+				this.menu = Menu.MAIN;
 				this.isRunning = false;
-				soundManager.stopSound(Sound.BGM_GAMEOVER);
+				soundManager.stopSound(Sound.BGM_GAME_OVER);
 				soundManager.playSound(Sound.MENU_BACK);
 				saveScore();
 			} else if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
 				// Play again.
-				this.returnCode = isMultiplay ? 8 : 2;
+				this.menu = isMultiplayer ? Menu.MULTI_PLAY : Menu.SINGLE_PLAY;
 				this.isRunning = false;
-				soundManager.stopSound(Sound.BGM_GAMEOVER);
+				soundManager.stopSound(Sound.BGM_GAME_OVER);
 				soundManager.playSound(Sound.MENU_CLICK);
 				saveScore();
 			}
-
 		}
-
 	}
 
 	/**
@@ -143,12 +129,10 @@ public class ScoreScreen extends Screen {
 		if (highScores.size() > MAX_HIGH_SCORE_NUM) {
 			int index = 0;
 			for (Score loadScore : highScores) {
-				if (name1.equals(loadScore.getName())) {
-					if (score > loadScore.getScore()) {
-						highScores.remove(index);
-						highScores.add(new Score(name1, score));
-						break;
-					}
+				if (name1.equals(loadScore.name()) && score > loadScore.score()) {
+					highScores.remove(index);
+					highScores.add(new Score(name1, score));
+					break;
 				}
 				index += 1;
 			}
@@ -156,9 +140,9 @@ public class ScoreScreen extends Screen {
 			boolean checkDuplicate = false;
 			int index = 0;
 			for (Score loadScore : highScores) {
-				if (name1.equals(loadScore.getName())) {
+				if (name1.equals(loadScore.name())) {
 					checkDuplicate = true;
-					if (score > loadScore.getScore()) {
+					if (score > loadScore.score()) {
 						highScores.remove(index);
 						highScores.add(new Score(name1, score));
 						break;
@@ -172,7 +156,7 @@ public class ScoreScreen extends Screen {
 		}
 		Collections.sort(highScores);
 		try {
-			Core.getFileManager().saveHighScores(highScores);
+			FileManager.getInstance().saveHighScores(highScores);
 		} catch (IOException e) {
 			logger.warning("Couldn't load high scores!");
 		}

@@ -52,7 +52,7 @@
   - Obstacles (Block class):
     Create a new `Block` class to design obstacles that enemy and friendly projectiles cannot pass through. These obstacles appear on the stage and act as obstacles in battle.
   - Harder Enemy Difficulty 1:
-    Modify the `shoot` method of the `EnemyShipFormation` class so that enemies fire two bullets at once or multiple enemies fire bullets at the same time as the level increases.
+    Modify the `shot` method of the `EnemyShipFormation` class so that enemies fire two bullets at once or multiple enemies fire bullets at the same time as the level increases.
 
   - Harder Enemy Difficulty 2:
     Modify the `destroy` method of the `EnemyShipFormation` class so that enemies are not destroyed immediately as the level increases, and increase the damage to enemy projectiles from 1 to 2.
@@ -92,7 +92,7 @@
   - 장애물 (Block 클래스):
         `Block` 클래스를 새로 생성하여 적군과 아군의 발사체가 통과할 수 없는 장애물을 설계합니다. 이러한 장애물은 스테이지에 등장하여 전투에 방해 요소로 작용합니다.
   - 어려워진 적군 난이도 1:
-      `EnemyShipFormation` 클래스의 `shoot` 메소드를 수정하여 레벨이 올라가면 적군이 한 번에 두 발의 총알을 발사하거나, 여러 적이 동시에 총알을 발사하도록 설정합니다.
+      `EnemyShipFormation` 클래스의 `shot` 메소드를 수정하여 레벨이 올라가면 적군이 한 번에 두 발의 총알을 발사하거나, 여러 적이 동시에 총알을 발사하도록 설정합니다.
 
   - 어려워진 적군 난이도 2:
       `EnemyShipFormation` 클래스의 `destroy` 메소드를 수정하여 레벨이 올라갈수록 적군이 즉시 파괴되지 않도록 하며, 적군이 발사하는 투사체의 데미지를 1에서 2로 증가시킵니다.

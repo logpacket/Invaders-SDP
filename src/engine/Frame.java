@@ -16,13 +16,11 @@ import screen.Screen;
 public class Frame extends JFrame {
 
 	/** Frame width. */
-	private int width;
+	private final int width;
 	/** Frame height. */
-	private int height;
-	/** Screen currently shown. */
-	private Screen currentScreen;
+	private final int height;
 
-	/**
+    /**
 	 * Initializes the new frame.
 	 * 
 	 * @param width
@@ -43,7 +41,7 @@ public class Frame extends JFrame {
 		this.height = height - insets.top - insets.bottom;
 		setTitle("Invaders");
 
-		addKeyListener(Core.getInputManager());
+		addKeyListener(InputManager.getInstance());
 	}
 
 	/**
@@ -53,27 +51,29 @@ public class Frame extends JFrame {
 	 *            Screen to show.
 	 * @return Return code of the finished screen.
 	 */
-	public final int setScreen(final Screen screen) {
-		currentScreen = screen;
-		currentScreen.initialize();
-		return currentScreen.run();
+	public final Menu setScreen(final Screen screen) {
+        /* Screen currently shown. */
+        screen.initialize();
+		return screen.run();
 	}
 
 	/**
 	 * Getter for frame width.
-	 * 
+	 *
 	 * @return Frame width.
 	 */
+	@Override
 	public final int getWidth() {
 		return this.width;
 	}
 
 	/**
 	 * Getter for frame height.
-	 * 
+	 *
 	 * @return Frame height.
 	 */
 
+	@Override
 	public final int getHeight() {
 		return this.height;
 	}
