@@ -12,6 +12,6 @@ public class StarDefender extends Ship {
     public StarDefender(final int positionX, final int positionY) {
         super(positionX, positionY,
                 "Star Defender", new ShipMultipliers(1, 1, 1),
-                DrawManager.SpriteType.Ship);
+                DrawManager.SpriteType.SHIP, ShipType.STAR_DEFENDER);
     }
 }

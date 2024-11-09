@@ -1,6 +1,6 @@
 package engine;
 
-import entity.Ship;
+import entity.Wallet;
 
 /**
  * Implements an object that stores the state of the game between levels.
@@ -8,196 +8,113 @@ import entity.Ship;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  * 
  */
-public class GameState {
-	/** Current game level. */
-	private int level;
-	/** Current score. */
-	private int score;
-	/** Current ship type. */
-	private Ship.ShipType shipType;
-	/** Lives currently remaining. */
-	private int livesRemaining;
-	/** Bullets shot until now. */
-	private int bulletsShot;
-	/** Ships destroyed until now. */
-	private int shipsDestroyed;
-	/** Elapsed time */
-	private int elapsedTime;
-	/** Special enemy appearances alert message */
-	private String alertMessage;
-    /** Number of consecutive hits */
-	private int combo;
-	/** Game Difficulty */
-	private int difficulty;
-	/** Intermediate aggregation variables
-	 * max combo, elapsed time and total score
-	 * you get from previous level */
-	private int maxCombo;
-	private int prevTime;
-	private int prevScore;
+public record GameState(
+	int level,
+	int score,
+	int livesRemaining,
+	int bulletsShoot,
+	int shipsDestroyed,
+	int elapsedTime,
+	boolean bonusLife,
+	int formationWidth,
+	int formationHeight,
+	int baseSpeed,
+	int shootInterval,
+	int maxCombo,
+	int prevTime,
+	int prevScore,
+	int hitBullets
+) {
+	private static final int EXTRA_LIFE_FREQUENCY = 3;
+	private static final int DEFAULT_FORMATION_SIZE = 4;
+	private static final int DEFAULT_SPEED = 60;
+	private static final int DEFAULT_SHOOT_INTERVAL = 2500;
 
-	private int hitBullets;
+	@FunctionalInterface
+	interface CheckLambda {
+		boolean check (int inc, int threshold);
+	}
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param level
-	 *            Current game level.
-	 * @param score
-	 *            Current score.
-	 * @param shipType
-	 * 		  	  Current ship type.
-	 * @param livesRemaining
-	 *            Lives currently remaining.
-	 * @param bulletsShot
-	 *            Bullets shot until now.
-	 * @param shipsDestroyed
-	 *            Ships destroyed until now.
-	 * @param elapsedTime
-	 * 			  Elapsed time.
-	 * @param alertMessage
-	 *  		  Display alert message before a bonus enemy created.
-	 * @param combo
-	 *            Ships destroyed consequtive.
-	 */
-	public GameState(final int level, final int score,
-			final Ship.ShipType shipType,
-			final int livesRemaining, final int bulletsShot,
-			final int shipsDestroyed, final int elapsedTime, final String alertMessage, final int combo,
-					 final int maxCombo, final int prevTime, final int prevScore, final int hitBullets, final int difficulty) {
-				
-		this.level = level;
-		this.score = score;
-		this.shipType = shipType;
-		this.livesRemaining = livesRemaining;
-		this.bulletsShot = bulletsShot;
-		this.shipsDestroyed = shipsDestroyed;
-		this.elapsedTime = elapsedTime;
-		this.alertMessage = alertMessage;
-		this.combo = combo;
-		this.difficulty = difficulty;
-		this.maxCombo = maxCombo;
-		this.prevTime = prevTime;
-		this.prevScore = prevScore;
-		this.hitBullets = hitBullets;
+	public GameState() {
+		this(1, 0, Wallet.getWallet().getLivesLevel() + 2, 0, 0, 0,
+				false, DEFAULT_FORMATION_SIZE, DEFAULT_FORMATION_SIZE, DEFAULT_SPEED,
+				DEFAULT_SHOOT_INTERVAL, 0, 0, 0, 0);
 	}
 
 	public GameState(GameState gameState) {
-		this.level = gameState.level;
-		this.score = gameState.score;
-		this.shipType = gameState.shipType;
-		this.livesRemaining = gameState.livesRemaining;
-		this.bulletsShot = gameState.bulletsShot;
-		this.shipsDestroyed = gameState.shipsDestroyed;
-		this.elapsedTime = gameState.elapsedTime;
-		this.combo = 0;
-        this.difficulty = gameState.difficulty;
-		this.maxCombo = gameState.maxCombo;
-		this.prevTime = gameState.prevTime;
-		this.prevScore = gameState.prevScore;
-		this.hitBullets = gameState.hitBullets;
+		this(gameState.level(), gameState.score(), gameState.livesRemaining(), gameState.bulletsShoot(),
+				gameState.shipsDestroyed(), gameState.elapsedTime(), gameState.bonusLife, gameState.formationWidth(),
+				gameState.formationHeight, gameState.baseSpeed, gameState.shootInterval, gameState.maxCombo(),
+				gameState.prevTime, gameState.prevScore, gameState.hitBullets);
 	}
 
+	public GameState(GameState origin, GameSettings gameSettings) {
+		int level = origin.level + 1;
+		boolean tempBonusLife = (level % EXTRA_LIFE_FREQUENCY == 0 && origin.livesRemaining < gameSettings.maxLives());
+		boolean isUpgradeLevel = false;
+		boolean checkFormWidth = origin.formationWidth < 14;
+		boolean checkFormHeight = origin.formationHeight < 10;
+		boolean checkFormation = origin.formationWidth == origin.formationHeight && checkFormWidth;
+		CheckLambda checkSpeed = (int inc, int threshold) -> origin.baseSpeed - inc > threshold;
+		CheckLambda checkShootInterval = (int inc, int threshold) -> origin.shootInterval - inc > threshold;
 
-	public GameState(GameState gameState, int nextLevel) {
-		this.level = nextLevel;
-		this.score = gameState.score;
-		this.shipType = gameState.shipType;
-		this.livesRemaining = gameState.livesRemaining;
-		this.bulletsShot = gameState.bulletsShot;
-		this.shipsDestroyed = gameState.shipsDestroyed;
-		this.elapsedTime = gameState.elapsedTime;
-		this.combo = 0;
-        this.difficulty = gameState.difficulty;
-		this.maxCombo = gameState.maxCombo;
-		this.prevTime = gameState.prevTime;
-		this.prevScore = gameState.prevScore;
-		this.hitBullets = gameState.hitBullets;
+		int tempFormationWidth = origin.formationWidth;
+		int tempFormationHeight = origin.formationHeight;
+		int tempBaseSpeed = origin.baseSpeed;
+		int tempShootInterval = origin.shootInterval;
+
+		int speedInc = 10;
+		int speedThreshold = -150;
+		int shootIntervalInc = 100;
+		int shootIntervalThreshold = 100;
+		int baseShootInterval = 100;
+		int formInc = 1;
+
+		switch (gameSettings.difficulty()) {
+			case 0 -> {
+				if ((level%3 == 0 && level < 5) || (level % 2 == 0 && level >= 5) ) isUpgradeLevel = true;
+			}
+			case 1 -> {
+				shootIntervalInc = 200;
+				shootIntervalThreshold = 200;
+				if(level % 2 == 0)  isUpgradeLevel = true;
+				else if (level >= 5) {
+					isUpgradeLevel = true;
+					speedInc = 20;
+				}
+			}
+			case 2 -> {
+				speedInc = 20;
+				shootIntervalInc = 300;
+				if (level%2 == 0 && level < 5) isUpgradeLevel = true;
+				else if (level >= 5) {
+					isUpgradeLevel = true;
+					shootIntervalInc = 400;
+					formInc = 2;
+				}
+			}
+		}
+
+		if (isUpgradeLevel) {
+			if (checkFormation) tempFormationWidth += formInc;
+			else if (checkFormHeight) tempFormationHeight += formInc;
+
+			tempBaseSpeed = checkSpeed.check(speedInc, speedThreshold) ?
+					origin.baseSpeed - speedInc : speedThreshold;
+
+			tempShootInterval = checkShootInterval.check(shootIntervalInc, shootIntervalThreshold) ?
+					origin.shootInterval - shootIntervalInc : baseShootInterval;
+		}
+		this(origin.level + 1, origin.score, (tempBonusLife ? origin.livesRemaining + 1 : origin.livesRemaining),
+				origin.bulletsShoot, origin.shipsDestroyed, origin.elapsedTime, tempBonusLife,
+				tempFormationWidth, tempFormationHeight, tempBaseSpeed, tempShootInterval,
+				origin.maxCombo, origin.prevTime, origin.prevScore, origin.hitBullets);
 	}
 
-
-	/**
-	 * @return the level
-	 */
-	public final int getLevel() {
-		return level;
-	}
-
-	/**
-	 * @return the score
-	 */
-	public final int getScore() {
-		return score;
-	}
-
-	/**
-	 * @return the shipType
-	 */
-	public final Ship.ShipType getShipType() {
-		return shipType;
-	}
-
-	/**
-	 * @return the livesRemaining
-	 */
-	public final int getLivesRemaining() {
-		return livesRemaining;
-	}
-
-	/**
-	 * @return the bulletsShot
-	 */
-	public final int getBulletsShot() {
-		return bulletsShot;
-	}
-
-	/**
-	 * @return the shipsDestroyed
-	 */
-	public final int getShipsDestroyed() {
-		return shipsDestroyed;
-	}
-
-
-	/**
-	 * @return the elapsedTime
-	 */
-	public final int getElapsedTime() { return elapsedTime; }
-
-	/**
-	 * @return the alertMessage
-	 */
-	public final String getAlertMessage() { return alertMessage; }
-
-	/**
-	 * @return the difficulty
-	 */
-	public final int getDifficulty() {
-		return difficulty;
-	}
 	public double getAccuracy() {
-		if (bulletsShot == 0){
+		if (bulletsShoot == 0){
 			return 0;
 		}
-		return ((double) hitBullets / bulletsShot) * 100;
+		return ((double) hitBullets / bulletsShoot) * 100;
 	}
-
-	/**
-	 * @return the maxCombo
-	 */
-	public final int getMaxCombo() { return maxCombo;}
-
-	/**
-	 * @return the prevTime/lapTime
-	 */
-	public final int getPrevTime() { return prevTime;}
-
-	/**
-	 * @return the prevScore/tempScore
-	 */
-	public final int getPrevScore() { return prevScore;}
-
-	public final int getHitBullets() { return hitBullets;}
-
 }
-

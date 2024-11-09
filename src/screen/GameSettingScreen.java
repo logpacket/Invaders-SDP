@@ -16,35 +16,28 @@ import java.awt.event.KeyEvent;
  *
  */
 public class GameSettingScreen extends Screen {
-	private static GameSettingScreen instance;
-
 	/** Milliseconds between changes in user selection. */
 	private static final int SELECTION_TIME = 200;
-	/** Maximum number of characters for player name.
-	 * draw를 용이하게 하기 위해 NAME_LIMIT을 4로 제한 */
+	/** Maximum number of characters for player name. */
 	private static final int NAME_LIMIT = 4;
 
-
-	/** Player name1 for record input. */
-	private static String name1;
-	/** Player name2 for record input. */
-	private static String name2;
 	/** Multiplayer mode. */
-	private static boolean isMultiplayer = false;
+	private boolean isMultiplayer = false;
 	/** Difficulty level. */
-	private int difficultyLevel;
+	private int difficulty;
 	/** Selected row. */
 	private int selectedRow;
 	/** Ship type. */
 	private Ship.ShipType shipType;
 	/** Time between changes in user selection. */
 	private final Cooldown selectionCooldown;
-
 	/** Total number of rows for selection. */
 	private static final int TOTAL_ROWS = 4; // Multiplayer, Difficulty, Ship Type, Start
-
 	/** Singleton instance of SoundManager */
 	private final SoundManager soundManager = SoundManager.getInstance();
+
+	private final StringBuilder nameBuilder1 = new StringBuilder();
+	private final StringBuilder nameBuilder2 = new StringBuilder();
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -56,22 +49,21 @@ public class GameSettingScreen extends Screen {
 	 * @param fps
 	 *            Frames per second, frame rate at which the game is run.
 	 */
-	public GameSettingScreen(final int width, final int height, final int fps, final Ship.ShipType shipType) {
+	public GameSettingScreen(final int width, final int height, final int fps) {
 		super(width, height, fps);
 
 		// row 0: multiplayer
-		this.name1 = "P1";
-		this.name2 = "P2";
+		this.nameBuilder1.append("P1");
+		this.nameBuilder2.append("P2");
 		this.isMultiplayer = false;
 
 		// row 1: difficulty level
-		this.difficultyLevel = 1; 	// 0: easy, 1: normal, 2: hard
+		this.difficulty = 1; 	// 0: easy, 1: normal, 2: hard
 
 		// row 2: ship type
-		this.shipType = shipType;
+		this.shipType = Ship.ShipType.values()[0];
 
 		// row 3: start
-
 		this.selectedRow = 0;
 
 		this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
@@ -79,19 +71,9 @@ public class GameSettingScreen extends Screen {
 	}
 
 	/**
-	 * Starts the action.
-	 *
-	 * @return Next screen code.
-	 */
-	public final int run() {
-		super.run();
-
-		return this.returnCode;
-	}
-
-	/**
 	 * Updates the elements on screen and checks for events.
 	 */
+	@Override
 	protected final void update() {
 		super.update();
 
@@ -118,34 +100,34 @@ public class GameSettingScreen extends Screen {
 					soundManager.playSound(Sound.MENU_MOVE);
 				} else if (inputManager.isKeyDown(KeyEvent.VK_BACK_SPACE)) {
 					if (isMultiplayer) {
-						if (!this.name2.isEmpty()) {
-							this.name2 = this.name2.substring(0, this.name2.length() - 1);
+						if (!this.nameBuilder2.isEmpty()) {
+							this.nameBuilder2.deleteCharAt(nameBuilder2.length() - 1);
 							this.selectionCooldown.reset();
 							soundManager.playSound(Sound.MENU_TYPING);
 						}
 					} else {
-						if (!this.name1.isEmpty()) {
-							this.name1 = this.name1.substring(0, this.name1.length() - 1);
+						if (!this.nameBuilder1.isEmpty()) {
+							this.nameBuilder1.deleteCharAt(nameBuilder1.length() - 1);
 							this.selectionCooldown.reset();
 							soundManager.playSound(Sound.MENU_TYPING);
 						}
 					}
 				}
-				handleNameInput(inputManager);
+				else handleNameInput(inputManager);
 			} else if (this.selectedRow == 1) {
 				if (inputManager.isKeyDown(KeyEvent.VK_LEFT)) {
-					if (this.difficultyLevel != 0) {
-						this.difficultyLevel--;
-						this.selectionCooldown.reset();
-						soundManager.playSound(Sound.MENU_MOVE);
-					}
-				} else if (inputManager.isKeyDown(KeyEvent.VK_RIGHT)) {
-					if (this.difficultyLevel != 2) {
-						this.difficultyLevel++;
+					if (this.difficulty != 0) {
+						this.difficulty--;
 						this.selectionCooldown.reset();
 						soundManager.playSound(Sound.MENU_MOVE);
 					}
 				}
+				else if (inputManager.isKeyDown(KeyEvent.VK_RIGHT) && this.difficulty != 2) {
+					this.difficulty++;
+					this.selectionCooldown.reset();
+					soundManager.playSound(Sound.MENU_MOVE);
+				}
+
 			} else if (this.selectedRow == 2) {
 				if (inputManager.isKeyDown(KeyEvent.VK_LEFT) || inputManager.isKeyDown(KeyEvent.VK_RIGHT)) {
 					Ship.ShipType[] shipTypes = Ship.ShipType.values();
@@ -168,16 +150,15 @@ public class GameSettingScreen extends Screen {
 					}
 					this.selectionCooldown.reset();
 				}
-			} else if (this.selectedRow == 3) {
-				if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
-					this.returnCode = isMultiplayer ? 8: 2;
-					this.isRunning = false;
-					soundManager.playSound(Sound.MENU_CLICK);
-				}
+			}
+			else if (this.selectedRow == 3 && inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
+				this.menu = isMultiplayer ? Menu.MULTI_PLAY : Menu.SINGLE_PLAY;
+				this.isRunning = false;
+				soundManager.playSound(Sound.MENU_CLICK);
 			}
 			if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
 				// Return to main menu.
-				this.returnCode = 1;
+				this.menu = Menu.MAIN;
 				this.isRunning = false;
 				soundManager.playSound(Sound.MENU_BACK);
 			}
@@ -195,14 +176,14 @@ public class GameSettingScreen extends Screen {
 		for (int keyCode = KeyEvent.VK_A; keyCode <= KeyEvent.VK_Z; keyCode++) {
 			if (inputManager.isKeyDown(keyCode)) {
 				if (isMultiplayer) {
-					if (this.name2.length() < NAME_LIMIT) {
-						this.name2 += (char) keyCode;
+					if (this.nameBuilder2.length() < NAME_LIMIT) {
+						this.nameBuilder2.append(keyCode);
 						this.selectionCooldown.reset();
 						soundManager.playSound(Sound.MENU_TYPING);
 					}
 				} else{
-					if (this.name1.length() < NAME_LIMIT) {
-						this.name1 += (char) keyCode;
+					if (this.nameBuilder1.length() < NAME_LIMIT) {
+						this.nameBuilder1.append(keyCode);
 						this.selectionCooldown.reset();
 						soundManager.playSound(Sound.MENU_TYPING);
 					}
@@ -210,22 +191,6 @@ public class GameSettingScreen extends Screen {
 			}
 		}
 	}
-	public static GameSettingScreen getInstance() {
-		if (instance == null) {
-			instance = new GameSettingScreen(0,0,0, Ship.ShipType.StarDefender);
-		}
-		return instance;
-	}
-	public static boolean getMultiPlay() {return isMultiplayer; }
-
-	/**
-	 * Get player's name by number
-	 *
-	 * @param playerNumber
-	 * 			Player's number
-	 * @return Player's name
-	 */
-	public static String getName(int playerNumber) { return playerNumber == 0 ? name1 : name2; }
 
 	/**
 	 * Draws the elements associated with the screen.
@@ -237,11 +202,12 @@ public class GameSettingScreen extends Screen {
 
 		drawManager.drawGameSettingRow(this, this.selectedRow);
 
-		drawManager.drawGameSettingElements(this, this.selectedRow, isMultiplayer, name1, name2,this.difficultyLevel, this.shipType);
+		drawManager.drawGameSettingElements(this, this.selectedRow, isMultiplayer, nameBuilder1.toString(), nameBuilder2.toString(), this.difficulty, this.shipType);
 
 		drawManager.completeDrawing(this);
+	}
 
-		Core.setLevelSetting(this.difficultyLevel);
-		Core.BASE_SHIP = this.shipType;
+	public GameSettings getGameSettings() {
+		return new GameSettings(difficulty, nameBuilder1.toString(), nameBuilder2.toString(), shipType, isMultiplayer);
 	}
 }

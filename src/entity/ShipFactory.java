@@ -7,6 +7,8 @@ import entity.ship.*;
  * It is used to create ships of different types.
  */
 public class ShipFactory {
+    private ShipFactory() { }
+
     /**
      * Creates a ship of the specified type.
      * @param type The type of ship to create.
@@ -16,10 +18,10 @@ public class ShipFactory {
      */
     public static Ship create(Ship.ShipType type, final int positionX, final int positionY) {
         return switch (type) {
-            case StarDefender -> new StarDefender(positionX, positionY);
-            case VoidReaper -> new VoidReaper(positionX, positionY);
-            case GalacticGuardian -> new GalacticGuardian(positionX, positionY);
-            case CosmicCruiser -> new CosmicCruiser(positionX, positionY);
+            case STAR_DEFENDER -> new StarDefender(positionX, positionY);
+            case VOID_REAPER -> new VoidReaper(positionX, positionY);
+            case GALACTIC_GUARDIAN -> new GalacticGuardian(positionX, positionY);
+            case COSMIC_CRUISER -> new CosmicCruiser(positionX, positionY);
         };
     }
 }

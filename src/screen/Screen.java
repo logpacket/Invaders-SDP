@@ -1,13 +1,9 @@
 package screen;
 
-import java.awt.Insets;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import engine.Cooldown;
-import engine.Core;
-import engine.DrawManager;
-import engine.InputManager;
+import engine.*;
 
 /**
  * Implements a generic screen.
@@ -15,7 +11,7 @@ import engine.InputManager;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  * 
  */
-public class Screen {
+public abstract class Screen {
 	
 	/** Milliseconds until the screen accepts user input. */
 	private static final int INPUT_DELAY = 1000;
@@ -33,15 +29,13 @@ public class Screen {
 	protected int height;
 	/** Frames per second shown on the screen. */
 	protected int fps;
-	/** Screen insets. */
-	protected Insets insets;
 	/** Time until the screen accepts user input. */
 	protected Cooldown inputDelay;
 
 	/** If the screen is running. */
 	protected boolean isRunning;
 	/** What kind of screen goes next. */
-	protected int returnCode;
+	protected Menu menu;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -53,32 +47,30 @@ public class Screen {
 	 * @param fps
 	 *            Frames per second, frame rate at which the game is run.
 	 */
-	public Screen(final int width, final int height, final int fps) {
+	protected Screen(final int width, final int height, final int fps) {
 		this.width = width;
 		this.height = height;
 		this.fps = fps;
 
-		this.drawManager = Core.getDrawManager();
-		this.inputManager = Core.getInputManager();
+		this.drawManager = DrawManager.getInstance();
+		this.inputManager = InputManager.getInstance();
 		this.logger = Core.getLogger();
 		this.inputDelay = Core.getCooldown(INPUT_DELAY);
 		this.inputDelay.reset();
-		this.returnCode = 0;
+		this.menu = Menu.MAIN;
 	}
 
 	/**
 	 * Initializes basic screen properties.
 	 */
-	public void initialize() {
-
-	}
+	public void initialize() { }
 
 	/**
 	 * Activates the screen.
 	 * 
 	 * @return Next screen code.
 	 */
-	public int run() {
+	public Menu run() {
 		this.isRunning = true;
 
 		while (this.isRunning) {
@@ -91,12 +83,12 @@ public class Screen {
 				try {
 					TimeUnit.MILLISECONDS.sleep(time);
 				} catch (InterruptedException e) {
-					return 0;
+					return this.menu;
 				}
 			}
 		}
 
-		return 0;
+		return this.menu;
 	}
 
 	/**

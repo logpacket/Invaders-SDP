@@ -27,15 +27,15 @@ import java.util.logging.Logger;
  */
 public class ItemManager {
     /** Width of game screen. */
-    private int WIDTH;
+    private final int width;
     /** Height of game screen. */
-    private int HEIGHT;
+    private final int height;
     /** Item drop probability, (1 ~ 100). */
     private static final int ITEM_DROP_PROBABILITY = 30;
     /** Cooldown of Ghost */
     private static final int GHOST_COOLDOWN = 3000;
     /** Cooldown of Time-stop */
-    private static final int TIMESTOP_COOLDOWN = 4000;
+    private static final int TIME_STOP_COOLDOWN = 4000;
 
     /** Random generator. */
     private final Random rand;
@@ -50,25 +50,25 @@ public class ItemManager {
     /** Singleton instance of SoundManager */
     private final SoundManager soundManager = SoundManager.getInstance();
     /** Cooldown variable for Ghost */
-    private Cooldown ghost_cooldown = Core.getCooldown(0);
+    private Cooldown ghostCooldown = Core.getCooldown(0);
     /** Cooldown variable for Time-stop */
-    private Cooldown timeStop_cooldown = Core.getCooldown(0);
+    private Cooldown timeStopCooldown = Core.getCooldown(0);
 
-    /** Check if the number of shot is max, (maximum 3). */
-    private boolean isMaxShotNum;
+    /** Check if the number of shoot is max, (maximum 3). */
+    private boolean isMaxShootNum;
     /** Number of bullets that player's ship shoot. */
-    private int shotNum;
+    private int shootNum;
     /** Sound balance for each player*/
-    private float balance;
+    private final float balance;
 
     /** Types of item */
     public enum ItemType {
-        Bomb,
-        LineBomb,
-        Barrier,
-        Ghost,
-        TimeStop,
-        MultiShot
+        BOMB,
+        LINE_BOMB,
+        BARRIER,
+        GHOST,
+        TIME_STOP,
+        MULTI_SHOT
     }
 
     /**
@@ -80,15 +80,15 @@ public class ItemManager {
      * @param balance 1p -1.0, 2p 1.0, both 0.0
      *
      */
-    public ItemManager(Ship ship, EnemyShipFormation enemyShipFormation, Set<Barrier> barriers, int WIDTH, int HEIGHT, float balance) {
-        this.shotNum = 1;
+    public ItemManager(Ship ship, EnemyShipFormation enemyShipFormation, Set<Barrier> barriers, int width, int height, float balance) {
+        this.shootNum = 1;
         this.rand = new Random();
         this.ship = ship;
         this.enemyShipFormation = enemyShipFormation;
         this.barriers = barriers;
         this.logger = Core.getLogger();
-        this.WIDTH = WIDTH;
-        this.HEIGHT = HEIGHT;
+        this.width = width;
+        this.height = height;
         this.balance = balance;
     }
 
@@ -109,7 +109,7 @@ public class ItemManager {
     private ItemType selectItemType() {
         ItemType[] itemTypes = ItemType.values();
 
-        if (isMaxShotNum)
+        if (isMaxShootNum)
             return itemTypes[rand.nextInt(5)];
 
         return itemTypes[rand.nextInt(6)];
@@ -126,12 +126,12 @@ public class ItemManager {
         logger.info(itemType + " used");
 
         return switch (itemType) {
-            case Bomb -> operateBomb();
-            case LineBomb -> operateLineBomb();
-            case Barrier -> operateBarrier();
-            case Ghost -> operateGhost();
-            case TimeStop -> operateTimeStop();
-            case MultiShot -> operateMultiShot();
+            case BOMB -> operateBomb();
+            case LINE_BOMB -> operateLineBomb();
+            case BARRIER -> operateBarrier();
+            case GHOST -> operateGhost();
+            case TIME_STOP -> operateTimeStop();
+            case MULTI_SHOT -> operateMultiShoot();
         };
     }
 
@@ -248,17 +248,17 @@ public class ItemManager {
     private Entry<Integer, Integer> operateBarrier() {
         this.soundManager.playSound(Sound.ITEM_BARRIER_ON, balance);
 
-        int BarrierY = HEIGHT - 70;
-        int middle = WIDTH / 2 - 39;
+        int barrierY = height - 70;
+        int middle = width / 2 - 39;
         int range = 200;
         this.barriers.clear();
 
-        this.barriers.add(new Barrier(middle, BarrierY));
-        this.barriers.add(new Barrier(middle - range, BarrierY));
-        this.barriers.add(new Barrier(middle + range, BarrierY));
-        logger.info("Barrier created at positions: (" + middle + ", " + (BarrierY) + "), ("
-                + (middle - range) + ", " + (BarrierY) + "), ("
-                + (middle + range) + ", " + (BarrierY) + ")");
+        this.barriers.add(new Barrier(middle, barrierY));
+        this.barriers.add(new Barrier(middle - range, barrierY));
+        this.barriers.add(new Barrier(middle + range, barrierY));
+        logger.info("Barrier created at positions: (" + middle + ", " + (barrierY) + "), ("
+                + (middle - range) + ", " + (barrierY) + "), ("
+                + (middle + range) + ", " + (barrierY) + ")");
         return null;
     }
 
@@ -271,8 +271,8 @@ public class ItemManager {
         this.soundManager.playSound(Sound.ITEM_GHOST, balance);
 
         this.ship.setColor(Color.DARK_GRAY);
-        this.ghost_cooldown = Core.getCooldown(GHOST_COOLDOWN);
-        this.ghost_cooldown.reset();
+        this.ghostCooldown = Core.getCooldown(GHOST_COOLDOWN);
+        this.ghostCooldown.reset();
 
         return null;
     }
@@ -283,24 +283,24 @@ public class ItemManager {
      * @return null
      */
     private Entry<Integer, Integer> operateTimeStop() {
-        this.soundManager.playSound(Sound.ITEM_TIMESTOP_ON, balance);
+        this.soundManager.playSound(Sound.ITEM_TIME_STOP_ON, balance);
 
-        this.timeStop_cooldown = Core.getCooldown(TIMESTOP_COOLDOWN);
-        this.timeStop_cooldown.reset();
+        this.timeStopCooldown = Core.getCooldown(TIME_STOP_COOLDOWN);
+        this.timeStopCooldown.reset();
 
         return null;
     }
 
     /**
-     * Operate Multi-shot item.
+     * Operate Multi-shoot item.
      *
      * @return null
      */
-    private Entry<Integer, Integer> operateMultiShot() {
-        if (this.shotNum < 3) {
-            this.shotNum++;
-            if (this.shotNum == 3) {
-                this.isMaxShotNum = true;
+    private Entry<Integer, Integer> operateMultiShoot() {
+        if (this.shootNum < 3) {
+            this.shootNum++;
+            if (this.shootNum == 3) {
+                this.isMaxShootNum = true;
             }
         }
 
@@ -313,7 +313,7 @@ public class ItemManager {
      * @return True when Ghost is active.
      */
     public boolean isGhostActive() {
-        return !this.ghost_cooldown.checkFinished();
+        return !this.ghostCooldown.checkFinished();
     }
 
     /**
@@ -322,14 +322,14 @@ public class ItemManager {
      * @return True when Time-stop is active.
      */
     public boolean isTimeStopActive() {
-        return !this.timeStop_cooldown.checkFinished();
+        return !this.timeStopCooldown.checkFinished();
     }
 
     /**
      * Returns the number of bullets that player's ship shoot.
      * @return Number of bullets that player's ship shoot.
      */
-    public int getShotNum() {
-        return this.shotNum;
+    public int getShootNum() {
+        return this.shootNum;
     }
 }

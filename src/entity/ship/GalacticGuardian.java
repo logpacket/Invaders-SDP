@@ -12,6 +12,6 @@ public class GalacticGuardian extends Ship {
     public GalacticGuardian(final int positionX, final int positionY) {
         super(positionX, positionY,
                 "Galactic Guardian", new ShipMultipliers(0.8f, 1.5f, 1.2f),
-                DrawManager.SpriteType.Ship3);
+                DrawManager.SpriteType.SHIP_3, ShipType.GALACTIC_GUARDIAN);
     }
 }

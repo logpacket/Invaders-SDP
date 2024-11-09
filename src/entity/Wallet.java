@@ -1,6 +1,7 @@
 package entity;
 
 import engine.Core;
+import engine.FileManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,34 +12,34 @@ public class Wallet {
     private int coin;
 
     //bullet speed level
-    private int bullet_lv;
+    private int bulletLevel;
 
-    //shot frequency level
-    private int shot_lv;
+    //shoot frequency level
+    private int shootLevel;
 
     //additional lives level
-    private int lives_lv;
+    private int livesLevel;
 
     //coin gain level
-    private int coin_lv;
+    private int coinLevel;
 
     public Wallet()
     {
         this.coin = 0;
-        this.bullet_lv = 1;
-        this.shot_lv = 1;
-        this.lives_lv = 1;
-        this.coin_lv = 1;
+        this.bulletLevel = 1;
+        this.shootLevel = 1;
+        this.livesLevel = 1;
+        this.coinLevel = 1;
         writeWallet();
     }
 
-    public Wallet(int coin, int bullet_lv, int shot_lv, int lives_lv, int coin_lv)
+    public Wallet(int coin, int bulletLevel, int shootLevel, int livesLevel, int coinLevel)
     {
         this.coin = coin;
-        this.bullet_lv = bullet_lv;
-        this.shot_lv = shot_lv;
-        this.lives_lv = lives_lv;
-        this.coin_lv = coin_lv;
+        this.bulletLevel = bulletLevel;
+        this.shootLevel = shootLevel;
+        this.livesLevel = livesLevel;
+        this.coinLevel = coinLevel;
     }
 
     public int getCoin()
@@ -46,66 +47,57 @@ public class Wallet {
         return coin;
     }
 
-    public int getBullet_lv()
+    public int getBulletLevel()
     {
-        return bullet_lv;
+        return bulletLevel;
     }
 
-    public int getShot_lv()
+    public int getShootLevel()
     {
-        return shot_lv;
+        return shootLevel;
     }
 
-    public int getLives_lv()
+    public int getLivesLevel() { return livesLevel; }
+
+    public int getCoinLevel()
     {
-        return lives_lv;
+        return coinLevel;
     }
 
-    public int getCoin_lv()
+    public void setBulletLevel(int bulletLevel)
     {
-        return coin_lv;
-    }
-
-    public void setBullet_lv(int bullet_lv)
-    {
-        this.bullet_lv = bullet_lv;
+        this.bulletLevel = bulletLevel;
         writeWallet();
-        logger.info("Upgrade Bullet Speed " + (bullet_lv-1) + "to " + bullet_lv);
+        logger.info("Upgrade Bullet Speed " + (bulletLevel -1) + "to " + bulletLevel);
     }
 
-    public void setShot_lv(int shot_lv)
+    public void setShootLevel(int shootLevel)
     {
-        this.shot_lv = shot_lv;
+        this.shootLevel = shootLevel;
         writeWallet();
-        logger.info("Upgrade Shop Frequency  " + (shot_lv-1) + "to " + shot_lv);
+        logger.info("Upgrade Shop Intervaluency  " + (shootLevel -1) + "to " + shootLevel);
     }
 
-    public void setLives_lv(int lives_lv)
+    public void setLivesLevel(int livesLevel)
     {
-        this.lives_lv = lives_lv;
+        this.livesLevel = livesLevel;
         writeWallet();
-        logger.info("Upgrade Additional Lives " + (lives_lv-1) + "to " + lives_lv);
+        logger.info("Upgrade Additional Lives " + (livesLevel -1) + "to " + livesLevel);
     }
 
-    public void setCoin_lv(int coin_lv)
+    public void setCoinLevel(int coinLevel)
     {
-        this.coin_lv = coin_lv;
+        this.coinLevel = coinLevel;
         writeWallet();
-        logger.info("Upgrade Gain Coin " + (coin_lv-1) + "to " + coin_lv);
+        logger.info("Upgrade Gain Coin " + (coinLevel -1) + "to " + coinLevel);
     }
 
-    public boolean deposit(int amount)
+    public void deposit(int amount)
     {
-        if(amount <= 0) return false;
-        if(coin > Integer.MAX_VALUE -amount)
-        {
-            coin = Integer.MAX_VALUE;
-            return true;
-        }
+        if(amount <= 0) return;
         coin += amount;
         writeWallet();
         logger.info("Deposit completed. Your coin: " + this.coin);
-        return true;
     }
 
     public boolean withdraw(int amount)
@@ -122,14 +114,13 @@ public class Wallet {
         return true;
     }
 
-    //현재 지갑상태를 파일에 저장. 저장방식: coin, bullet_lv, shot_lv, lives_lv, coin_lv 순으로 한줄씩 저장
-    //Save the current wallet state to a file. Save format: coin, bullet_lv, shot_lv, lives_lv, coin_lv, each in one line
+    //현재 지갑상태를 파일에 저장. 저장방식: coin, bulletLevel, shootLevel, livesLevel, coinLevel 순으로 한줄씩 저장
+    //Save the current wallet state to a file. Save format: coin, bulletLevel, shootLevel, livesLevel, coinLevel, each in one line
     private void writeWallet()
     {
         try {
-            Core.getFileManager().saveWallet(this);
+            FileManager.getInstance().saveWallet(this);
         } catch (IOException e) {
-//            throw new RuntimeException(e);
             logger.warning("Couldn't load wallet!");
         }
     }
@@ -140,9 +131,9 @@ public class Wallet {
         BufferedReader bufferedReader = null;
 
         try {
-            //FileManager를 통해 파일에서 지갑 데이터를 불러옴
+            //FileManager 를 통해 파일에서 지갑 데이터를 불러옴
             //Load wallet data from the file via FileManager
-            bufferedReader = Core.getFileManager().loadWallet();
+            bufferedReader = FileManager.getInstance().loadWallet();
 
             if (bufferedReader == null) {
                 logger.info("Wallet file does not exist, initializing with default values.");
@@ -153,7 +144,7 @@ public class Wallet {
             //파일에서 각 줄을 읽어와서 값 설정
             //Read each line from the file and set the values
             int coin = Integer.parseInt(bufferedReader.readLine());
-            int levelSeq [] = new int[4]; //bullet_lv, shot_lv, lives_lv, coin_lv
+            int[] levelSeq = new int[4]; //bulletLevel, shootLevel, livesLevel, coinLevel
             for (int i = 0; i < 4; i++) {
                 int level = Integer.parseInt(bufferedReader.readLine());
                 if(level > 4 || level <= 0){
@@ -177,7 +168,7 @@ public class Wallet {
                 try {
                     bufferedReader.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.warning("Couldn't close file.");
                 }
             }
         }

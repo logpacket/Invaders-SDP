@@ -14,10 +14,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.Properties;
 
 import engine.DrawManager.SpriteType;
 import entity.Wallet;
@@ -34,23 +33,18 @@ public final class FileManager {
 	/** Singleton instance of the class. */
 	private static FileManager instance;
 	/** Application logger. */
-	private static Logger logger;
-	/** Max number of high scores. */
-	private static final int MAX_SCORES = 3;
-
+	private static final Logger logger = Core.getLogger();
 	/**
 	 * private constructor.
 	 */
-	private FileManager() {
-		logger = Core.getLogger();
-	}
+	private FileManager() {}
 
 	/**
 	 * Returns shared instance of FileManager.
 	 *
 	 * @return Shared instance of FileManager.
 	 */
-	protected static FileManager getInstance() {
+	public static FileManager getInstance() {
 		if (instance == null)
 			instance = new FileManager();
 		return instance;
@@ -137,7 +131,7 @@ public final class FileManager {
 	 *             In case of loading problems.
 	 */
 	private List<Score> loadDefaultHighScores() throws IOException {
-		List<Score> highScores = new ArrayList<Score>();
+		List<Score> highScores = new ArrayList<>();
 		InputStream inputStream = null;
 		BufferedReader reader = null;
 
@@ -174,14 +168,14 @@ public final class FileManager {
 	 */
 	public List<Score> loadHighScores() throws IOException {
 
-		List<Score> highScores = new ArrayList<Score>();
+		List<Score> highScores = new ArrayList<>();
 		InputStream inputStream = null;
 		BufferedReader bufferedReader = null;
 
 		try {
 			String jarPath = FileManager.class.getProtectionDomain()
 					.getCodeSource().getLocation().getPath();
-			jarPath = URLDecoder.decode(jarPath, "UTF-8");
+			jarPath = URLDecoder.decode(jarPath, StandardCharsets.UTF_8);
 
 			String scoresPath = new File(jarPath).getParent();
 			scoresPath += File.separator;
@@ -190,7 +184,7 @@ public final class FileManager {
 			File scoresFile = new File(scoresPath);
 			inputStream = new FileInputStream(scoresFile);
 			bufferedReader = new BufferedReader(new InputStreamReader(
-					inputStream, Charset.forName("UTF-8")));
+					inputStream, StandardCharsets.UTF_8));
 
 			logger.info("Loading user high scores.");
 
@@ -225,7 +219,7 @@ public final class FileManager {
 		try {
 			String jarPath = FileManager.class.getProtectionDomain()
 					.getCodeSource().getLocation().getPath();
-			jarPath = URLDecoder.decode(jarPath, "UTF-8");
+			jarPath = URLDecoder.decode(jarPath, StandardCharsets.UTF_8);
 
 			String achievementPath = new File(jarPath).getParent();
 			achievementPath += File.separator;
@@ -237,7 +231,7 @@ public final class FileManager {
 
 			inputStream = new FileInputStream(achievementFile);
 			bufferedReader = new BufferedReader(new InputStreamReader(
-					inputStream, Charset.forName("UTF-8")));
+					inputStream, StandardCharsets.UTF_8));
 
 			// Load properties from the file
 			Properties properties = new Properties();
@@ -272,13 +266,13 @@ public final class FileManager {
 
 	public List<String> loadCreditList() throws IOException {  // 사용자의 크레딧 파일을 로드
 
-		List<String> creditname = new ArrayList<String>();
+		List<String> creditName = new ArrayList<>();
 		InputStream inputStream = null;
 		BufferedReader bufferedReader = null;
 
 		try {
 			inputStream = FileManager.class.getClassLoader()
-					.getResourceAsStream("creditlist");
+					.getResourceAsStream("credits");
 			bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
 			logger.info("Loading credit list.");
@@ -286,7 +280,7 @@ public final class FileManager {
 			String name = bufferedReader.readLine();
 
 			while (name != null) {
-				creditname.add(name);
+				creditName.add(name);
 				name = bufferedReader.readLine();
 			}
 
@@ -295,7 +289,7 @@ public final class FileManager {
 				bufferedReader.close();
 		}
 
-		return creditname;
+		return creditName;
 	}
 
 
@@ -315,7 +309,7 @@ public final class FileManager {
 		try {
 			String jarPath = FileManager.class.getProtectionDomain()
 					.getCodeSource().getLocation().getPath();
-			jarPath = URLDecoder.decode(jarPath, "UTF-8");
+			jarPath = URLDecoder.decode(jarPath, StandardCharsets.UTF_8);
 
 			String scoresPath = new File(jarPath).getParent();
 			scoresPath += File.separator;
@@ -328,14 +322,14 @@ public final class FileManager {
 
 			outputStream = new FileOutputStream(scoresFile);
 			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					outputStream, Charset.forName("UTF-8")));
+					outputStream, StandardCharsets.UTF_8));
 
 			logger.info("Saving user high scores.");
 
 			for (Score score : highScores) {
-				bufferedWriter.write(score.getName());
+				bufferedWriter.write(score.name());
 				bufferedWriter.newLine();
-				bufferedWriter.write(Integer.toString(score.getScore()));
+				bufferedWriter.write(Integer.toString(score.score()));
 				bufferedWriter.newLine();
 			}
 
@@ -347,13 +341,13 @@ public final class FileManager {
 
 	public void saveWallet(final Wallet newWallet)
 			throws IOException {
-		OutputStream outputStream = null;
+		OutputStream outputStream;
 		BufferedWriter bufferedWriter = null;
 
 		try {
 			String jarPath = FileManager.class.getProtectionDomain()
 					.getCodeSource().getLocation().getPath();
-			jarPath = URLDecoder.decode(jarPath, "UTF-8"); // 현재 파일 실행 경로. Current file execution path
+			jarPath = URLDecoder.decode(jarPath, StandardCharsets.UTF_8); // 현재 파일 실행 경로. Current file execution path
 
 			String walletPath = new File(jarPath).getParent(); // 상위 파일 경로. Parent file path
 			walletPath += File.separator; // 파일 경로에 '/' 또는 '\' 추가(환경마다 다름). Add '/' or '\' to the file path (depends on the environment)
@@ -366,19 +360,19 @@ public final class FileManager {
 
 			outputStream = new FileOutputStream(walletFile); //덮어쓰기. Overwrite
 			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					outputStream, Charset.forName("UTF-8")));
+					outputStream, StandardCharsets.UTF_8));
 
 			logger.info("Saving user wallet.");
 
 			bufferedWriter.write(newWallet.getCoin() + "");
 			bufferedWriter.newLine();
-			bufferedWriter.write(newWallet.getBullet_lv() + "");
+			bufferedWriter.write(newWallet.getBulletLevel() + "");
 			bufferedWriter.newLine();
-			bufferedWriter.write(newWallet.getShot_lv() + "");
+			bufferedWriter.write(newWallet.getShootLevel() + "");
 			bufferedWriter.newLine();
-			bufferedWriter.write(newWallet.getLives_lv() + "");
+			bufferedWriter.write(newWallet.getLivesLevel() + "");
 			bufferedWriter.newLine();
-			bufferedWriter.write(newWallet.getCoin_lv() + "");
+			bufferedWriter.write(newWallet.getCoinLevel() + "");
 			bufferedWriter.newLine();
 
 		} finally {
@@ -390,7 +384,7 @@ public final class FileManager {
 	public BufferedReader loadWallet() throws IOException {
 		String jarPath = FileManager.class.getProtectionDomain()
 				.getCodeSource().getLocation().getPath();
-		jarPath = URLDecoder.decode(jarPath, "UTF-8");
+		jarPath = URLDecoder.decode(jarPath, StandardCharsets.UTF_8);
 
 		String walletPath = new File(jarPath).getParent();
 		walletPath += File.separator;
@@ -403,18 +397,18 @@ public final class FileManager {
 		}
 
 		InputStream inputStream = new FileInputStream(walletFile);
-		return new BufferedReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+		return new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 	}
 
 	public void saveAchievement(final Achievement achievement)
 			throws IOException {
-		OutputStream outputStream = null;
+		OutputStream outputStream;
 		BufferedWriter bufferedWriter = null;
 
 		try {
 			String jarPath = FileManager.class.getProtectionDomain()
 					.getCodeSource().getLocation().getPath();
-			jarPath = URLDecoder.decode(jarPath, "UTF-8"); // 현재 파일 실행 경로. Current file execution path
+			jarPath = URLDecoder.decode(jarPath, StandardCharsets.UTF_8); // 현재 파일 실행 경로. Current file execution path
 
 			String achievementPath = new File(jarPath).getParent(); // 상위 파일 경로. Parent file path
 			achievementPath += File.separator; // 파일 경로에 '/' 또는 '\' 추가(환경마다 다름). Add '/' or '\' to the file path (depends on the environment)
@@ -427,18 +421,18 @@ public final class FileManager {
 
 			outputStream = new FileOutputStream(achievementFile); //덮어쓰기. Overwrite
 			bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-					outputStream, Charset.forName("UTF-8")));
+					outputStream, StandardCharsets.UTF_8));
 
 			logger.info("Saving achievement.");
 			bufferedWriter.write("total_play=" + achievement.getTotalPlayTime());
 			bufferedWriter.newLine();
 			bufferedWriter.write("total_score=" + achievement.getTotalScore());
 			bufferedWriter.newLine();
-			bufferedWriter.write("high_max_combo=" + achievement.getHighmaxCombo());
+			bufferedWriter.write("high_max_combo=" + achievement.maxCombo);
 			bufferedWriter.newLine();
-			bufferedWriter.write("perfect_stage=" + achievement.getPerfectStage());
+			bufferedWriter.write("perfect_stage=" + achievement.currentPerfectStage);
 			bufferedWriter.newLine();
-			bufferedWriter.write("flawless_failure=" + achievement.getFlawlessFailure());
+			bufferedWriter.write("flawless_failure=" + achievement.flawlessFailure);
 			bufferedWriter.newLine();
 
 		} finally {
