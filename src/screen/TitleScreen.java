@@ -41,6 +41,7 @@ public class TitleScreen extends Screen {
 
 		this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
 		this.selectionCooldown.reset();
+		this.menu = Menu.GAME_SETTING;
 	}
 
 	/**
