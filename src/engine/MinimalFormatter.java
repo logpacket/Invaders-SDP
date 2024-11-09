@@ -23,10 +23,9 @@ public class MinimalFormatter extends Formatter {
 	public final String format(final LogRecord logRecord) {
 
         return "[" +
-                logRecord.getLevel() + '|' +
-                format.format(new Date(logRecord.getMillis())) +
-                "]: " + logRecord.getMessage() + ' ' +
+				logRecord.getLevel() + '|' +
+				format.format(new Date(logRecord.getMillis())) +
+				"]: " + logRecord.getMessage() + ' ' +
 				lineSeparator;
 	}
-
 }

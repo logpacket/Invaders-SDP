@@ -2,6 +2,7 @@ package screen;
 
 import engine.*;
 
+import java.text.MessageFormat;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -114,7 +115,7 @@ public class TwoPlayerScreen extends Screen {
         GameState gameState = playerNumber == 0 ? gameStates[PLAYER1_NUMBER] : gameStates[PLAYER2_NUMBER];
 
         if (gameState.livesRemaining() > 0) {
-            logger.info(STR."difficulty is \{gameSettings[playerNumber].difficulty()}");
+            logger.info(MessageFormat.format("difficulty is {0}", gameSettings[playerNumber].difficulty()));
             GameScreen gameScreen = new GameScreen(gameState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
             gameScreen.initialize();
             players[playerNumber] = executor.submit(gameScreen);
