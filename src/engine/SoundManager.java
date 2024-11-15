@@ -79,6 +79,7 @@ public class SoundManager {
             loadSound(Sound.BGM_MAIN, "res/sound/BGM/MainTheme.wav");
             loadSound(Sound.BGM_GAME_OVER, "res/sound/BGM/GameOver.wav");
             loadSound(Sound.BGM_SHOP, "res/sound/BGM/Shop.wav");
+            loadSound(Sound.BGM_LOGIN, "res/sound/BGM/Login.wav");
             loadSound(Sound.BGM_LV1, "res/sound/BGM/Lv1.wav");
             loadSound(Sound.BGM_LV2, "res/sound/BGM/Lv2.wav");
             loadSound(Sound.BGM_LV3, "res/sound/BGM/Lv3.wav");

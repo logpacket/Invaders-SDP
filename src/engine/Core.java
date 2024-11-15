@@ -77,6 +77,14 @@ public final class Core {
 			LOGGER.info(SCREEN_STARTING_LOG_FORMAT.formatted(menu == Menu.MULTI_PLAY ? WIDTH * 2 : WIDTH, HEIGHT, menu.name(),  FPS));
 
 			switch (menu) {
+				case LOGIN:
+					currentScreen = new LoginScreen(width, height, FPS);
+					menu = frame.setScreen(currentScreen);
+					break;
+				case SIGN_UP:
+					currentScreen = new SignUpScreen(width, height, FPS);
+					menu = frame.setScreen(currentScreen);
+					break;
                 case MAIN:
 					menu = frame.setScreen(new TitleScreen(width, height, FPS));
 					break;
