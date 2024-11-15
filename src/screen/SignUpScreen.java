@@ -142,7 +142,6 @@ public class SignUpScreen extends Screen {
         return true;
     }
 
-    // 회원가입 화면 그리기
     private void draw() {
         drawManager.initDrawing(this);
 
