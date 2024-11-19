@@ -7,6 +7,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import engine.network.NetworkManager;
 import screen.*;
 
 /**
@@ -35,6 +36,7 @@ public final class Core {
 	private static Handler fileHandler;
     /** Initialize singleton instance of SoundManager and return that */
 	private static final SoundManager soundManager = SoundManager.getInstance();
+	private static final NetworkManager networkManager = NetworkManager.getInstance();
 
 	/**
 	 * Test implementation.
@@ -169,6 +171,7 @@ public final class Core {
 		fileHandler.flush();
 		fileHandler.close();
 		soundManager.closeAllSounds();
+		networkManager.close();
 
 		System.exit(0);
 	}
