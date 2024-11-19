@@ -35,6 +35,7 @@ public enum Sound {
     BGM_MAIN,
     BGM_GAME_OVER,
     BGM_SHOP,
+    BGM_LOGIN,
     BGM_LV1,
     BGM_LV2,
     BGM_LV3,

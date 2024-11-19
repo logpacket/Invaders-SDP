@@ -1979,4 +1979,101 @@ public final class DrawManager {
 
 		}
 	}
+
+	public void drawLoginScreen(final Screen screen, final String usernameInput, final String passwordInput,
+								final boolean isUsernameActive, final boolean isPasswordActive,
+								final int selectedOption, final boolean showAlert) {
+
+		String loginTitle = "Login";
+		String usernameLabel = "Username: ";
+		String passwordLabel = "Password: ";
+		String loginButton = "Press ENTER to Login";
+		String signUpButton = "Press ENTER to Sign Up";
+		String alertMessage = "Invalid Username or Password";
+
+		int titleY = Math.round(screen.getHeight() * 0.15f);
+		int inputStartX = screen.getWidth() / 5;
+		int inputStartY = Math.round(screen.getHeight() * 0.4f);
+		int inputSpacing = Math.round(screen.getHeight() * 0.1f);
+		int inputWidth = screen.getWidth() / 2;
+		int inputHeight = Math.round(screen.getHeight() * 0.07f);
+
+		backBufferGraphics.setColor(Color.GREEN);
+		drawCenteredBigString(screen, loginTitle, titleY);
+
+		backBufferGraphics.setColor(isUsernameActive ? Color.YELLOW : Color.WHITE);
+		backBufferGraphics.drawString(usernameLabel, inputStartX, inputStartY);
+		backBufferGraphics.drawRect(inputStartX + 150, inputStartY - inputHeight + 10, inputWidth, inputHeight);
+		backBufferGraphics.drawString(usernameInput, inputStartX + 160, inputStartY - 5);
+
+		backBufferGraphics.setColor(isPasswordActive ? Color.YELLOW : Color.WHITE);
+		backBufferGraphics.drawString(passwordLabel, inputStartX, inputStartY + inputSpacing);
+		backBufferGraphics.drawRect(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, inputWidth, inputHeight);
+
+		String maskedPassword = "*".repeat(passwordInput.length());
+		backBufferGraphics.drawString(maskedPassword, inputStartX + 160, inputStartY + inputSpacing - 5);
+
+		backBufferGraphics.setColor(selectedOption == 2 ? Color.YELLOW : Color.CYAN);
+		drawCenteredRegularString(screen, loginButton, inputStartY + inputSpacing * 2);
+
+		backBufferGraphics.setColor(selectedOption == 3 ? Color.YELLOW : Color.CYAN);
+		drawCenteredRegularString(screen, signUpButton, inputStartY + inputSpacing * 3);
+
+		if (showAlert) {
+			backBufferGraphics.setColor(Color.RED);
+			drawCenteredBigString(screen, alertMessage, inputStartY + inputSpacing * 4);
+		}
+	}
+
+	public void drawSignUpScreen(final Screen screen, final String usernameInput, final String passwordInput,
+								 final String confirmPasswordInput, final boolean isUsernameActive,
+								 final boolean isPasswordActive, final boolean isConfirmPasswordActive,
+								 final boolean showAlert, final boolean signUpSuccess) {
+
+		String signUpTitle = "Sign Up";
+		String usernameLabel = "Username: ";
+		String passwordLabel = "Password: ";
+		String confirmPasswordLabel = "Confirm: ";
+		String signUpButton = "Press ENTER to Sign Up";
+		String alertMessage = "Passwords do not match or fields are empty!";
+		String successMessage = "Sign Up Successful!";
+
+		int titleY = Math.round(screen.getHeight() * 0.15f);
+		int inputStartX = screen.getWidth() / 5;
+		int inputStartY = Math.round(screen.getHeight() * 0.3f);
+		int inputSpacing = Math.round(screen.getHeight() * 0.1f);
+		int inputWidth = screen.getWidth() / 2;
+		int inputHeight = Math.round(screen.getHeight() * 0.07f);
+
+		backBufferGraphics.setColor(Color.GREEN);
+		drawCenteredBigString(screen, signUpTitle, titleY);
+
+		backBufferGraphics.setColor(isUsernameActive ? Color.YELLOW : Color.WHITE);
+		backBufferGraphics.drawString(usernameLabel, inputStartX, inputStartY);
+		backBufferGraphics.drawRect(inputStartX + 150, inputStartY - inputHeight + 10, inputWidth, inputHeight);
+		backBufferGraphics.drawString(usernameInput, inputStartX + 160, inputStartY - 5);
+
+		backBufferGraphics.setColor(isPasswordActive ? Color.YELLOW : Color.WHITE);
+		backBufferGraphics.drawString(passwordLabel, inputStartX, inputStartY + inputSpacing);
+		backBufferGraphics.drawRect(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, inputWidth, inputHeight);
+		String maskedPassword = "*".repeat(passwordInput.length());
+		backBufferGraphics.drawString(maskedPassword, inputStartX + 160, inputStartY + inputSpacing - 5);
+
+		backBufferGraphics.setColor(isConfirmPasswordActive ? Color.YELLOW : Color.WHITE);
+		backBufferGraphics.drawString(confirmPasswordLabel, inputStartX, inputStartY + 2 * inputSpacing);
+		backBufferGraphics.drawRect(inputStartX + 150, inputStartY + 2 * inputSpacing - inputHeight + 10, inputWidth, inputHeight);
+		String maskedConfirmPassword = "*".repeat(confirmPasswordInput.length());
+		backBufferGraphics.drawString(maskedConfirmPassword, inputStartX + 160, inputStartY + 2 * inputSpacing - 5);
+
+		backBufferGraphics.setColor(Color.YELLOW);
+		drawCenteredRegularString(screen, signUpButton, inputStartY + 3 * inputSpacing);
+
+		if (showAlert) {
+			backBufferGraphics.setColor(Color.RED);
+			drawCenteredBigString(screen, alertMessage, inputStartY + 4 * inputSpacing);
+		} else if (signUpSuccess) {
+			backBufferGraphics.setColor(Color.GREEN);
+			drawCenteredBigString(screen, successMessage, inputStartY + 4 * inputSpacing);
+		}
+	}
 }
