@@ -4,6 +4,7 @@ public enum Menu {
     GAME_SETTING,
     SHOP,
     ACHIEVEMENT,
+    RANKING,
     SETTING,
     EXIT,
     MAIN,
@@ -12,8 +13,8 @@ public enum Menu {
     CREDIT,
     SCORE;
 
-    static final Menu[] TITLE_MENU = {GAME_SETTING, SHOP, ACHIEVEMENT, SETTING, EXIT};
-    private static final int TILE_MENU_COUNT = 5;
+    static final Menu[] TITLE_MENU = {GAME_SETTING, SHOP, ACHIEVEMENT, RANKING, SETTING, EXIT};
+    private static final int TILE_MENU_COUNT = 6;
 
     public Menu getNext() {
         return TITLE_MENU[(this.ordinal() + 1) % TILE_MENU_COUNT];

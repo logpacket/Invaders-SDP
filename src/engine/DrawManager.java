@@ -1979,4 +1979,79 @@ public final class DrawManager {
 
 		}
 	}
+
+	/**
+	 * Draws the ranking screen.
+	 *
+	 * @param screen
+	 *               screen to draw on.
+	 * @param rankings
+	 *                 List of ranking entries.
+	 * @param scrollOffset
+	 *                     Current scroll offset for the ranking list.
+	 */
+
+	public void drawRankingScreen(final Screen screen, List<RankingEntry> rankings, final int scrollOffset){
+
+		String rankingTitle = "Ranking";
+		String rankHeader = "Rank";
+		String nameHeader = "UserName";
+		String scoreHeader = "HighScore";
+
+		int titleY = screen.getHeight() / 12;
+		int headerY = screen.getHeight() / 8;
+		int rowStartY = headerY + screen.getHeight() / 20;
+		int rowHeight = screen.getHeight() / 20;
+		int rankX = screen.getWidth() / 8;
+		int nameX = screen.getWidth() / 3;
+		int scoreX = screen.getWidth() * 3 / 4;
+
+		backBufferGraphics.setColor(Color.GREEN);
+		drawCenteredBigString(screen, rankingTitle, titleY);
+
+		backBufferGraphics.setColor(Color.LIGHT_GRAY);
+		backBufferGraphics.setFont(fontSmall);
+		backBufferGraphics.drawString(rankHeader, rankX, headerY);
+		backBufferGraphics.drawString(nameHeader, nameX, headerY);
+		backBufferGraphics.drawString(scoreHeader, scoreX, headerY);
+
+		for (int i = scrollOffset; i < Math.min(rankings.size(), scrollOffset + screen.getHeight() / rowHeight); i++) {
+			int y = rowStartY + (i - scrollOffset) * rowHeight;
+
+			// Stop drawing if it exceeds the screen height
+			if (y > screen.getHeight() - 50) break;
+
+			// Draw rank, username, and highScore
+			String rankText = String.valueOf(i + 1); // Rank as a string
+			String userName = rankings.get(i).getUserId(); // UserName
+			String highScore = String.valueOf(rankings.get(i).getHighScore()); // HighScore
+
+			// Render text at appropriate positions
+			backBufferGraphics.setColor(Color.WHITE);
+			backBufferGraphics.drawString(rankText, rankX, y);
+			backBufferGraphics.drawString(userName, nameX, y);
+			backBufferGraphics.drawString(highScore, scoreX, y);
+		}
+
+		// Scroll indicators
+		if (scrollOffset > 0) {
+			backBufferGraphics.setColor(Color.GRAY);
+			backBufferGraphics.drawString("↑ Scroll Up", screen.getWidth() / 2 - 50, 30);
+		}
+		if (scrollOffset + (screen.getHeight() / rowHeight) < rankings.size()) {
+			backBufferGraphics.setColor(Color.GRAY);
+			backBufferGraphics.drawString("↓ Scroll Down", screen.getWidth() / 2 - 50, screen.getHeight() - 30);
+		}
+
+	}
+
+	public void drawLoadingScreen(final Screen screen){
+		backBufferGraphics.setColor(Color.YELLOW);
+		backBufferGraphics.drawString("Loading Rankings...", screen.getWidth() / 2 - 80, screen.getHeight() / 2);
+	}
+
+	public void drawErrorMessage(final Screen screen, final String message) {
+		backBufferGraphics.setColor(Color.RED);
+		backBufferGraphics.drawString(message, screen.getWidth() / 2 - 80, screen.getHeight() / 2);
+	}
 }
