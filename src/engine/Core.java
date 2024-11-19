@@ -152,6 +152,11 @@ public final class Core {
 					menu = frame.setScreen(currentScreen);
 					break;
 
+				case RANKING:
+					currentScreen = new RankingScreen(width, height, FPS);
+					menu = frame.setScreen(currentScreen);
+					break;
+
                 default:
                     break;
             }
