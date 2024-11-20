@@ -144,11 +144,11 @@ public class ShopScreen extends Screen {
     }
 
     private void draw() {
-        drawManager.initDrawing(this);
+        renderer.initDrawing(this);
 
-        drawManager.drawShop(this, selectedItem, wallet, moneyAlertCooldown, maxAlertCooldown);
+        renderer.drawShop(this, selectedItem, wallet, moneyAlertCooldown, maxAlertCooldown);
 
-        drawManager.completeDrawing(this);
+        renderer.completeDrawing(this);
     }
 
     public boolean upgrade(int level)

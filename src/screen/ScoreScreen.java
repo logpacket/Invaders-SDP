@@ -166,13 +166,13 @@ public class ScoreScreen extends Screen {
 	 * Draws the elements associated with the screen.
 	 */
 	private void draw() {
-		drawManager.initDrawing(this);
+		renderer.initDrawing(this);
 
-		drawManager.drawGameOver(this, this.inputDelay.checkFinished(),
+		renderer.drawGameOver(this, this.inputDelay.checkFinished(),
 				this.isNewRecord);
-		drawManager.drawResults(this, this.score, this.livesRemaining,
+		renderer.drawResults(this, this.score, this.livesRemaining,
 				this.shipsDestroyed, this.accuracy, this.isNewRecord, this.coinsEarned);
 
-		drawManager.completeDrawing(this);
+		renderer.completeDrawing(this);
 	}
 }

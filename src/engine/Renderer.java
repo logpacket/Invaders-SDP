@@ -23,9 +23,9 @@ import screen.Screen;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  * 
  */
-public final class DrawManager {
+public final class Renderer {
 	/** Singleton instance of the class. */
-	private static DrawManager instance;
+	private static Renderer instance;
 	/** Current frame. */
 	private Frame frame;
     /** Graphics context. */
@@ -133,7 +133,7 @@ public final class DrawManager {
 	/**
 	 * Private constructor.
 	 */
-	private DrawManager() {
+	private Renderer() {
         /* FileManager instance. */
         FileManager fileManager = FileManager.getInstance();
         /* Application logger. */
@@ -204,9 +204,9 @@ public final class DrawManager {
 	 *
 	 * @return Shared instance of DrawManager.
 	 */
-	public static DrawManager getInstance() {
+	public static Renderer getInstance() {
 		if (instance == null)
-			instance = new DrawManager();
+			instance = new Renderer();
 		return instance;
 	}
 

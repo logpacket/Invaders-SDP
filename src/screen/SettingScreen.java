@@ -98,22 +98,22 @@ public class SettingScreen extends Screen {
      * Draws the elements associated with the screen.
      */
     private void draw() {
-        drawManager.initDrawing(this);
+        renderer.initDrawing(this);
 
-        drawManager.drawSettingsScreen(this);
+        renderer.drawSettingsScreen(this);
 
         for (int i = 0; i < menuItems.length; i++) {
             boolean isSelected = (i == selectedItem);
-            drawManager.drawCenteredRegularString(this, menuItems[i], this.getHeight() / 3 + i * MENU_ITEM_GAP, isSelected);
+            renderer.drawCenteredRegularString(this, menuItems[i], this.getHeight() / 3 + i * MENU_ITEM_GAP, isSelected);
         }
 
         int filledWidth = (volumeLevel * VOLUME_BAR_WIDTH) / 100;
         boolean isVolumeSelected = (selectedItem == 0);
 
-        drawManager.drawVolumeBar(this, this.getWidth() / 2 - VOLUME_BAR_WIDTH / 2, this.getHeight() / 3 + VOLUME_BAR_GAP, VOLUME_BAR_WIDTH, filledWidth, isVolumeSelected);
+        renderer.drawVolumeBar(this, this.getWidth() / 2 - VOLUME_BAR_WIDTH / 2, this.getHeight() / 3 + VOLUME_BAR_GAP, VOLUME_BAR_WIDTH, filledWidth, isVolumeSelected);
 
-        drawManager.drawVolumePercentage(this, this.getHeight() / 3 + VOLUME_BAR_GAP + VOLUME_PERCENTAGE_GAP, volumeLevel, isVolumeSelected);
+        renderer.drawVolumePercentage(this, this.getHeight() / 3 + VOLUME_BAR_GAP + VOLUME_PERCENTAGE_GAP, volumeLevel, isVolumeSelected);
 
-        drawManager.completeDrawing(this);
+        renderer.completeDrawing(this);
     }
 }

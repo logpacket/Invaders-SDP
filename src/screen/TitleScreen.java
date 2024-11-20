@@ -76,11 +76,11 @@ public class TitleScreen extends Screen {
 	 * Draws the elements associated with the screen.
 	 */
 	private void draw() {
-		drawManager.initDrawing(this);
+		renderer.initDrawing(this);
 
-		drawManager.drawTitle(this);
-		drawManager.drawMenu(this, this.menu);
+		renderer.drawTitle(this);
+		renderer.drawMenu(this, this.menu);
 
-		drawManager.completeDrawing(this);
+		renderer.completeDrawing(this);
 	}
 }
