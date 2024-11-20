@@ -15,7 +15,7 @@ import java.util.Set;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  * 
  */
-public abstract class Ship extends Entity {
+public abstract class Ship extends SpriteEntity {
 
 	/** Time between shoots. */
 	private int shootInterval = 750;

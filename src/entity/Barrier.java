@@ -1,12 +1,11 @@
 package entity;
+import java.awt.Color;
 
 import engine.Renderer.SpriteType;
 import engine.Sound;
 import engine.SoundManager;
 
-import java.awt.*;
-
-public class Barrier extends Entity{
+public class Barrier extends SpriteEntity {
 
     private int health;
 

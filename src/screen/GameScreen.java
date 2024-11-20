@@ -864,7 +864,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 *            Second entity, the ship.
 	 * @return Result of the collision test.
 	 */
-	private boolean checkCollision(final Entity a, final Entity b) {
+	private boolean checkCollision(final SpriteEntity a, final SpriteEntity b) {
 		// Calculate center point of the entities in both axis.
 		int centerAX = a.getPositionX() + a.getWidth() / 2;
 		int centerAY = a.getPositionY() + a.getHeight() / 2;
