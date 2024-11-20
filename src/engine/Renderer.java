@@ -306,8 +306,8 @@ public final class Renderer {
 	 * @param positionY
 	 *            Coordinates for the upper side of the image.
 	 */
-	public void drawEntity(final SpriteEntity spriteEntity, final int positionX,
-						   final int positionY) {
+	public void drawSpriteEntity(final SpriteEntity spriteEntity, final int positionX,
+								 final int positionY) {
 		boolean[][] image = spriteMap.get(spriteEntity.getSpriteType());
 
 		backBufferGraphics.setColor(spriteEntity.getColor());
@@ -330,8 +330,8 @@ public final class Renderer {
      * @param threadNumber
      *            Thread number for two player mode
      */
-    public void drawEntity(final SpriteEntity spriteEntity, final int positionX,
-						   final int positionY, final int threadNumber) {
+    public void drawSpriteEntity(final SpriteEntity spriteEntity, final int positionX,
+								 final int positionY, final int threadNumber) {
         boolean[][] image = spriteMap.get(spriteEntity.getSpriteType());
 
         threadBufferGraphics[threadNumber].setColor(spriteEntity.getColor());
@@ -355,7 +355,7 @@ public final class Renderer {
 		g2d.rotate(Math.toRadians(angle), centerX, centerY);
 
 		//Drawing entities
-		drawEntity(spriteEntity, x, y);
+		drawSpriteEntity(spriteEntity, x, y);
 
 		g2d.setTransform(oldTransform); // Restore to original conversion state
 	}
@@ -373,7 +373,7 @@ public final class Renderer {
 		g2d.rotate(Math.toRadians(angle), centerX, centerY);
 
 		//Drawing entities
-		drawEntity(spriteEntity, x, y, threadNumber);
+		drawSpriteEntity(spriteEntity, x, y, threadNumber);
 
 		g2d.setTransform(oldTransform); // Restore to original conversion state
 	}
@@ -424,6 +424,7 @@ public final class Renderer {
 		String scoreString = String.format("%04d", score);
 		backBufferGraphics.drawString(scoreString, screen.getWidth() - 60, 25);
 	}
+
     /**
 	 * Draws level on screen.
 	 *
@@ -438,6 +439,7 @@ public final class Renderer {
 		String scoreString = String.format("lv.%d", level);
 		backBufferGraphics.drawString(scoreString, screen.getWidth() / 2 - 60, 25);
 	}
+
 	/**
 	 * Draws level on screen.
 	 *
@@ -575,7 +577,7 @@ public final class Renderer {
 		backBufferGraphics.drawString(Integer.toString(lives), 20, 25);
 		Ship dummyShip = ShipFactory.create(shipType, 0, 0);
 		for (int i = 0; i < lives; i++)
-			drawEntity(dummyShip, 40 + 35 * i, 10);
+			drawSpriteEntity(dummyShip, 40 + 35 * i, 10);
 	}
 
 
@@ -595,7 +597,7 @@ public final class Renderer {
 		threadBufferGraphics[threadNumber].drawString(Integer.toString(lives), 20, 25);
 		Ship dummyShip = ShipFactory.create(shipType, 0, 0);
 		for (int i = 0; i < lives; i++)
-			drawEntity(dummyShip, 40 + 35 * i, 10, threadNumber);
+			drawSpriteEntity(dummyShip, 40 + 35 * i, 10, threadNumber);
 	}
 
 	/**
@@ -1813,7 +1815,7 @@ public final class Renderer {
 
 		Ship currentShip = ShipFactory.create(shipType, 0, 0);
 		currentShip.setColor(Color.GREEN);
-		drawEntity(currentShip, screen.getWidth() / 2 - 13, screen.getHeight() / 100 * 80);
+		drawSpriteEntity(currentShip, screen.getWidth() / 2 - 13, screen.getHeight() / 100 * 80);
 		drawRegularString(screen, shipType.name(),
 				screen.getWidth() / 2 - fontRegularMetrics.stringWidth(shipType.name()) / 2,
 				screen.getHeight() / 100 * 80 - 35
@@ -1842,7 +1844,7 @@ public final class Renderer {
 		if (shipIndex > 0) {
 			Ship previousShip = ShipFactory.create(shipTypes[shipIndex - 1], 0, 0);
 			previousShip.setColor(Color.WHITE);
-			drawEntity(previousShip, screen.getWidth() / 2 - SHIP_OFFSET - 13, screen.getHeight() / 100 * 80);
+			drawSpriteEntity(previousShip, screen.getWidth() / 2 - SHIP_OFFSET - 13, screen.getHeight() / 100 * 80);
 			drawRegularString(screen, shipTypes[shipIndex - 1].name(),
 					screen.getWidth() / 2 - SHIP_OFFSET - fontRegularMetrics.stringWidth(shipTypes[shipIndex - 1].name()) / 2,
 					screen.getHeight() / 100 * 80 - 35
@@ -1864,7 +1866,7 @@ public final class Renderer {
 		if (shipIndex < shipTypes.length - 1) {
 			Ship nextShip = ShipFactory.create(shipTypes[shipIndex + 1], 0, 0);
 			nextShip.setColor(Color.WHITE);
-			drawEntity(nextShip, screen.getWidth() / 2 + SHIP_OFFSET - 13, screen.getHeight() / 100 * 80);
+			drawSpriteEntity(nextShip, screen.getWidth() / 2 + SHIP_OFFSET - 13, screen.getHeight() / 100 * 80);
 			drawRegularString(screen, shipTypes[shipIndex + 1].name(),
 					screen.getWidth() / 2 + SHIP_OFFSET - fontRegularMetrics.stringWidth(shipTypes[shipIndex + 1].name()) / 2,
 					screen.getHeight() / 100 * 80 - 35
