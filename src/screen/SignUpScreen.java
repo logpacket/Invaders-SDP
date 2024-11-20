@@ -1,8 +1,15 @@
 package screen;
 
 import engine.*;
+import engine.network.Event;
+import engine.network.NetworkManager;
+import engine.network.Status;
+import message.User;
 
 import java.awt.event.KeyEvent;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class SignUpScreen extends Screen {
 
@@ -21,10 +28,11 @@ public class SignUpScreen extends Screen {
     private boolean isPasswordActive;
     private boolean isConfirmPasswordActive;
 
-    private Cooldown selectionCooldown;
-    private Cooldown alertCooldown;
-    private Cooldown successCooldown;
+    private final Cooldown selectionCooldown;
+    private final Cooldown alertCooldown;
+    private final Cooldown successCooldown;
 
+    private Future<Event> response;
     private boolean signUpSuccess;
 
     public SignUpScreen(final int width, final int height, final int fps) {
@@ -44,6 +52,7 @@ public class SignUpScreen extends Screen {
         this.menu = Menu.SIGN_UP;
     }
 
+    @Override
     protected final void update() {
         super.update();
         draw();
@@ -117,7 +126,24 @@ public class SignUpScreen extends Screen {
 
             if (inputManager.isKeyDown(KeyEvent.VK_ENTER)) {
                 if (validateSignUp()) {
-                    signUpSuccess = true;
+                    if (response == null)
+                        response = NetworkManager.getInstance()
+                                .request("signup", new User(this.usernameInput, this.passwordInput));
+                    else if (response.isDone()){
+                        try {
+                            Event event = response.get();
+                            if (event.status() == Status.OK) {
+                                signUpSuccess = true;
+                                isRunning = false;
+                                this.menu = Menu.LOGIN;
+                            }
+                            else { response = null; }
+                        }
+                        catch (ExecutionException | InterruptedException e) {
+                            logger.warning(e.getMessage());
+                            Thread.currentThread().interrupt();
+                        }
+                    }
                     soundManager.playSound(Sound.MENU_CLICK);
                 } else {
                     soundManager.playSound(Sound.COIN_INSUFFICIENT);
