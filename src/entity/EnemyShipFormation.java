@@ -209,11 +209,11 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 		for (List<EnemyShip> column : this.enemyShipsGrid)
 			for (EnemyShip enemyShip : column)
 				if (enemyShip != null)
-				    renderer.drawEntity(enemyShip, enemyShip.getPositionX(),
+				    renderer.drawSpriteEntity(enemyShip, enemyShip.getPositionX(),
                  enemyShip.getPositionY());
 
 		for(EnemyShip enemyShip : this.enemyShipsDivers) {
-			renderer.drawEntity(enemyShip, enemyShip.getPositionX(),
+			renderer.drawSpriteEntity(enemyShip, enemyShip.getPositionX(),
 					enemyShip.getPositionY());
 		}
 	}
@@ -225,11 +225,11 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 		for (List<EnemyShip> column : this.enemyShipsGrid)
 			for (EnemyShip enemyShip : column)
 				if (enemyShip != null)
-					renderer.drawEntity(enemyShip, enemyShip.getPositionX(),
+					renderer.drawSpriteEntity(enemyShip, enemyShip.getPositionX(),
 							enemyShip.getPositionY(), playerNumber);
 
         for(EnemyShip enemyShip : this.enemyShipsDivers) {
-            renderer.drawEntity(enemyShip, enemyShip.getPositionX(),
+            renderer.drawSpriteEntity(enemyShip, enemyShip.getPositionX(),
                     enemyShip.getPositionY(), playerNumber);
         }
     }

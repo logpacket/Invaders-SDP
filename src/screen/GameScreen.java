@@ -476,34 +476,34 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		renderer.drawLaunchTrajectory( this,this.ship.getPositionX());
 
-		renderer.drawEntity(this.ship, this.ship.getPositionX(), this.ship.getPositionY());
+		renderer.drawSpriteEntity(this.ship, this.ship.getPositionX(), this.ship.getPositionY());
 
 		//draw Spider Web
         for (Web value : web) {
-            renderer.drawEntity(value, value.getPositionX(),
+            renderer.drawSpriteEntity(value, value.getPositionX(),
                     value.getPositionY());
         }
 		//draw Blocks
 		for (Block b : block)
-			renderer.drawEntity(b, b.getPositionX(),
+			renderer.drawSpriteEntity(b, b.getPositionX(),
 					b.getPositionY());
 
 
 		if (this.enemyShipSpecial != null)
-			renderer.drawEntity(this.enemyShipSpecial,
+			renderer.drawSpriteEntity(this.enemyShipSpecial,
 					this.enemyShipSpecial.getPositionX(),
 					this.enemyShipSpecial.getPositionY());
 
 		enemyShipFormation.draw();
 
 		for (ItemBox itemBox : this.itemBoxes)
-			renderer.drawEntity(itemBox, itemBox.getPositionX(), itemBox.getPositionY());
+			renderer.drawSpriteEntity(itemBox, itemBox.getPositionX(), itemBox.getPositionY());
 
 		for (Barrier barrier : this.barriers)
-			renderer.drawEntity(barrier, barrier.getPositionX(), barrier.getPositionY());
+			renderer.drawSpriteEntity(barrier, barrier.getPositionX(), barrier.getPositionY());
 
 		for (Bullet bullet : this.bullets)
-			renderer.drawEntity(bullet, bullet.getPositionX(),
+			renderer.drawSpriteEntity(bullet, bullet.getPositionX(),
 					bullet.getPositionY());
 
 
@@ -609,34 +609,34 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		renderer.drawLaunchTrajectory( this,this.ship.getPositionX(), playerNumber);
 
-		renderer.drawEntity(this.ship, this.ship.getPositionX(),
+		renderer.drawSpriteEntity(this.ship, this.ship.getPositionX(),
 				this.ship.getPositionY(), playerNumber);
 
 		//draw Spider Web
         for (Web value : web) {
-            renderer.drawEntity(value, value.getPositionX(),
+            renderer.drawSpriteEntity(value, value.getPositionX(),
                     value.getPositionY(), playerNumber);
         }
 		//draw Blocks
 		for (Block b : block)
-			renderer.drawEntity(b, b.getPositionX(),
+			renderer.drawSpriteEntity(b, b.getPositionX(),
 					b.getPositionY(), playerNumber);
 
 		if (this.enemyShipSpecial != null)
-			renderer.drawEntity(this.enemyShipSpecial,
+			renderer.drawSpriteEntity(this.enemyShipSpecial,
 					this.enemyShipSpecial.getPositionX(),
 					this.enemyShipSpecial.getPositionY(), playerNumber);
 
 		enemyShipFormation.draw(playerNumber);
 
 		for (ItemBox itemBox : this.itemBoxes)
-			renderer.drawEntity(itemBox, itemBox.getPositionX(), itemBox.getPositionY(), playerNumber);
+			renderer.drawSpriteEntity(itemBox, itemBox.getPositionX(), itemBox.getPositionY(), playerNumber);
 
 		for (Barrier barrier : this.barriers)
-			renderer.drawEntity(barrier, barrier.getPositionX(), barrier.getPositionY(), playerNumber);
+			renderer.drawSpriteEntity(barrier, barrier.getPositionX(), barrier.getPositionY(), playerNumber);
 
 		for (Bullet bullet : this.bullets)
-			renderer.drawEntity(bullet, bullet.getPositionX(),
+			renderer.drawSpriteEntity(bullet, bullet.getPositionX(),
 					bullet.getPositionY(), playerNumber);
 
 		// Interface.
