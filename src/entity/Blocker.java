@@ -4,7 +4,7 @@ import engine.Renderer.SpriteType;
 import java.util.Random;
 import java.awt.*;
 
-public class Blocker extends Entity {
+public class Blocker extends SpriteEntity {
 
     private final Random random;
     /* angle */

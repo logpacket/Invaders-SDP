@@ -5,7 +5,7 @@ import engine.Renderer.SpriteType;
 import engine.Sound;
 import engine.SoundManager;
 
-public class Barrier extends Entity{
+public class Barrier extends SpriteEntity {
 
     private int health;
 
