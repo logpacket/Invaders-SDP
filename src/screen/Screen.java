@@ -17,7 +17,7 @@ public abstract class Screen {
 	private static final int INPUT_DELAY = 1000;
 
 	/** Draw Manager instance. */
-	protected DrawManager drawManager;
+	protected Renderer renderer;
 	/** Input Manager instance. */
 	protected InputManager inputManager;
 	/** Application logger. */
@@ -52,7 +52,7 @@ public abstract class Screen {
 		this.height = height;
 		this.fps = fps;
 
-		this.drawManager = DrawManager.getInstance();
+		this.renderer = Renderer.getInstance();
 		this.inputManager = InputManager.getInstance();
 		this.logger = Core.getLogger();
 		this.inputDelay = Core.getCooldown(INPUT_DELAY);

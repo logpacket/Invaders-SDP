@@ -2,7 +2,7 @@ package entity;
 
 import engine.Cooldown;
 import engine.Core;
-import engine.DrawManager.SpriteType;
+import engine.Renderer.SpriteType;
 import engine.Sound;
 import engine.SoundManager;
 

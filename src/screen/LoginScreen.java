@@ -180,12 +180,12 @@ public class LoginScreen extends Screen {
      * Draws the login screen elements.
      */
     private void draw() {
-        drawManager.initDrawing(this);
+        renderer.initDrawing(this);
 
-        drawManager.drawLoginScreen(this, usernameInput, passwordInput, isUsernameActive,
+        renderer.drawLoginScreen(this, usernameInput, passwordInput, isUsernameActive,
                 isPasswordActive, selectedOption, !alertCooldown.checkFinished());
 
-        drawManager.completeDrawing(this);
+        renderer.completeDrawing(this);
     }
 
     /**

@@ -2,7 +2,7 @@ package entity;
 
 import engine.Cooldown;
 import engine.Core;
-import engine.DrawManager;
+import engine.Renderer;
 import engine.GameState;
 
 import java.awt.*;
@@ -25,7 +25,7 @@ public class EnemyShipDiver extends EnemyShip {
      * @param positionY
      */
     public EnemyShipDiver(final int positionX, final int positionY, final GameState gameState, final int difficulty) {
-        super(positionX, positionY, DrawManager.SpriteType.ENEMY_SHIP_F1, gameState, difficulty);
+        super(positionX, positionY, Renderer.SpriteType.ENEMY_SHIP_F1, gameState, difficulty);
         this.diveCooldown = Core.getVariableCooldown(DIVE_INTERVAL, DIVE_VARIANCE);
         this.diveCooldown.reset();
         this.pointValue = POINTS;
@@ -44,9 +44,9 @@ public class EnemyShipDiver extends EnemyShip {
         }
 
         if (this.color == Color.RED) {
-            this.spriteType = DrawManager.SpriteType.ENEMY_SHIP_F2;
+            this.spriteType = Renderer.SpriteType.ENEMY_SHIP_F2;
         } else {
-            this.spriteType = DrawManager.SpriteType.ENEMY_SHIP_F1;
+            this.spriteType = Renderer.SpriteType.ENEMY_SHIP_F1;
 
         }
     }

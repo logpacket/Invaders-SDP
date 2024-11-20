@@ -60,7 +60,7 @@ public final class Core {
 
         /* Frame to draw the screen on. */
         Frame frame = new Frame(WIDTH, HEIGHT);
-		DrawManager.getInstance().setFrame(frame);
+		Renderer.getInstance().setFrame(frame);
 		int width = frame.getWidth();
 		int height = frame.getHeight();
 
@@ -119,7 +119,7 @@ public final class Core {
 
 					frame.setSize(WIDTH, HEIGHT);
 					frame.moveToMiddle();
-					DrawManager.getInstance().setFrame(frame);
+					Renderer.getInstance().setFrame(frame);
 
 					gameState = ((TwoPlayerScreen) currentScreen).getWinnerGameState();
 					int winnerNumber = ((TwoPlayerScreen) currentScreen).getWinnerNumber();

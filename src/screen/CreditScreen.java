@@ -48,9 +48,9 @@ public class CreditScreen extends Screen{
     }
 
     private void draw(){
-        drawManager.initDrawing(this);
-        drawManager.drawEndingCredit(this,this.creditlist, currentFrame);
-        drawManager.completeDrawing(this);
+        renderer.initDrawing(this);
+        renderer.drawEndingCredit(this,this.creditlist, currentFrame);
+        renderer.completeDrawing(this);
     }
 
 }

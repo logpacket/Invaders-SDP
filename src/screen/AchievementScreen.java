@@ -72,11 +72,11 @@ public class AchievementScreen extends Screen {
 	 * Draws the elements associated with the screen.
 	 */
 	private void draw() {
-		drawManager.initDrawing(this);
-		drawManager.drawAchievementMenu(this, this.totalScore, this.totalPlayTime,
+		renderer.initDrawing(this);
+		renderer.drawAchievementMenu(this, this.totalScore, this.totalPlayTime,
 				this.maxCombo, this.currentPerfectStage, this.currentPerfectStage+1,
 				this.checkFlawlessFailure);
-		drawManager.drawHighScores(this, this.highScores);
-		drawManager.completeDrawing(this);
+		renderer.drawHighScores(this, this.highScores);
+		renderer.completeDrawing(this);
 	}
 }

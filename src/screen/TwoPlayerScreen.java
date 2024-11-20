@@ -76,10 +76,10 @@ public class TwoPlayerScreen extends Screen {
      * Draws the elements associated with the screen.
      */
     private void draw() {
-        drawManager.initDrawing(this);
-        drawManager.mergeDrawing(this);
-        drawManager.drawVerticalLine(this);
-        drawManager.completeDrawing(this);
+        renderer.initDrawing(this);
+        renderer.mergeDrawing(this);
+        renderer.drawVerticalLine(this);
+        renderer.completeDrawing(this);
     }
 
     /**

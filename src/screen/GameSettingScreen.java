@@ -192,15 +192,15 @@ public class GameSettingScreen extends Screen {
 	 * Draws the elements associated with the screen.
 	 */
 	private void draw() {
-		drawManager.initDrawing(this);
+		renderer.initDrawing(this);
 
-		drawManager.drawGameSetting(this);
+		renderer.drawGameSetting(this);
 
-		drawManager.drawGameSettingRow(this, this.selectedRow);
+		renderer.drawGameSettingRow(this, this.selectedRow);
 
-		drawManager.drawGameSettingElements(this, this.selectedRow, isMultiplayer, nameBuilder1.toString(), nameBuilder2.toString(), this.difficulty, this.shipType);
+		renderer.drawGameSettingElements(this, this.selectedRow, isMultiplayer, nameBuilder1.toString(), nameBuilder2.toString(), this.difficulty, this.shipType);
 
-		drawManager.completeDrawing(this);
+		renderer.completeDrawing(this);
 	}
 
 	public GameSettings getGameSettings() {

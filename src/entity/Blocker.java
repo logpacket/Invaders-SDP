@@ -1,6 +1,6 @@
 package entity;
 
-import engine.DrawManager.SpriteType;
+import engine.Renderer.SpriteType;
 
 import java.awt.*;
 import java.util.Random;

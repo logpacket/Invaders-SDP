@@ -132,11 +132,11 @@ public class SignUpScreen extends Screen {
     }
 
     private void draw() {
-        drawManager.initDrawing(this);
+        renderer.initDrawing(this);
 
-        drawManager.drawSignUpScreen(this, usernameInput, passwordInput, confirmPasswordInput,
+        renderer.drawSignUpScreen(this, usernameInput, passwordInput, confirmPasswordInput,
                 isUsernameActive, isPasswordActive, isConfirmPasswordActive, !alertCooldown.checkFinished());
 
-        drawManager.completeDrawing(this);
+        renderer.completeDrawing(this);
     }
 }
