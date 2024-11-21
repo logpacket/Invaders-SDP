@@ -104,19 +104,95 @@ public class EntityFactory {
         return new LineEntity(screen.getWidth() / 2, 0, screen.getWidth() / 2, screen.getHeight(), Color.GREEN);
     }
 
-    public static TextEntity createTitle(final Screen screen){
+    public static List<Entity> createTitle(final Screen screen){
+        List<Entity> entities = new ArrayList<>();
+
         String titleString = "Invaders";
-        TextEntity textEntity = createCenteredBigString(screen, titleString, screen.getHeight() / 5);
-        textEntity.setColor(Color.GREEN);
-        return textEntity;
-    }
-
-    public static TextEntity createInstruction(final Screen screen){
         String instructionsString =
-				"select with w+s / arrows, confirm with space";
-        TextEntity textEntity = createCenteredRegularString(screen, instructionsString, screen.getHeight() / 5 * 2);
-        textEntity.setColor(Color.GRAY);
-        return textEntity;
+                "select with w+s / arrows, confirm with space";
+
+        entities.add(createCenteredBigString(screen, titleString, screen.getHeight() / 5, Color.GREEN));
+        entities.add(createCenteredRegularString(screen, instructionsString, screen.getHeight() / 5 * 2, Color.GRAY));
+
+        return entities;
+    }
+
+
+    public static List<Entity> createResults(final Screen screen, final int score,
+                                             final int livesRemaining, final int shipsDestroyed,
+                                             final double accuracy, final boolean isNewRecord, final int coinsEarned){
+        List<Entity> entities = new ArrayList<>();
+        String scoreString = String.format("score %04d", score);
+        String livesRemainingString = "lives remaining " + livesRemaining;
+        String shipsDestroyedString = "enemies destroyed " + shipsDestroyed;
+        String accuracyString = String
+                .format("accuracy %.2f%%", accuracy);
+        String coinsEarnedString = "EARNED COIN " + coinsEarned;
+
+        int height = isNewRecord ? 4 : 2;
+
+        entities.add(createCenteredRegularString(screen, scoreString, screen.getHeight() / height, Color.WHITE));
+        entities.add(createCenteredRegularString(screen, livesRemainingString, screen.getHeight() / height
+                + FontManager.getFontRegularMetrics().getHeight() * 2, Color.WHITE));
+        entities.add(createCenteredRegularString(screen, shipsDestroyedString, screen.getHeight() / height
+                + FontManager.getFontRegularMetrics().getHeight() * 4, Color.WHITE));
+        entities.add(createCenteredRegularString(screen, coinsEarnedString, screen.getHeight() / height
+                + FontManager.getFontRegularMetrics().getHeight() * 9, Color.YELLOW));
+
+        return entities;
+    }
+
+    public static List<Entity> createMenu(final Screen screen, final Menu menu){
+        List<Entity> entities = new ArrayList<>();
+
+        String coinString = "YOUR COIN: " + Wallet.getWallet().getCoin();
+
+        int lineSpacing = 0;
+        for (Menu m: Menu.TITLE_MENU) {
+            Color tmpColor;
+            if (m.equals(menu)) tmpColor = Color.GREEN;
+            else tmpColor = Color.WHITE;
+
+            String menuString = m.equals(Menu.GAME_SETTING) ? "PLAY" :  m.name();
+
+            entities.add(createCenteredRegularString(screen, menuString,
+                    screen.getHeight() / 7 * 4 + lineSpacing, tmpColor));
+
+            if (m.equals(Menu.SHOP)) {
+                entities.add(createCenteredSmallString(screen, coinString, screen.getHeight()
+                / 7 * 4 + lineSpacing + FontManager.getFontRegularMetrics().getHeight(), Color.ORANGE));
+            }
+
+            lineSpacing += FontManager.getFontRegularMetrics().getHeight() * 2;
+        }
+
+        return entities;
+    }
+
+    public static List<Entity> createGameOver(final Screen screen, final boolean acceptsInput,
+                                              final boolean isNewRecord){
+        List<Entity> entities = new ArrayList<>();
+        String gameOverString = "Game Over";
+        String continueOrExitString =
+                "Press Space to play again, Escape to exit";
+
+        int height = isNewRecord ? 4 : 2;
+
+        entities.add(createCenteredBigString(screen, gameOverString, screen.getHeight()
+                / height - FontManager.getFontBigMetrics().getHeight() * 2, Color.GREEN));
+
+
+        TextEntity textEntity = createCenteredRegularString(screen, continueOrExitString,
+                screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 10, Color.GREEN);
+
+        if (acceptsInput)
+            textEntity.setColor(Color.GREEN);
+        else
+            textEntity.setColor(Color.GRAY);
+
+        entities.add(textEntity);
+
+        return entities;
     }
 
 
@@ -140,23 +216,29 @@ public class EntityFactory {
 
 
 
+
+    public static TextEntity createCenteredSmallString(final Screen screen,
+                                                       final String string, final int height, final Color color){
+        return new TextEntity(screen.getWidth() / 2 - FontManager.getFontSmallMetrics().stringWidth(string) / 2,
+                height, color, string, FontManager.getFontRegular());
+    }
 
     public static TextEntity createCenteredRegularString(final Screen screen,
-                                                         final String string, final int height){
+                                                         final String string, final int height, final Color color){
         return new TextEntity(screen.getWidth() / 2 - FontManager.getFontRegularMetrics().stringWidth(string) / 2,
-                height, Color.GREEN, string, FontManager.getFontRegular());
+                height, color, string, FontManager.getFontRegular());
     }
 
     public static TextEntity createCenteredBigString(final Screen screen,
-                                                         final String string, final int height){
+                                                         final String string, final int height, final Color color){
         return new TextEntity(screen.getWidth() / 2 - FontManager.getFontBigMetrics().stringWidth(string) / 2,
-                height, Color.GREEN, string, FontManager.getFontBig());
+                height, color, string, FontManager.getFontBig());
     }
 
     public static TextEntity createLeftSideScoreRegularString(final Screen screen,
-                                                              final String string, final int height){
+                                                              final String string, final int height, final Color color){
         return new TextEntity(screen.getWidth() / 4 - FontManager.getFontRegularMetrics().stringWidth(string) / 2,
-                height, Color.GREEN, string, FontManager.getFontRegular());
+                height, color, string, FontManager.getFontRegular());
     }
 
 

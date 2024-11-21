@@ -1,8 +1,11 @@
 package screen;
 
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import engine.*;
+import entity.Entity;
 
 
 /**
@@ -42,6 +45,8 @@ public class TitleScreen extends Screen {
 		this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
 		this.selectionCooldown.reset();
 		this.menu = Menu.GAME_SETTING;
+		this.frontBufferEntities = new ArrayList<Entity>();
+		this.backBufferEntities = new ArrayList<Entity>();
 	}
 
 	/**
@@ -83,4 +88,13 @@ public class TitleScreen extends Screen {
 
 		renderer.completeDrawing(this);
 	}
+
+	private void createEntity() {
+		backBufferEntities.addAll(EntityFactory.createTitle(this));
+		backBufferEntities.addAll(EntityFactory.createMenu(this, this.menu));
+
+		swapBuffers();
+	}
+
+
 }

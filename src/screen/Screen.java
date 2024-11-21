@@ -1,9 +1,11 @@
 package screen;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import engine.*;
+import entity.Entity;
 
 /**
  * Implements a generic screen.
@@ -36,6 +38,9 @@ public abstract class Screen {
 	protected boolean isRunning;
 	/** What kind of screen goes next. */
 	protected Menu menu;
+
+	protected List<Entity> backBufferEntities;
+	protected List<Entity> frontBufferEntities;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -113,5 +118,13 @@ public abstract class Screen {
 	 */
 	public final int getHeight() {
 		return this.height;
+	}
+
+	public void swapBuffers() {
+		List<Entity> temp = frontBufferEntities;
+		frontBufferEntities = backBufferEntities;
+		backBufferEntities = temp;
+
+		backBufferEntities.clear();
 	}
 }

@@ -298,6 +298,12 @@ public final class Renderer {
 		threadBuffers[threadNumber + 2] = threadBuffer;
 	}
 
+	public void drwaEntities(final List<Entity> entities) {
+		for (Entity entity : entities) {
+
+		}
+	}
+
 	/**
 	 * Draws an entity, using the appropriate image.
 	 * 
