@@ -14,6 +14,10 @@ public class RectEntity extends Entity{
 
     }
 
+	@Override
+	public EntityType getType() {
+		return EntityType.RECT;
+	}
 
     /**
 	 * Getter for the width of the image associated to the entity.

@@ -40,6 +40,11 @@ public class SpriteEntity extends Entity{
 		this.height = height;
 	}
 
+	@Override
+	public EntityType getType() {
+		return EntityType.SPRITE;
+	}
+
 	/**
 	 * Getter for the sprite that the entity will be drawn as.
 	 * 

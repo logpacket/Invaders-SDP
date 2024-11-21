@@ -12,6 +12,11 @@ public class TextEntity extends Entity{
         this.font = font;
     }
 
+    @Override
+	public EntityType getType() {
+		return EntityType.TEXT;
+	}
+
     /**
      * Setter for the text of the entity.
      *
