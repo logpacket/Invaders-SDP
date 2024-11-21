@@ -15,6 +15,11 @@ public class ImageEntity extends Entity{
         this.height = height;
     }
 
+	@Override
+	public EntityType getType() {
+		return EntityType.IMAGE;
+	}
+
     /**
 	 * Getter for the width of the image associated to the entity.
 	 *

@@ -17,6 +17,11 @@ public class LineEntity extends Entity{
         this.positionY2 = positionY2;
     }
 
+    @Override
+	public EntityType getType() {
+		return EntityType.LINE;
+	}
+
     /**
      * Getter for X at the end point of line
      *

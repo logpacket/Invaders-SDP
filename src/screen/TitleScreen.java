@@ -49,6 +49,8 @@ public class TitleScreen extends Screen {
 		this.menu = Menu.GAME_SETTING;
 		this.frontBufferEntities = new ArrayList<Entity>();
 		this.backBufferEntities = new ArrayList<Entity>();
+
+		renderer.initDrawing(this); //to initialize FontManager.fontMetrics
 	}
 
 	/**
@@ -57,6 +59,7 @@ public class TitleScreen extends Screen {
 	protected final void update() {
 		super.update();
 
+		createEntity();
 		draw();
 		if (this.selectionCooldown.checkFinished()
 				&& this.inputDelay.checkFinished()) {
@@ -85,8 +88,7 @@ public class TitleScreen extends Screen {
 	private void draw() {
 		renderer.initDrawing(this);
 
-		renderer.drawTitle(this);
-		renderer.drawMenu(this, this.menu);
+		renderer.drawEntities(frontBufferEntities);
 
 		renderer.completeDrawing(this);
 	}
