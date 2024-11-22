@@ -25,8 +25,8 @@ public class EntityFactory {
     }
 
     public static RectEntity createRectEntity(final int positionX, final int positionY, final Color color,
-                      final int width, final int height){
-        return new RectEntity(positionX, positionY, color, width, height);
+                      final int width, final int height, final boolean isFilled){
+        return new RectEntity(positionX, positionY, color, width, height, isFilled);
     }
 
     public static ImageEntity createImageEntity(final int positionX, final int positionY, final Color color,
@@ -88,7 +88,7 @@ public class EntityFactory {
     public static List<Entity> createLaunchTrajectory(final Screen screen, final int positionX){
         List<Entity> entities = new ArrayList<>();
         for (int i = 0; i < screen.getHeight() - 140; i += 20){
-			entities.add(new RectEntity(positionX + 13, screen.getHeight() - 100 - i, Color.DARK_GRAY, 1, 10));
+			entities.add(new RectEntity(positionX + 13, screen.getHeight() - 100 - i, Color.DARK_GRAY, 1, 10, false));
 		}
         return entities;
     }
@@ -194,6 +194,17 @@ public class EntityFactory {
 
         return entities;
     }
+
+    public static List<Entity> createInGameOver(final Screen screen){
+        List<Entity> entities = new ArrayList<>();
+        String gameOverString = "Game Over";
+
+        int rectWidth = screen.getWidth();
+        int rectHeight = screen.getHeight() / 6;
+
+        return entities;
+    }
+
 
 
 
