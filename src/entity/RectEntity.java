@@ -5,15 +5,17 @@ import java.awt.*;
 public class RectEntity extends Entity{
     protected int width;
     protected int height;
+	protected boolean isFilled;
 
     public RectEntity(final int positionX, final int positionY, final Color color,
-                      final int width, final int height){
+                      final int width, final int height, final boolean isFilled){
         super(positionX, positionY, color);
         this.width = width;
         this.height = height;
-
+		this.isFilled = isFilled;
     }
 
+	public final boolean isFilled() { return this.isFilled;}
 
     /**
 	 * Getter for the width of the image associated to the entity.
