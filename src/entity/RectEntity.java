@@ -15,7 +15,7 @@ public class RectEntity extends Entity{
 		this.isFilled = isFilled;
     }
 
-	public final boolean isFilled() { return this.isFilled;}
+	public final boolean getIsFilled() { return this.isFilled;}
 
     @Override
 	public EntityType getType() {

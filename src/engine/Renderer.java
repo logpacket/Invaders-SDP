@@ -1170,22 +1170,6 @@ public final class Renderer {
 	}
 
 	/**
-	 * Draws a centered string on small font.
-	 *
-	 * @param screen
-	 *            Screen to draw on.
-	 * @param string
-	 *            String to draw.
-	 * @param height
-	 *            Height of the drawing.
-	 */
-	private void drawCenteredSmallString(final Screen screen, final String string, final int height) {
-		backBufferGraphics.setFont(fontSmall);
-		backBufferGraphics.drawString(string, screen.getWidth() / 2
-				- fontSmallMetrics.stringWidth(string) / 2, height);
-	}
-
-	/**
 	 * Draws credit screen.
 	 *
 	 * @param screen
@@ -1202,6 +1186,24 @@ public final class Renderer {
 
 
 	}
+
+	/**
+	 * Draws a centered string on small font.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param string
+	 *            String to draw.
+	 * @param height
+	 *            Height of the drawing.
+	 */
+	private void drawCenteredSmallString(final Screen screen, final String string, final int height) {
+		backBufferGraphics.setFont(fontSmall);
+		backBufferGraphics.drawString(string, screen.getWidth() / 2
+				- fontSmallMetrics.stringWidth(string) / 2, height);
+	}
+
+
 
 	/**
 	 * Draws a centered string on regular font.

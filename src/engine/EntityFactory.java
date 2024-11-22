@@ -202,6 +202,45 @@ public class EntityFactory {
         int rectWidth = screen.getWidth();
         int rectHeight = screen.getHeight() / 6;
 
+        entities.add(new RectEntity(0, screen.getHeight() / 2 - rectHeight / 2, Color.BLACK,
+                rectWidth, rectHeight, true));
+        entities.add(createCenteredBigString(screen, gameOverString,
+                screen.getHeight() / 2 + FontManager.getFontBigMetrics().getHeight() / 3, Color.GREEN));
+
+        return entities;
+    }
+
+    public static List<Entity> createAchievementMenu(
+            final Screen screen, final int totalScore, final int totalPlayTime, final int maxCombo,
+            final int currentPerfectStage, final int nextPerfectStage, boolean checkFlawlessFailure){
+        List<Entity> entities = new ArrayList<>();
+        //high score section
+        String highScoreTitle = "High Scores";
+
+        //cumulative section
+        String totalScoreTitle = "Total Score";
+        String totalPlayTimesTitle = "-Total  Playtime-";
+
+        // centered strings
+        String achievementTitle = "Achievement";
+        String instructionsString = "Press ESC to return";
+        String achievementsStatusTitle = "Achievements Status";
+        String achievementsExplain = "Applies to single-player play only";
+
+        // Achievements names
+        String maxComboTitle = " Combo Mastery ";
+        String perfectClearTitle = "perfect clear";
+        String flawlessFailureTitle = "Flawless Failure";
+        String eternityTimeTitle = "A time of eternity";
+
+        // create "perfect clear"
+        if (currentPerfectStage <= 6){
+
+        } else {
+
+        }
+
+
         return entities;
     }
 
@@ -248,9 +287,76 @@ public class EntityFactory {
 
     public static TextEntity createLeftSideScoreRegularString(final Screen screen,
                                                               final String string, final int height, final Color color){
-        return new TextEntity(screen.getWidth() / 4 - FontManager.getFontRegularMetrics().stringWidth(string) / 2,
+        return new TextEntity(screen.getWidth() / 4
+                - FontManager.getFontRegularMetrics().stringWidth(string) / 2,
                 height, color, string, FontManager.getFontRegular());
     }
+
+    public static TextEntity createRightSideCumulativeRegularString(final Screen screen,
+                                                                  final String string, final int height, final Color color){
+        return new TextEntity(screen.getWidth() * 71 / 100
+        - FontManager.getFontRegularMetrics().stringWidth(string)/2,
+                height, color, string, FontManager.getFontRegular());
+    }
+
+    public static TextEntity createRightSideCumulativeBigString(final Screen screen,
+                                                              final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 71 / 100
+                - FontManager.getFontBigMetrics().stringWidth(string)/2,
+                height, color, string, FontManager.getFontBig());
+    }
+
+    public static TextEntity createLeftSideAchievementRegularString(final Screen screen,
+                                                                  final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 22 / 100
+        - FontManager.getFontRegularMetrics().stringWidth(string) / 2,
+                height, color, string, FontManager.getFontRegular());
+    }
+
+    public static TextEntity createRightSideAchievementSmallEventString(final Screen screen,
+                                                                      final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 65 / 100
+        - FontManager.getFontRegularMetrics().stringWidth(string) / 2,
+                height, color, string, FontManager.getFontSmall());
+    }
+
+    public static TextEntity createRightSideAchievementSmallEventString2(final Screen screen,
+                                                                       final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 68 / 100
+                - FontManager.getFontRegularMetrics().stringWidth(string) / 2,
+                height, color, string, FontManager.getFontSmall());
+    }
+
+    public static TextEntity createRightSideAchievementBigString(final Screen screen,
+                                                               final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 63 / 100
+                - FontManager.getFontRegularMetrics().stringWidth(string),
+                height, color, string, FontManager.getFontBig());
+    }
+
+    public static TextEntity createRightSideAchievementComboString1(final Screen screen,
+                                                                    final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 52 / 100
+                        - FontManager.getFontRegularMetrics().stringWidth(string),
+                height, color, string, FontManager.getFontSmall());
+    }
+
+    public static TextEntity createRightSideAchievementComboString2(final Screen screen,
+                                                                    final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 74 / 100
+                - FontManager.getFontRegularMetrics().stringWidth(string),
+                height, color, string, FontManager.getFontSmall());
+    }
+
+    public static TextEntity createRightSideAchievementSmallString1(final Screen screen,
+                                                                    final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 59 / 100
+                - FontManager.getFontRegularMetrics().stringWidth(string),
+                height, color, string, FontManager.getFontSmall());
+    }
+
+
+
 
 
 
