@@ -17,6 +17,8 @@ public abstract class Entity {
 
     }
 
+	public abstract EntityType getType();
+
     /**
 	 * Setter for the color of the entity.
 	 *
@@ -72,5 +74,9 @@ public abstract class Entity {
 	 */
 	public final void setPositionY(final int positionY) {
 		this.positionY = positionY;
+	}
+
+	public enum EntityType {
+		TEXT, SPRITE, LINE, IMAGE, RECT
 	}
 }

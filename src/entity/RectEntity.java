@@ -17,6 +17,11 @@ public class RectEntity extends Entity{
 
 	public final boolean isFilled() { return this.isFilled;}
 
+    @Override
+	public EntityType getType() {
+		return EntityType.RECT;
+	}
+
     /**
 	 * Getter for the width of the image associated to the entity.
 	 *

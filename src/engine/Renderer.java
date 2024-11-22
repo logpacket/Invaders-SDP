@@ -241,6 +241,8 @@ public final class Renderer {
 		fontSmallMetrics = backBufferGraphics.getFontMetrics(fontSmall);
 		fontRegularMetrics = backBufferGraphics.getFontMetrics(fontRegular);
 		fontBigMetrics = backBufferGraphics.getFontMetrics(fontBig);
+
+		FontManager.initializeMetrics(backBufferGraphics);
 	}
 	/**
 	 * First part of the drawing process in thread. Initializes buffers each thread, draws the
@@ -298,9 +300,27 @@ public final class Renderer {
 		threadBuffers[threadNumber + 2] = threadBuffer;
 	}
 
-	public void drwaEntities(final List<Entity> entities) {
+	public void drawEntities(final List<Entity> entities) {
 		for (Entity entity : entities) {
-
+			switch (entity.getType()) {
+                case TEXT:
+					drawTextEntity((TextEntity) entity);
+                    break;
+                case SPRITE:
+					drawSpriteEntity((SpriteEntity) entity);
+                    break;
+				case IMAGE:
+					drawImageEntity((ImageEntity) entity);
+					break;
+				case RECT:
+					drawRectEntity((RectEntity) entity);
+					break;
+				case LINE:
+					drawLineEntity((LineEntity) entity);
+					break;
+                default:
+                    System.out.println("Unknown Entity type: " + entity.getClass().getSimpleName());
+            }
 		}
 	}
 
@@ -349,6 +369,43 @@ public final class Renderer {
                     threadBufferGraphics[threadNumber].drawRect(positionX + i * 2, positionY
                             + j * 2, 1, 1);
     }
+
+	public void drawSpriteEntity(final SpriteEntity spriteEntity) {
+		boolean[][] image = spriteMap.get(spriteEntity.getSpriteType());
+
+		backBufferGraphics.setColor(spriteEntity.getColor());
+		for (int i = 0; i < image.length; i++)
+			for (int j = 0; j < image[i].length; j++)
+				if (image[i][j])
+					backBufferGraphics.drawRect(spriteEntity.getPositionX() + i * 2, spriteEntity.getPositionY()
+							+ j * 2, 1, 1);
+	}
+
+	public void drawTextEntity(final TextEntity textEntity){
+		backBufferGraphics.setColor(textEntity.getColor());
+		backBufferGraphics.setFont(textEntity.getFont());
+		backBufferGraphics.drawString(textEntity.getText(), textEntity.getPositionX(), textEntity.getPositionY());
+	}
+
+	public void drawImageEntity(final ImageEntity imageEntity){
+		backBufferGraphics.setColor(imageEntity.getColor());
+		backBufferGraphics.drawImage(imageEntity.getImage(), imageEntity.getPositionX(), imageEntity.getPositionY()
+				, imageEntity.getWidth(), imageEntity.getHeight(), null);
+
+	}
+
+	public void drawLineEntity(final LineEntity lineEntity){
+		backBufferGraphics.setColor(lineEntity.getColor());
+		backBufferGraphics.drawLine(lineEntity.getPositionX(), lineEntity.getPositionY()
+				, lineEntity.getPositionX2(), lineEntity.getPositionY2());
+	}
+
+	public void drawRectEntity(final RectEntity rectEntity){
+		backBufferGraphics.setColor(rectEntity.getColor());
+		backBufferGraphics.drawRect(rectEntity.getPositionX(), rectEntity.getPositionY(),
+				rectEntity.getWidth(), rectEntity.getHeight());
+	}
+
 
 	//Drawing an Entity (Blocker) that requires angle setting
 	public void drawRotatedEntity(SpriteEntity spriteEntity, int x, int y, double angle) {
