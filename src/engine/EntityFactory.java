@@ -9,6 +9,9 @@ import java.util.List;
 
 public class EntityFactory {
 
+    private static final String[] PERFECT_COIN_REWARD = { "200", "400", "800", "2000", "3000", "4000", "5000"};
+	private static final String[] ACCURACY_COIN_REWARD = {"500", "1500", "2000", "2500"};
+
     public static SpriteEntity createSpriteEntity(final int positionX, final int positionY, final int width,
 						final int height, final Color color){
         return new SpriteEntity(positionX, positionY, width, height, color);
@@ -235,36 +238,227 @@ public class EntityFactory {
 
         // create "perfect clear"
         if (currentPerfectStage <= 6){
+            entities.add(createRightSideAchievementCoinBigString(screen, PERFECT_COIN_REWARD[currentPerfectStage],
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
+            + FontManager.getFontBigMetrics().getHeight() * 3, Color.orange));
+            entities.add(createRightSideAchievementSmallString1(screen, "current",
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
+            + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.green));
+            entities.add(createRightSideAchievementSmallString2(screen, "target",
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
+            + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.red));
 
+            String sampleAchievementsString2 = "lv." + currentPerfectStage + "   =>  lv." +
+					nextPerfectStage;
+            entities.add(createRightSideAchievementBigString(screen, sampleAchievementsString2,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
+            + FontManager.getFontBigMetrics().getHeight() * 3, Color.WHITE));
         } else {
+            entities.add(createRightSideAchievementCoinBigString(screen, "5000",
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
+                            + FontManager.getFontBigMetrics().getHeight() * 3, Color.gray));
+            entities.add(createRightSideAchievementSmallEventString2(screen, "You clear all levels perfectly",
+					screen.getHeight() /2 + FontManager.getFontRegularMetrics().getHeight()*2
+                            + FontManager.getFontBigMetrics().getHeight()* 3 - 5, Color.GREEN));
+
+            String sampleAchievementsString2 = " 100% Clear !! ";
+            entities.add(createRightSideAchievementBigString(screen, sampleAchievementsString2,
+                    screen.getHeight() /2 + FontManager.getFontRegularMetrics().getHeight()*3
+                            + FontManager.getFontBigMetrics().getHeight()* 3, Color.GREEN));
+        }
+
+        // draw "achievement"
+        entities.add(createCenteredBigString(screen, achievementTitle, screen.getHeight() / 9 ,Color.GREEN));
+
+        // draw instruction
+        entities.add(createCenteredRegularString(screen, instructionsString,
+                screen.getHeight() / 8 + FontManager.getFontRegularMetrics().getHeight(), Color.GRAY));
+        entities.add(createCenteredRegularString(screen, achievementsExplain,
+                screen.getHeight() / 8 + FontManager.getFontRegularMetrics().getHeight(), Color.cyan));
+
+        // draw "high score"
+        entities.add(createLeftSideScoreRegularString(screen, highScoreTitle,
+				screen.getHeight() / 5+ FontManager.getFontBigMetrics().getHeight(), Color.GREEN));
+        // draw total score
+        entities.add(createRightSideCumulativeRegularString(screen, totalScoreTitle,
+                screen.getHeight() / 5 + FontManager.getFontBigMetrics().getHeight(), Color.yellow));
+        // draw "Total play-time"
+        entities.add(createRightSideCumulativeRegularString(screen, totalPlayTimesTitle,
+                screen.getHeight() / 5 + 2 * FontManager.getFontRegularMetrics().getHeight()
+                        + 2 * FontManager.getFontBigMetrics().getHeight()+ 10, Color.yellow));
+        // draw "Total Score"
+        String totalScoreString = String.format("%s", totalScore);
+        entities.add(createCenteredBigString(screen, totalScoreString,
+                screen.getHeight() / 3 + FontManager.getFontBigMetrics().getHeight() + 10, Color.WHITE));
+        // draw "achievement status"
+        entities.add(createCenteredBigString(screen, achievementTitle,
+                screen.getHeight() / 2 + FontManager.getFontBigMetrics().getHeight(), Color.MAGENTA));
+        // draw "high accuracy"
+        entities.add(createLeftSideAchievementRegularString(screen, maxComboTitle,
+                screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
+        + FontManager.getFontBigMetrics().getHeight() + 7, Color.WHITE));
+        // draw "Perfect clear"
+        entities.add(createLeftSideAchievementRegularString(screen, perfectClearTitle,
+               screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 4
+        + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.WHITE ));
+        // draw "Flawless Failure"
+        entities.add(createLeftSideAchievementRegularString(screen, flawlessFailureTitle,
+               screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5
+        + FontManager.getFontBigMetrics().getHeight() * 3 + 5, Color.WHITE));
+        // draw "best friends"
+        entities.add(createLeftSideAchievementRegularString(screen, eternityTimeTitle,
+               screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 6
+        + FontManager.getFontBigMetrics().getHeight() * 4 + 3, Color.WHITE));
+
+        int totalHours = totalPlayTime / 3600;
+		int remainHours = totalPlayTime % 3600;
+
+		int totalMinutes = remainHours / 60;
+		int remainMinutes = remainHours % 60;
+
+		int totalSeconds = remainMinutes % 60;
+
+        // draw total play time record
+        String totalPlayTimeeString = String.format("%02dH %02dm %02ds",totalHours,totalMinutes,totalSeconds);
+        entities.add(createRightSideCumulativeBigString(screen, totalPlayTimeeString, screen.getHeight() / 2
+        - FontManager.getFontRegularMetrics().getHeight() - 15, Color.WHITE));
+
+        // draw accuracy achievement
+        if (maxCombo >= 25) {
+            entities.add(createRightSideAchievementCoinBigString(screen, ACCURACY_COIN_REWARD[3],
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 2
+                            + FontManager.getFontBigMetrics().getHeight() * 2, Color.gray));
+            entities.add(createRightSideAchievementSmallEventString(screen, "You record high combo",
+					screen.getHeight() /2 + FontManager.getFontRegularMetrics().getHeight() * 2
+                            + FontManager.getFontBigMetrics().getHeight() + 8, Color.GREEN));
+            entities.add(createRightSideAchievementBigString(screen, "You are crazy!",
+					screen.getHeight() /2 + FontManager.getFontRegularMetrics().getHeight() * 2
+                            + FontManager.getFontBigMetrics().getHeight() * 2, Color.GREEN));
+        } else {
+            entities.add(createRightSideAchievementComboString1(screen, "combo",
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5 + 5, Color.orange));
+            entities.add(createRightSideAchievementComboString2(screen, "combo",
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5 + 5, Color.orange));
+
+            entities.add(createRightSideAchievementSmallString1(screen, "current",
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 4 - 2, Color.green));
+            entities.add(createRightSideAchievementSmallString2(screen, "target",
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 4 - 2, Color.red));
+            if (maxCombo < 10) {
+                entities.add(createRightSideAchievementCoinBigString(screen, ACCURACY_COIN_REWARD[0],
+                        screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 2
+                + FontManager.getFontBigMetrics().getHeight() * 2, Color.orange));
+
+                String accuracyAchievement = String.format("             %d", maxCombo) + " =>" + "         10";
+                entities.add(createRightSideAchievementCoinBigString(screen, ACCURACY_COIN_REWARD[0],
+                        screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5 + 5, Color.WHITE));
+            } else {
+                entities.add(createRightSideAchievementCoinBigString(screen, ACCURACY_COIN_REWARD[maxCombo / 5 - 1],
+                        screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 2
+                + FontManager.getFontBigMetrics().getHeight() * 2, Color.orange));
+                String accuracyAchievement = String.format("             %d", maxCombo) + " =>" + String.format("         %d", ((maxCombo - 10) / 5 + 1) * 5 + 10);
+                entities.add(createRightSideAchievementCoinBigString(screen, accuracyAchievement,
+                        screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5 + 5, Color.WHITE));
+            }
+        }
+
+        // draw flawless failure achievement
+        String flawlessFailureReward = "1000";
+        if (checkFlawlessFailure) {
+            entities.add(createRightSideAchievementBigString(screen, "Complete!",
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 4
+            + FontManager.getFontBigMetrics().getHeight() * 4 - 5, Color.GREEN));
+            entities.add(createRightSideAchievementCoinBigString(screen, flawlessFailureReward,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 4
+            + FontManager.getFontBigMetrics().getHeight() * 4 - 5, Color.gray));
+        } else {
+            String explainFlawlessFailure1 = "    Achieved when the game ends";
+			String explainFlawlessFailure2 = "                with 0% accuracy.";
+            entities.add(createRightSideAchievementSmallString3(screen, explainFlawlessFailure1,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 4
+                + FontManager.getFontBigMetrics().getHeight() * 3
+                    +FontManager.getFontSmallMetrics().getHeight(), Color.GRAY));
+            entities.add(createRightSideAchievementSmallString3(screen, explainFlawlessFailure2,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 4
+                + FontManager.getFontBigMetrics().getHeight() * 3
+                    +FontManager.getFontSmallMetrics().getHeight() * 2, Color.GRAY));
+            entities.add(createRightSideAchievementCoinBigString(screen, flawlessFailureReward,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 4
+                + FontManager.getFontBigMetrics().getHeight() * 4 - 5, Color.orange));
 
         }
 
+        // draw play time achievement
+        String eternityTimeReward = "1000";
+		String sampleAchievementsString = "complete!";
+		String explainEternityTime1 = "              Total play time ";
+		String explainEternityTime2 = "        must exceed 10 minutes...";
+        if (totalPlayTime >= 600) {
+            entities.add(createRightSideAchievementBigString(screen, sampleAchievementsString,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5
+                + FontManager.getFontBigMetrics().getHeight() * 5 - 5, Color.GREEN));
+            entities.add(createRightSideAchievementCoinBigString(screen, eternityTimeReward,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5
+                + FontManager.getFontBigMetrics().getHeight() * 5 - 5, Color.GREEN));
+        } else {
+            entities.add(createRightSideAchievementSmallString3(screen, explainEternityTime1,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5
+                + FontManager.getFontBigMetrics().getHeight() * 4
+                    +FontManager.getFontSmallMetrics().getHeight(), Color.GRAY));
+            entities.add(createRightSideAchievementSmallString3(screen, explainEternityTime2,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5
+                + FontManager.getFontBigMetrics().getHeight() * 4
+                    +FontManager.getFontSmallMetrics().getHeight() * 2, Color.GRAY));
+            entities.add(createRightSideAchievementCoinBigString(screen, eternityTimeReward,
+                    screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5
+                + FontManager.getFontBigMetrics().getHeight() * 5 - 5, Color.orange));
+        }
 
         return entities;
     }
 
+    /**
+	 * Create high scores entities.
+	 *
+	 * @param screen
+	 *            Screen to draw on.
+	 * @param highScores
+	 *            List of high scores.
+	 */
+    public static List<Entity> createHighScores(final Screen screen,
+                                                final List<Score> highScores) {
+        List<Entity> entities = new ArrayList<>();
+        int i = 0;
+        String scoreString = "";
 
+        final int limitDrawingScore = 3;
+		int countDrawingScore = 0;
+        for (Score score : highScores) {
+            scoreString = String.format("%s        %04d", score.name(),
+					score.score());
+            entities.add(createLeftSideScoreRegularString(screen, scoreString, screen.getHeight() / 4
+            + FontManager.getFontRegularMetrics().getHeight() * (i + 1) * 2, Color.WHITE));
+            i++;
+			countDrawingScore++;
+			if(countDrawingScore>=limitDrawingScore) {
+                break;
+            }
+        }
 
+        return entities;
+    }
 
+    public static List<Entity> createEndingCredit(final Screen screen, List<String> creditlist, int currentFrame) {
+        List<Entity> entities = new ArrayList<>();
+        final int startPoint = screen.getHeight() / 2;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		for (int i = 0;i < creditlist.size(); i++) {
+            String target = creditlist.get(i);
+            entities.add(createCenteredRegularString(screen, target, startPoint
+            + (FontManager.getFontRegularMetrics().getHeight() * 2) * i - currentFrame, Color.WHITE));
+        }
+        return entities;
+    }
 
 
     public static TextEntity createCenteredSmallString(final Screen screen,
@@ -435,6 +629,8 @@ public class EntityFactory {
             return new ArcEntity(shipX + shipWidth / 2 - circleSize / 2, shipY - 3 * circleSize / 2,
                     circleSize, circleSize, startAngle, endAngle, true, Color.WHITE);
         }
+        else
+            return new ArcEntity(0, 0, 0, 0, 0, 0, false, Color.WHITE);
 
     }
 

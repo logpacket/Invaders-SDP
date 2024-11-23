@@ -103,6 +103,11 @@ public abstract class Screen {
 	}
 
 	/**
+	 * Create Entities to BackBufferEntities And swapBuffer
+	 */
+	protected abstract void createEntity();
+
+	/**
 	 * Getter for screen width.
 	 * 
 	 * @return Screen width.
