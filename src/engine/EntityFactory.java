@@ -355,6 +355,107 @@ public class EntityFactory {
                 height, color, string, FontManager.getFontSmall());
     }
 
+    public static TextEntity createRightSideAchievementSmallString2(final Screen screen,
+                                                                    final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 77 / 100
+                - FontManager.getFontRegularMetrics().stringWidth(string),
+                height, color, string, FontManager.getFontSmall());
+    }
+
+    public static TextEntity createRightSideAchievementSmallString3(final Screen screen,
+                                                                    final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth()  / 2
+                - FontManager.getFontRegularMetrics().stringWidth(string),
+                height, color, string, FontManager.getFontSmall());
+    }
+
+    public static TextEntity createRightSideAchievementCoinBigString(final Screen screen,
+                                                                    final String string, final int height, Color color){
+        return new TextEntity(screen.getWidth() * 81 / 100,
+                height, color, string, FontManager.getFontBig());
+    }
+
+    public static List<Entity> createCountDown(final Screen screen, final int level,
+                                             final int number, final boolean bonusLife) {
+        List<Entity> entities = new ArrayList<>();
+        int rectWidth = screen.getWidth();
+		int rectHeight = screen.getHeight() / 6;
+        entities.add(new RectEntity(0, screen.getHeight() / 2 - rectHeight / 2,
+                Color.BLACK, rectWidth, rectHeight, true));
+        if (number >= 4){
+            if(!bonusLife)
+                entities.add(createCenteredBigString(screen, "Level " + level,
+                        screen.getHeight() / 2
+                                + FontManager.getFontBigMetrics().getHeight() / 3, Color.GREEN));
+            else
+                entities.add(createCenteredBigString(screen, "Level " + level + " - Bonus life!",
+                        screen.getHeight() / 2
+                + FontManager.getFontBigMetrics().getHeight() / 3, Color.GREEN));
+        }
+        else if (number != 0)
+            entities.add(createCenteredBigString(screen, Integer.toString(number),
+                    screen.getHeight() / 2 + FontManager.getFontBigMetrics().getHeight() / 3, Color.GREEN));
+        else
+            entities.add(createCenteredBigString(screen, "GO!", screen.getHeight() / 2
+                    + FontManager.getFontBigMetrics().getHeight() / 3, Color.GREEN));
+
+        return entities;
+    }
+
+    /**
+     * Create recorded highest score on screen TextEntity
+     *
+     * @param screen screen
+     * @param highScore highScore
+     *
+     * @return highest record TextEntity
+     */
+    public static TextEntity createRecord(final Screen screen, final Score highScore){
+        String string = highScore.score() + " " +highScore.name();
+
+        return new TextEntity(screen.getWidth() - FontManager.getFontRegularMetrics().stringWidth(string) - 76,
+                25, Color.LIGHT_GRAY, string, FontManager.getFontRegular());
+    }
+
+    public static ArcEntity createReloadTimer(final Screen screen, final Ship ship,
+                                               final long remainingTime, final Ship.ShipType shipType){
+        if(remainingTime > 0){
+            int shipX = ship.getPositionX();
+			int shipY = ship.getPositionY();
+			int shipWidth = ship.getWidth();
+			int circleSize = 16;
+			int startAngle = 90;
+			int endAngle = switch (shipType) {
+                case VOID_REAPER -> 360 * (int) remainingTime / (int) (750 * 0.4);
+                case COSMIC_CRUISER -> 360 * (int) remainingTime / (int) (750 * 1.6);
+                case STAR_DEFENDER -> 360 * (int) remainingTime / (int) (750 * 1.0);
+                case GALACTIC_GUARDIAN -> 360 * (int) remainingTime / (int) (750 * 1.2);
+            };
+
+            return new ArcEntity(shipX + shipWidth / 2 - circleSize / 2, shipY - 3 * circleSize / 2,
+                    circleSize, circleSize, startAngle, endAngle, true, Color.WHITE);
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
