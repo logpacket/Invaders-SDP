@@ -47,8 +47,6 @@ public class TitleScreen extends Screen {
 		this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
 		this.selectionCooldown.reset();
 		this.menu = Menu.GAME_SETTING;
-		this.frontBufferEntities = new ArrayList<Entity>();
-		this.backBufferEntities = new ArrayList<Entity>();
 
 		renderer.initDrawing(this); //to initialize FontManager.fontMetrics
 	}

@@ -634,32 +634,197 @@ public class EntityFactory {
 
     }
 
+    /**
+     * Draws Combo on screen.
+     *
+     * @param screen
+     *            Screen to draw on.
+     * @param combo
+     *            Number of enemies killed in a row.
+     */
+    public static TextEntity createCombo(final Screen screen, final int combo) {
+        String comboString = String.format("Combo %03d", combo);
+        if (combo >= 2) {
+            return new TextEntity(screen.getWidth() - 100, 85, Color.WHITE, comboString, FontManager.getFontRegular());
+        }
+        return null;
+    }
 
+    /**
+     * Draws intermediate aggregation on screen.
+     *
+     * @param screen
+     *            Screen to draw on.
+     * @param maxCombo
+     *            Value of maxCombo.
+     * @param prevTime
+     *            Value of prevTime.
+     * @param score
+     *            Value of score/prevScore.
+     * @param tempScore
+     *            Value of tempScore.
+     */
+    public static List<Entity> createAggre(final Screen screen, final int level, final int maxCombo,
+                                           final int prevTime, final int score, final int tempScore) {
 
+        List<Entity> entities = new ArrayList<>();
+        int prevScore = score - tempScore;
+        int pCent = (prevTime % 1000)/10;
+        int pSeconds = prevTime / 1000;
+        int pSec = pSeconds % 60;
+        int pMin = pSeconds / 60;
 
+        String timeString;
+        if (pMin < 1){
+            timeString = String.format("Elapsed Time: %d.%02d", pSec, pCent);
+        } else {
+            timeString = String.format("Elapsed Time: %d:%02d.%02d", pMin, pSec, pCent);
+        }
 
+        String levelString = String.format("Statistics at Level %d", level);
+        String comboString = String.format("MAX COMBO: %03d", maxCombo);
+        String scoreString = String.format("Scores earned: %04d", prevScore);
 
+        entities.add(new TextEntity(
+                (screen.getWidth() - FontManager.getFontRegularMetrics().stringWidth(levelString)) / 2,
+                5*screen.getHeight() / 7,
+                Color.GREEN,
+                levelString,
+                FontManager.getFontRegular()
+        ));
+        entities.add(new TextEntity(
+                (screen.getWidth() - FontManager.getFontRegularMetrics().stringWidth(comboString)) / 2,
+                5 * screen.getHeight() / 7 + 21,
+                Color.WHITE,
+                comboString,
+                FontManager.getFontRegular()
+        ));
+        entities.add(new TextEntity(
+                (screen.getWidth() - FontManager.getFontRegularMetrics().stringWidth(timeString)) / 2,
+                5 * screen.getHeight() / 7 + 42,
+                Color.WHITE,
+                timeString,
+                FontManager.getFontRegular()
+        ));
+        entities.add(new TextEntity(
+                (screen.getWidth() - FontManager.getFontRegularMetrics().stringWidth(scoreString)) / 2,
+                5 * screen.getHeight() / 7 + 63,
+                Color.GREEN,
+                scoreString,
+                FontManager.getFontRegular()
+        ));
 
+        return entities;
+    }
 
+    /**
+     * Draws the game setting screen.
+     *
+     * @param screen
+     *            Screen to draw on.
+     */
+    public static TextEntity createGameSetting(final Screen screen) {
+        String titleString = "Game Setting";
+        return createCenteredBigString(screen, titleString, screen.getHeight() / 100 * 25, Color.GREEN);
+    }
 
+    public static TextEntity createSettingsScreen(final Screen screen) {
+        String settingsTitle = "Settings";
+        return createCenteredBigString(screen, settingsTitle, screen.getHeight() / 8, Color.GREEN);
+    }
 
+    public static List<Entity> createVolumeBar(Screen screen, int x, int y, int totalWidth, int filledWidth, boolean isSelected) {
+        List<Entity> entities = new ArrayList<>();
+        entities.add(new RectEntity(x, y, isSelected ? Color.GREEN : Color.WHITE, filledWidth, 10, true));
+        entities.add(new RectEntity(x + filledWidth, y, Color.GRAY, totalWidth - filledWidth, 10, true));
+        return entities;
+    }
 
+    public static TextEntity createVolumePercentage(Screen screen, int y, int volume, boolean isSelected) {
+        String volumeText = volume + "%";
+        return createCenteredRegularString(screen, volumeText, y, isSelected ? Color.GREEN : Color.WHITE);
+    }
 
+    public static TextEntity createCenteredRegularString(final Screen screen, final String string, final int height, boolean isSelected) {
+        return new TextEntity(screen.getWidth() / 2
+                - FontManager.getFontRegularMetrics().stringWidth(string) / 2, height, isSelected ? Color.GREEN : Color.WHITE, string, FontManager.getFontRegular());
+    }
 
+    /**
+     * Draws the game setting row.
+     *
+     * @param screen
+     *            Screen to draw on.
+     * @param selectedRow
+     *            Selected row.
+     *
+     * @author <a href="mailto:dayeon.dev@gmail.com">Dayeon Oh</a>
+     *
+     */
+    public static RectEntity createGameSettingRow(final Screen screen, final int selectedRow) {
+        int y = 0;
+        int height = 0;
+        int screenHeight = screen.getHeight();
 
+        if (selectedRow == 0) {
+            y = screenHeight / 100 * 30;
+            height = screen.getHeight() / 100 * 22;
+        } else if (selectedRow == 1) {
+            y = screenHeight / 100 * 52;
+            height = screen.getHeight() / 100 * 18;
+        } else if (selectedRow == 2) {
+            y = screenHeight / 100 * 70;
+            height = screen.getHeight() / 100 * 22;
+        } else if (selectedRow == 3) {
+            y = screenHeight / 100 * 92;
+            height = screen.getHeight() / 100 * 10;
+        }
+        return new RectEntity(0, y, Color.DARK_GRAY, screen.getWidth(), height,true);
+    }
 
+    /**
+     * Draws the game setting elements.
+     *
+     * @param screen
+     *            Screen to draw on.
+     * @param selectedRow
+     *            Selected row.
+     * @param isMultiPlayer
+     *            If the game is multiplayer.
+     * @param name1
+     *            Player 1 name.
+     * @param name2
+     *            Player 2 name.
+     * @param difficultyLevel
+     *            Difficulty level.
+     *
+     * @author <a href="mailto:dayeon.dev@gmail.com">Dayeon Oh</a>
+     *
+     */
+    public static List<Entity> createGameSettingElements(final Screen screen, final int selectedRow,
+                                                         final boolean isMultiPlayer, final String name1, final String name2, final int difficultyLevel,
+                                                         final Ship.ShipType shipType) {
+        List<Entity> entities = new ArrayList<>();
 
+        String spaceString = " ";
+        String player1String = "1 Player";
+        String player2String = "2 Player";
+        String levelEasyString = "Easy";
+        String levelNormalString = "Normal";
+        String levelHardString = "Hard";
+        String startString = "Start";
+        Color color;
 
+        if (!isMultiPlayer) color = Color.GREEN;
+        else color = Color.WHITE;
 
+        /**
+        entities.add(createCenteredRegularString(screen, target, startPoint
+                + (FontManager.getFontRegularMetrics().getHeight() * 2) * i - currentFrame, Color.WHITE));
+         */
 
-
-
-
-
-
-
-
-
+        return entities;
+    }
 
 
 }

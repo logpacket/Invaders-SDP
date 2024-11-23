@@ -1,5 +1,6 @@
 package screen;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -63,6 +64,8 @@ public abstract class Screen {
 		this.inputDelay = Core.getCooldown(INPUT_DELAY);
 		this.inputDelay.reset();
 		this.menu = Menu.MAIN;
+		this.frontBufferEntities = new ArrayList<Entity>();
+		this.backBufferEntities = new ArrayList<Entity>();
 	}
 
 	/**

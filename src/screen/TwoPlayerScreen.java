@@ -82,6 +82,11 @@ public class TwoPlayerScreen extends Screen {
         renderer.completeDrawing(this);
     }
 
+    protected void createEntity(){
+
+        swapBuffers();
+    }
+
     /**
      * Updates the elements on screen and checks for events.
      */

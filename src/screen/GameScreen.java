@@ -547,6 +547,11 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		renderer.completeDrawing(this);
 	}
 
+	protected void createEntity(){
+
+		swapBuffers();
+	}
+
 
 	// Methods that handle the position, angle, sprite, etc. of the blocker (called repeatedly in update.)
 	private void handleBlockerAppearance() {

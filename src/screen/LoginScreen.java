@@ -188,6 +188,11 @@ public class LoginScreen extends Screen {
         renderer.completeDrawing(this);
     }
 
+    protected void createEntity(){
+
+        swapBuffers();
+    }
+
     /**
      * Moves to the next menu item.
      */
