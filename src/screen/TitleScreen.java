@@ -91,7 +91,7 @@ public class TitleScreen extends Screen {
 		renderer.completeDrawing(this);
 	}
 
-	private void createEntity() {
+	protected void createEntity() {
 		backBufferEntities.addAll(EntityFactory.createTitle(this));
 		backBufferEntities.addAll(EntityFactory.createMenu(this, this.menu));
 
