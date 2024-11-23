@@ -154,4 +154,9 @@ public class SignUpScreen extends Screen {
 
         renderer.completeDrawing(this);
     }
+
+    protected void createEntity(){
+
+        swapBuffers();
+    }
 }

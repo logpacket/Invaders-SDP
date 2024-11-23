@@ -41,6 +41,7 @@ public class AchievementScreen extends Screen {
 		this.menu = Menu.MAIN;
 		FileManager fileManager = FileManager.getInstance();
 
+
 		try {
 			Achievement achievement = fileManager.loadAchievement();
 			this.highScores = fileManager.loadHighScores();
@@ -60,6 +61,7 @@ public class AchievementScreen extends Screen {
 	protected final void update() {
 		super.update();
 
+		createEntity();
 		draw();
 		if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)
 				&& this.inputDelay.checkFinished()) {
@@ -73,10 +75,16 @@ public class AchievementScreen extends Screen {
 	 */
 	private void draw() {
 		renderer.initDrawing(this);
-		renderer.drawAchievementMenu(this, this.totalScore, this.totalPlayTime,
-				this.maxCombo, this.currentPerfectStage, this.currentPerfectStage+1,
-				this.checkFlawlessFailure);
-		renderer.drawHighScores(this, this.highScores);
+		renderer.drawEntities(frontBufferEntities);
 		renderer.completeDrawing(this);
+	}
+
+	protected void createEntity(){
+		backBufferEntities.addAll(EntityFactory.createAchievementMenu(this, this.totalScore, this.totalPlayTime,
+				this.maxCombo, this.currentPerfectStage, this.currentPerfectStage+1,
+				this.checkFlawlessFailure));
+		backBufferEntities.addAll(EntityFactory.createHighScores(this, this.highScores));
+
+		swapBuffers();
 	}
 }

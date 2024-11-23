@@ -151,6 +151,11 @@ public class ShopScreen extends Screen {
         renderer.completeDrawing(this);
     }
 
+    protected void createEntity(){
+
+        swapBuffers();
+    }
+
     public boolean upgrade(int level)
     {
         if (level >= 4) {

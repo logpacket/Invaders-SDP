@@ -19,6 +19,7 @@ public class CreditScreen extends Screen{
         this.menu = Menu.MAIN;
         this.currentFrame = 0;
 
+
         try{
             this.creditlist = FileManager.getInstance().loadCreditList();
             logger.info(""+this.creditlist);
@@ -30,12 +31,14 @@ public class CreditScreen extends Screen{
     @Override
     protected final void update() {
         super.update();
+
         currentFrame++;
 
         if (currentFrame > 50 * 60) {//임시로 50초
             this.isRunning = false;
         }
 
+        this.createEntity();
         draw();
         if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)
                 && this.inputDelay.checkFinished()) {
@@ -46,8 +49,14 @@ public class CreditScreen extends Screen{
 
     private void draw(){
         renderer.initDrawing(this);
-        renderer.drawEndingCredit(this,this.creditlist, currentFrame);
+        renderer.drawEntities(frontBufferEntities);
         renderer.completeDrawing(this);
+    }
+
+    protected void createEntity(){
+        backBufferEntities.addAll(EntityFactory.createEndingCredit(this, this.creditlist, currentFrame));
+
+        swapBuffers();
     }
 
 }
