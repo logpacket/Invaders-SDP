@@ -4,6 +4,7 @@ import entity.*;
 import screen.Screen;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -817,14 +818,203 @@ public class EntityFactory {
 
         if (!isMultiPlayer) color = Color.GREEN;
         else color = Color.WHITE;
+        entities.add(createCenteredRegularString(screen, player1String + spaceString.repeat(40), screen.getHeight() / 100 * 38, color));
+        entities.add(createCenteredRegularString(screen, spaceString.repeat(40) + name2, screen.getHeight() / 100 * 46, color));
 
-        /**
-        entities.add(createCenteredRegularString(screen, target, startPoint
-                + (FontManager.getFontRegularMetrics().getHeight() * 2) * i - currentFrame, Color.WHITE));
-         */
+        if (difficultyLevel==0) color = Color.GREEN;
+        else color = Color.WHITE;
+        entities.add(createCenteredRegularString(screen, levelEasyString + spaceString.repeat(60), screen.getHeight() / 100 * 62, color));
+
+        if (difficultyLevel==1) color = Color.GREEN;
+        else color = Color.WHITE;
+        entities.add(createCenteredRegularString(screen, levelNormalString, screen.getHeight() / 100 * 62, color));
+
+        if (difficultyLevel==2) color = Color.GREEN;
+        else color = Color.WHITE;
+        entities.add(createCenteredRegularString(screen, spaceString.repeat(60) + levelHardString, screen.getHeight() / 100 * 62,color));
+
+        Ship.ShipType[] shipTypes = Ship.ShipType.values();
+        int shipIndex = 0;
+        for (int i = 0; i < shipTypes.length; i++) {
+            if (shipTypes[i] == shipType) {
+                shipIndex = i;
+                break;
+            }
+        }
+
+        final int SHIP_OFFSET = screen.getWidth() / 100 * 30;
+        final int ARROW_OFFSET = 50;
 
         return entities;
     }
 
+    /**
+     *  draw shop
+     * @param screen
+     * 				Screen to draw on.
+     * @param option
+     * 				selected shop item
+     * @param wallet
+     * 				player's wallet
+     * @param moneyAlertCooldown
+     * 				cooldown for insufficient coin alert
+     * @param maxAlertCooldown
+     * 				cooldown for max level alert
+     */
+    public static List<Entity> createShop(final Screen screen, final int option, final Wallet wallet, final Cooldown moneyAlertCooldown, final Cooldown maxAlertCooldown) {
+        List<Entity> entities = new ArrayList<>();
+        String shopString = "Shop";
+        int shopStringY = Math.round(screen.getHeight() * 0.15f);
 
-}
+        String coinString = ":  " + wallet.getCoin();
+        String exitString = "PRESS \"ESC\" TO RETURN TO MAIN MENU";
+        String[] costs = new String[] {"2000", "4000", "8000", "MAX LEVEL"};
+
+        String[] itemString = new String[]{"BULLET SPEED", "SHOT INTERVAL", "ADDITIONAL LIFE","COIN GAIN"};
+        int[] walletLevel = new int[]{wallet.getBulletLevel(), wallet.getShootLevel(), wallet.getLivesLevel(), wallet.getCoinLevel()};
+
+        BufferedImage[] itemImages = new BufferedImage[]{imgBulletSpeed, imgShootInterval, imgAdditionalLife, imgCoinGain};
+
+        int imgStartX = screen.getWidth()/80*23;
+        int imgStartY = screen.getHeight()/80*27;
+        int imgDis = screen.getHeight()/80*12;
+        int coinStartX = screen.getWidth()/80*55;
+        int coinStartY = screen.getHeight()/160*66;
+        int coinDis = screen.getHeight()/80*12;
+        int coinSize = 20;
+        int coinTextStartX = screen.getWidth()/80*60;
+        int coinTextStartY = screen.getHeight()/160*71;
+        int coinTextDis = screen.getHeight()/80*12;
+
+        entities.add(createCenteredBigString(screen, shopString, shopStringY, Color.GREEN));
+        entities.add(createImageEntity(screen.getWidth()/80*39-(coinString.length()-3)*screen.getWidth()/80,screen.getHeight()/80*18,Color.GREEN,coinSize,coinSize,imgCoin));
+        entities.add(new TextEntity(screen.getWidth()/80*44-(coinString.length()-3)*screen.getWidth()/80,screen.getHeight()/80*20, Color.WHITE,coinString, FontManager.getFontRegular()));
+
+        for(int i = 0;i<4;i++) {
+            entities.add(createCenteredRegularString(screen, itemString[i], screen.getHeight() / 80 * (28 + 12 * i), Color.WHITE));
+            for (int j = 0; j < 3; j++)
+            {
+                if (j + 2 <= walletLevel[i])
+                {
+                    entities.add(createRectEntity(screen.getWidth() / 40 * (33 / 2) + j * (screen.getWidth() / 10), screen.getHeight() / 80 * (30 + 12*i),Color.GREEN,20, 20, true));
+                } else
+                {
+                    entities.add(createRectEntity(screen.getWidth() / 40 * (33 / 2) + j * (screen.getWidth() / 10), screen.getHeight() / 80 * (30 + 12*i),Color.WHITE,20, 20, true));
+                }
+            }
+        }
+
+        entities.add(createImageEntity(imgStartX,imgStartY + (imgDis*(option-1)),Color.WHITE,50,40,itemImages[option-1]));
+        entities.add(createImageEntity(coinStartX,coinStartY + (coinDis*(option-1)),Color.WHITE,coinSize,coinSize,imgCoin));
+        entities.add(new TextEntity(coinTextStartX,coinTextStartY + (coinTextDis*(option-1)),Color.WHITE,"X "+costs[walletLevel[option-1]-1],FontManager.getFontRegular()));
+
+        entities.add(createCenteredRegularString(screen,exitString,screen.getHeight()/80*80,Color.WHITE));
+
+        if (!moneyAlertCooldown.checkFinished())
+        {
+            entities.add(createRectEntity((screen.getWidth()-300)/2, (screen.getHeight()-100)/2,Color.red,300, 80, true));
+            entities.add(createCenteredBigString(screen,"Insufficient coin", screen.getHeight()/2, Color.black));
+        }
+        if(!maxAlertCooldown.checkFinished())
+        {
+            entities.add(createRectEntity((screen.getWidth()-300)/2, (screen.getHeight()-100)/2,Color.red,300, 80, true));
+            entities.add(createCenteredBigString(screen,"Already max level", screen.getHeight()/2, Color.black));
+        }
+
+        return entities;
+    }
+
+    public static List<Entity> createLoginScreen(final Screen screen, final String usernameInput, final String passwordInput,
+                                final boolean isUsernameActive, final boolean isPasswordActive,
+                                final int selectedOption, final boolean showAlert) {
+
+        List<Entity> entities = new ArrayList<>();
+
+        String loginTitle = "Login";
+        String usernameLabel = "Username: ";
+        String passwordLabel = "Password: ";
+        String loginButton = "Press ENTER to Login";
+        String signUpButton = "Press ENTER to Sign Up";
+        String alertMessage = "Invalid Username or Password";
+
+        int titleY = Math.round(screen.getHeight() * 0.15f);
+        int inputStartX = screen.getWidth() / 5;
+        int inputStartY = Math.round(screen.getHeight() * 0.4f);
+        int inputSpacing = Math.round(screen.getHeight() * 0.1f);
+        int inputWidth = screen.getWidth() / 2;
+        int inputHeight = Math.round(screen.getHeight() * 0.07f);
+
+        entities.add(createCenteredBigString(screen, loginTitle, titleY, Color.GREEN));
+        entities.add(new TextEntity(inputStartX, inputStartY, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        entities.add(new TextEntity(inputStartX + 160, inputStartY - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontRegular()));
+
+        entities.add(new TextEntity(inputStartX, inputStartY + inputSpacing, isPasswordActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, isPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+
+        String maskedPassword = "*".repeat(passwordInput.length());
+        entities.add(new TextEntity(inputStartX + 160, inputStartY + inputSpacing - 5, isPasswordActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontRegular()));
+
+        entities.add(createCenteredRegularString(screen, loginButton, inputStartY + inputSpacing * 2, selectedOption == 2 ? Color.YELLOW : Color.CYAN));
+        entities.add(createCenteredRegularString(screen, signUpButton, inputStartY + inputSpacing * 3, selectedOption == 3 ? Color.YELLOW : Color.CYAN));
+
+        if (showAlert) {
+            entities.add(createCenteredBigString(screen, alertMessage, inputStartY + inputSpacing * 4, Color.RED));
+        }
+
+        return entities;
+
+    }
+
+    public static List<Entity> drawSignUpScreen(final Screen screen, final String usernameInput, final String passwordInput,
+                                 final String confirmPasswordInput, final boolean isUsernameActive,
+                                 final boolean isPasswordActive, final boolean isConfirmPasswordActive,
+                                 final boolean showAlert, final boolean signUpSuccess) {
+
+        List<Entity> entities = new ArrayList<>();
+
+        String signUpTitle = "Sign Up";
+        String usernameLabel = "Username: ";
+        String passwordLabel = "Password: ";
+        String confirmPasswordLabel = "Confirm: ";
+        String signUpButton = "Press ENTER to Sign Up";
+        String alertMessage = "Passwords do not match or fields are empty!";
+        String successMessage = "Sign Up Successful!";
+
+        int titleY = Math.round(screen.getHeight() * 0.15f);
+        int inputStartX = screen.getWidth() / 5;
+        int inputStartY = Math.round(screen.getHeight() * 0.3f);
+        int inputSpacing = Math.round(screen.getHeight() * 0.1f);
+        int inputWidth = screen.getWidth() / 2;
+        int inputHeight = Math.round(screen.getHeight() * 0.07f);
+
+        entities.add(createCenteredBigString(screen, signUpTitle, titleY, Color.GREEN));
+        entities.add(new TextEntity(inputStartX, inputStartY, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        entities.add(new TextEntity(inputStartX + 160, inputStartY - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontRegular()));
+
+        entities.add(new TextEntity(inputStartX, inputStartY + inputSpacing, isUsernameActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        String maskedPassword = "*".repeat(passwordInput.length());
+        entities.add(new TextEntity(inputStartX + 160, inputStartY + inputSpacing - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontRegular()));
+
+        entities.add(new TextEntity(inputStartX, inputStartY + 2 * inputSpacing, isUsernameActive ? Color.YELLOW : Color.WHITE, confirmPasswordLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + 2 * inputSpacing - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        String maskedConfirmPassword = "*".repeat(confirmPasswordInput.length());
+        entities.add(new TextEntity(inputStartX + 160, inputStartY + 2 * inputSpacing - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, maskedConfirmPassword, FontManager.getFontRegular()));
+
+        entities.add(createCenteredRegularString(screen, signUpButton, inputStartY + 3 * inputSpacing,Color.YELLOW));
+
+        if (showAlert) {
+            entities.add(createCenteredBigString(screen, alertMessage, inputStartY + 4 * inputSpacing, Color.RED));
+        } else if (signUpSuccess) {
+            entities.add(createCenteredBigString(screen, successMessage, inputStartY + 4 * inputSpacing, Color.GREEN));
+        }
+
+        return entities;
+
+    }
+
+
+    }
+
