@@ -844,6 +844,80 @@ public class EntityFactory {
 
         final int SHIP_OFFSET = screen.getWidth() / 100 * 30;
         final int ARROW_OFFSET = 50;
+        Ship currentShip = ShipFactory.create(shipType, 0, 0);
+
+        /**추가수정 필요
+        entities.add(createSpriteEntity(screen.getWidth() / 2 - 13, screen.getHeight() / 100 * 80,));
+         */
+        entities.add(new TextEntity(screen.getWidth() / 2 -  FontManager.getFontRegularMetrics().stringWidth(shipType.name()) / 2,
+                screen.getHeight() / 100 * 80 - 35,Color.GREEN,shipType.name(),FontManager.getFontRegular()));
+
+        final ShipMultipliers multipliers = currentShip.getMultipliers();
+        final Object[][] stats = new Object[][]{
+                {"SPD", multipliers.speed()},
+                {"BUL SPD", multipliers.bulletSpeed()},
+                {"SHOT INT", multipliers.shootInterval()},
+        };
+
+        List<String> statsStr = new ArrayList<>();
+        for (Object[] stat : stats) {
+            // Format it as percentage (+/-)
+            String mult;
+            if ((float) stat[1] < 1) {
+                mult = "-" + Math.round((1 - (float) stat[1]) * 100) + "%";
+            } else {
+                mult = "+" + Math.round(((float) stat[1] - 1) * 100) + "%";
+            }
+            statsStr.add(mult + " " + stat[0]);
+        }
+
+        entities.add(createCenteredSmallString(screen, String.join(", ", statsStr), screen.getHeight() / 100 * 80 + 38,Color.GREEN));
+
+        if (shipIndex > 0) {
+            Ship previousShip = ShipFactory.create(shipTypes[shipIndex - 1], 0, 0);
+            previousShip.setColor(Color.WHITE);
+            entities.add(createSpriteEntity(screen.getWidth() / 2 - SHIP_OFFSET - 13, screen.getHeight() / 100 * 80, ));
+            entities.add(new TextEntity(screen.getWidth() / 2 - SHIP_OFFSET - FontManager.getFontRegularMetrics().stringWidth(shipTypes[shipIndex - 1].name()) / 2,
+                    screen.getHeight() / 100 * 80 - 35, Color.GREEN, shipTypes[shipIndex - 1].name(), FontManager.getFontRegular()));
+
+
+            /**
+             backBufferGraphics.setColor(Color.WHITE);
+             backBufferGraphics.fillPolygon(
+             new int[]{
+             screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 30,
+             screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15,
+             screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15},
+             new int[]{screen.getHeight() / 100 * 80,
+             screen.getHeight() / 100 * 80 - 15,
+             screen.getHeight() / 100 * 80 + 15},
+             3); */
+        }
+
+        if (shipIndex < shipTypes.length - 1) {
+            Ship nextShip = ShipFactory.create(shipTypes[shipIndex + 1], 0, 0);
+            nextShip.setColor(Color.WHITE);
+            entities.add(createSpriteEntity(screen.getWidth() / 2 + SHIP_OFFSET - 13, screen.getHeight() / 100 * 80, ));
+            entities.add(new TextEntity(screen.getWidth() / 2 + SHIP_OFFSET - FontManager.getFontRegularMetrics().stringWidth(shipTypes[shipIndex + 1].name()) / 2,
+                    screen.getHeight() / 100 * 80 - 35, Color.GREEN, shipTypes[shipIndex + 1].name(), FontManager.getFontRegular()));
+            /**
+             // Draw arrow right
+             backBufferGraphics.setColor(Color.WHITE);
+             backBufferGraphics.fillPolygon(
+             new int[]{screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 30,
+             screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15,
+             screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15},
+             new int[]{screen.getHeight() / 100 * 80,
+             screen.getHeight() / 100 * 80 - 15,
+             screen.getHeight() / 100 * 80 + 15},
+             3
+             );
+             */
+
+            if (selectedRow == 3) color = Color.GREEN;
+            else color = Color.WHITE;
+            entities.add(createCenteredRegularString(screen, startString, screen.getHeight() / 100 * 98,color));
+        }
 
         return entities;
     }
