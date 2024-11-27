@@ -1,10 +1,10 @@
 package entity;
 
-import engine.DrawManager.SpriteType;
+import engine.Renderer.SpriteType;
 
 import java.awt.*;
 
-public class  Web extends Entity{
+public class  Web extends SpriteEntity {
     /**
      * Constructor, establishes the entity's generic properties.
      *

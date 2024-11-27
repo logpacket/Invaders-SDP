@@ -100,7 +100,7 @@ public class ScoreScreen extends Screen {
 	@Override
 	protected final void update() {
 		super.update();
-
+		this.createEntity();
 		draw();
 		if (this.inputDelay.checkFinished()) {
 			if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
@@ -166,13 +166,19 @@ public class ScoreScreen extends Screen {
 	 * Draws the elements associated with the screen.
 	 */
 	private void draw() {
-		drawManager.initDrawing(this);
+		renderer.initDrawing(this);
 
-		drawManager.drawGameOver(this, this.inputDelay.checkFinished(),
-				this.isNewRecord);
-		drawManager.drawResults(this, this.score, this.livesRemaining,
-				this.shipsDestroyed, this.accuracy, this.isNewRecord, this.coinsEarned);
+		renderer.drawEntities(frontBufferEntities);
 
-		drawManager.completeDrawing(this);
+		renderer.completeDrawing(this);
+	}
+
+	protected void createEntity(){
+		frontBufferEntities.addAll(EntityFactory.createGameOver(this, this.inputDelay.checkFinished(),
+				this.isNewRecord));
+		frontBufferEntities.addAll(EntityFactory.createResults(this, this.score, this.livesRemaining,
+				this.shipsDestroyed, this.accuracy, this.isNewRecord, this.coinsEarned));
+
+		swapBuffers();
 	}
 }

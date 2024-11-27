@@ -52,6 +52,7 @@ public class SettingScreen extends Screen {
     protected void update() {
         super.update();
 
+
         if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
             this.isRunning = false;
             soundManager.playSound(Sound.MENU_BACK);
@@ -91,6 +92,7 @@ public class SettingScreen extends Screen {
             }
         }
 
+        this.createEntity();
         draw();
     }
 
@@ -98,22 +100,32 @@ public class SettingScreen extends Screen {
      * Draws the elements associated with the screen.
      */
     private void draw() {
-        drawManager.initDrawing(this);
+        renderer.initDrawing(this);
 
-        drawManager.drawSettingsScreen(this);
+        renderer.drawEntities(frontBufferEntities);
+
+        renderer.completeDrawing(this);
+    }
+
+
+    protected void createEntity(){
+        backBufferEntities.add(EntityFactory.createSettingsScreen(this));
 
         for (int i = 0; i < menuItems.length; i++) {
             boolean isSelected = (i == selectedItem);
-            drawManager.drawCenteredRegularString(this, menuItems[i], this.getHeight() / 3 + i * MENU_ITEM_GAP, isSelected);
+            backBufferEntities.add(EntityFactory.createCenteredRegularString(this, menuItems[i],
+                    this.getHeight() / 3 + i * MENU_ITEM_GAP, isSelected));
         }
 
         int filledWidth = (volumeLevel * VOLUME_BAR_WIDTH) / 100;
         boolean isVolumeSelected = (selectedItem == 0);
 
-        drawManager.drawVolumeBar(this, this.getWidth() / 2 - VOLUME_BAR_WIDTH / 2, this.getHeight() / 3 + VOLUME_BAR_GAP, VOLUME_BAR_WIDTH, filledWidth, isVolumeSelected);
+        backBufferEntities.addAll(EntityFactory.createVolumeBar(this, this.getWidth() / 2 - VOLUME_BAR_WIDTH / 2,
+                this.getHeight() / 3 + VOLUME_BAR_GAP, VOLUME_BAR_WIDTH, filledWidth, isVolumeSelected));
 
-        drawManager.drawVolumePercentage(this, this.getHeight() / 3 + VOLUME_BAR_GAP + VOLUME_PERCENTAGE_GAP, volumeLevel, isVolumeSelected);
+        backBufferEntities.add(EntityFactory.createVolumePercentage(this, this.getHeight() / 3 + VOLUME_BAR_GAP
+                        + VOLUME_PERCENTAGE_GAP, volumeLevel, isVolumeSelected));
 
-        drawManager.completeDrawing(this);
+        swapBuffers();
     }
 }

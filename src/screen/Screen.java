@@ -1,9 +1,12 @@
 package screen;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import engine.*;
+import entity.Entity;
 
 /**
  * Implements a generic screen.
@@ -17,7 +20,7 @@ public abstract class Screen {
 	private static final int INPUT_DELAY = 1000;
 
 	/** Draw Manager instance. */
-	protected DrawManager drawManager;
+	protected Renderer renderer;
 	/** Input Manager instance. */
 	protected InputManager inputManager;
 	/** Application logger. */
@@ -37,6 +40,9 @@ public abstract class Screen {
 	/** What kind of screen goes next. */
 	protected Menu menu;
 
+	protected List<Entity> backBufferEntities;
+	protected List<Entity> frontBufferEntities;
+
 	/**
 	 * Constructor, establishes the properties of the screen.
 	 * 
@@ -52,12 +58,14 @@ public abstract class Screen {
 		this.height = height;
 		this.fps = fps;
 
-		this.drawManager = DrawManager.getInstance();
+		this.renderer = Renderer.getInstance();
 		this.inputManager = InputManager.getInstance();
 		this.logger = Core.getLogger();
 		this.inputDelay = Core.getCooldown(INPUT_DELAY);
 		this.inputDelay.reset();
 		this.menu = Menu.MAIN;
+		this.frontBufferEntities = new ArrayList<Entity>();
+		this.backBufferEntities = new ArrayList<Entity>();
 	}
 
 	/**
@@ -98,6 +106,11 @@ public abstract class Screen {
 	}
 
 	/**
+	 * Create Entities to BackBufferEntities And swapBuffer
+	 */
+	protected abstract void createEntity();
+
+	/**
 	 * Getter for screen width.
 	 * 
 	 * @return Screen width.
@@ -113,5 +126,13 @@ public abstract class Screen {
 	 */
 	public final int getHeight() {
 		return this.height;
+	}
+
+	public void swapBuffers() {
+		List<Entity> temp = frontBufferEntities;
+		frontBufferEntities = backBufferEntities;
+		backBufferEntities = temp;
+
+		backBufferEntities.clear();
 	}
 }

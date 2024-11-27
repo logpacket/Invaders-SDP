@@ -300,6 +300,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	@Override
 	protected final void update() {
 		super.update();
+		createEntity();
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
 			boolean player1Attacking = inputManager.isKeyDown(KeyEvent.VK_SPACE);
 			boolean player2Attacking = inputManager.isKeyDown(KeyEvent.VK_SHIFT);
@@ -471,87 +472,91 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 * Draws the elements associated with the screen.
 	 */
 	private void draw() {
-		drawManager.initDrawing(this);
-		drawManager.drawGameTitle(this);
+		renderer.initDrawing(this);
 
-		drawManager.drawLaunchTrajectory( this,this.ship.getPositionX());
+		renderer.drawEntities(frontBufferEntities);
 
-		drawManager.drawEntity(this.ship, this.ship.getPositionX(), this.ship.getPositionY());
+		renderer.completeDrawing(this);
+	}
 
-		//draw Spider Web
-        for (Web value : web) {
-            drawManager.drawEntity(value, value.getPositionX(),
-                    value.getPositionY());
-        }
-		//draw Blocks
-		for (Block b : block)
-			drawManager.drawEntity(b, b.getPositionX(),
-					b.getPositionY());
+	protected void createEntity(){
+		backBufferEntities.add(EntityFactory.createGameTitle(this));
 
+		backBufferEntities.addAll(EntityFactory.createLaunchTrajectory(this, this.ship.getPositionX()));
+
+		backBufferEntities.add(this.ship);
+
+		//create Spider Web
+		if (web != null)
+        	backBufferEntities.addAll(web);
+
+		//create Blocks
+		if (block != null)
+        	backBufferEntities.addAll(block);
 
 		if (this.enemyShipSpecial != null)
-			drawManager.drawEntity(this.enemyShipSpecial,
-					this.enemyShipSpecial.getPositionX(),
-					this.enemyShipSpecial.getPositionY());
+			backBufferEntities.add(this.enemyShipSpecial);
 
-		enemyShipFormation.draw();
 
-		for (ItemBox itemBox : this.itemBoxes)
-			drawManager.drawEntity(itemBox, itemBox.getPositionX(), itemBox.getPositionY());
+		//create enemyShip
+		for (List<EnemyShip> column : enemyShipFormation.getEnemyShips())
+			for (EnemyShip enemyShip : column)
+				if (enemyShip != null)
+					backBufferEntities.add(enemyShip);
 
-		for (Barrier barrier : this.barriers)
-			drawManager.drawEntity(barrier, barrier.getPositionX(), barrier.getPositionY());
+		if(enemyShipFormation != null)
+        	backBufferEntities.addAll(enemyShipFormation.getEnemyDivers());
 
-		for (Bullet bullet : this.bullets)
-			drawManager.drawEntity(bullet, bullet.getPositionX(),
-					bullet.getPositionY());
+		if (itemBoxes != null)
+			backBufferEntities.addAll(this.itemBoxes);
 
+		if(barriers != null)
+			backBufferEntities.addAll(this.barriers);
+
+		if(bullets != null)
+			backBufferEntities.addAll(this.bullets);
 
 		// Interface.
-		drawManager.drawScore(this, this.score);
-		drawManager.drawElapsedTime(this, this.elapsedTime);
-		drawManager.drawAlertMessage(this, this.alertMessage);
-		drawManager.drawLives(this, this.lives, this.shipType);
-		drawManager.drawLevel(this, this.level);
-		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1);
-		drawManager.drawReloadTimer(this, this.ship, ship.getRemainingReloadTime(), this.shipType);
-		drawManager.drawCombo(this, this.combo);
+		backBufferEntities.add(EntityFactory.createScore(this, this.score));
+		backBufferEntities.add(EntityFactory.createElapseTime(this, this.elapsedTime));
+		backBufferEntities.add(EntityFactory.createAlertMessage(this, this.alertMessage));
+		backBufferEntities.add(EntityFactory.createLivesString(this, this.lives));
+		backBufferEntities.addAll(EntityFactory.createLivesSprites(this, this.lives, this.shipType));
+		backBufferEntities.add(EntityFactory.createLevel(this, this.level));
+		backBufferEntities.addAll(EntityFactory.createHorizontalLines(this, SEPARATION_LINE_HEIGHT - 1));
+		backBufferEntities.add(EntityFactory.createReloadTimer(this, this.ship, ship.getRemainingReloadTime(), this.shipType));
+		backBufferEntities.add(EntityFactory.createCombo(this, this.combo));
 
 
 		// Countdown to game start.
 		if (!this.inputDelay.checkFinished()) {
 			int countdown = (int) ((INPUT_DELAY - (System.currentTimeMillis() - this.gameStartTime)) / 1000);
-			drawManager.drawCountDown(this, this.level, countdown, this.bonusLife);
-			drawManager.drawHorizontalLine(this, this.height / 2 - this.height / 12);
-			drawManager.drawHorizontalLine(this, this.height / 2 + this.height / 12);
+			backBufferEntities.addAll(EntityFactory.createCountDown(this, this.level, countdown, this.bonusLife));
+			backBufferEntities.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 - this.height / 12));
+			backBufferEntities.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 + this.height / 12));
 
 			//Intermediate aggregation
 			if (this.level > 1){
-                if (countdown == 0) {
+				if (countdown == 0) {
 					//Reset mac combo and edit temporary values
-                    this.lapTime = this.elapsedTime;
-                    this.tempScore = this.score;
-                    this.maxCombo = 0;
-                } else {
+					this.lapTime = this.elapsedTime;
+					this.tempScore = this.score;
+					this.maxCombo = 0;
+				} else {
 					// Don't show it just before the game starts, i.e. when the countdown is zero.
-                    drawManager.interAggre(this, this.level - 1, this.maxCombo, this.elapsedTime - this.lapTime, this.score, this.tempScore);
-                }
+					backBufferEntities.addAll(EntityFactory.createAggre(this, this.level - 1, this.maxCombo, this.elapsedTime - this.lapTime, this.score, this.tempScore));
+				}
 			}
 		}
 
-
-		//add drawRecord method for drawing
-		drawManager.drawRecord(highScores,this);
-
+		backBufferEntities.add(EntityFactory.createRecord(this, highScores));
 
 		// Blocker drawing part
-		if (!blockers.isEmpty()) {
-			for (Blocker blocker : blockers) {
-				drawManager.drawRotatedEntity(blocker, blocker.getPositionX(), blocker.getPositionY(), blocker.getAngle());
-			}
-		}
+		if (!blockers.isEmpty())
+			backBufferEntities.addAll(blockers);
 
-		drawManager.completeDrawing(this);
+
+		swapBuffers();
 	}
 
 
@@ -563,10 +568,10 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		else if (level >= 11) maxBlockers = 3;
 
 		int kind = random.nextInt(2-1 + 1) +1; // 1~2
-		DrawManager.SpriteType newSprite = switch (kind) {
-            case 1 -> DrawManager.SpriteType.BLOCKER_1; // artificial satellite
-            case 2 -> DrawManager.SpriteType.BLOCKER_2; // astronaut
-            default -> DrawManager.SpriteType.BLOCKER_1;
+		Renderer.SpriteType newSprite = switch (kind) {
+            case 1 -> Renderer.SpriteType.BLOCKER_1; // artificial satellite
+            case 2 -> Renderer.SpriteType.BLOCKER_2; // astronaut
+            default -> Renderer.SpriteType.BLOCKER_1;
         };
 
         // Check number of blockers, check timing of exit
@@ -604,68 +609,68 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 * Draws the elements associated with the screen to thread buffer.
 	 */
 	private void drawThread() {
-		drawManager.initThreadDrawing(this, playerNumber);
-		drawManager.drawGameTitle(this, playerNumber);
+		renderer.initThreadDrawing(this, playerNumber);
+		renderer.drawGameTitle(this, playerNumber);
 
-		drawManager.drawLaunchTrajectory( this,this.ship.getPositionX(), playerNumber);
+		renderer.drawLaunchTrajectory( this,this.ship.getPositionX(), playerNumber);
 
-		drawManager.drawEntity(this.ship, this.ship.getPositionX(),
+		renderer.drawSpriteEntity(this.ship, this.ship.getPositionX(),
 				this.ship.getPositionY(), playerNumber);
 
 		//draw Spider Web
         for (Web value : web) {
-            drawManager.drawEntity(value, value.getPositionX(),
+            renderer.drawSpriteEntity(value, value.getPositionX(),
                     value.getPositionY(), playerNumber);
         }
 		//draw Blocks
 		for (Block b : block)
-			drawManager.drawEntity(b, b.getPositionX(),
+			renderer.drawSpriteEntity(b, b.getPositionX(),
 					b.getPositionY(), playerNumber);
 
 		if (this.enemyShipSpecial != null)
-			drawManager.drawEntity(this.enemyShipSpecial,
+			renderer.drawSpriteEntity(this.enemyShipSpecial,
 					this.enemyShipSpecial.getPositionX(),
 					this.enemyShipSpecial.getPositionY(), playerNumber);
 
 		enemyShipFormation.draw(playerNumber);
 
 		for (ItemBox itemBox : this.itemBoxes)
-			drawManager.drawEntity(itemBox, itemBox.getPositionX(), itemBox.getPositionY(), playerNumber);
+			renderer.drawSpriteEntity(itemBox, itemBox.getPositionX(), itemBox.getPositionY(), playerNumber);
 
 		for (Barrier barrier : this.barriers)
-			drawManager.drawEntity(barrier, barrier.getPositionX(), barrier.getPositionY(), playerNumber);
+			renderer.drawSpriteEntity(barrier, barrier.getPositionX(), barrier.getPositionY(), playerNumber);
 
 		for (Bullet bullet : this.bullets)
-			drawManager.drawEntity(bullet, bullet.getPositionX(),
+			renderer.drawSpriteEntity(bullet, bullet.getPositionX(),
 					bullet.getPositionY(), playerNumber);
 
 		// Interface.
-		drawManager.drawScore(this, this.score, playerNumber);
-		drawManager.drawElapsedTime(this, this.elapsedTime, playerNumber);
-		drawManager.drawAlertMessage(this, this.alertMessage, playerNumber);
-		drawManager.drawLives(this, this.lives, this.shipType, playerNumber);
-		drawManager.drawLevel(this, this.level, playerNumber);
-		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
-		drawManager.drawReloadTimer(this,this.ship,ship.getRemainingReloadTime(), this.shipType, playerNumber);
-		drawManager.drawCombo(this,this.combo, playerNumber);
+		renderer.drawScore(this, this.score, playerNumber);
+		renderer.drawElapsedTime(this, this.elapsedTime, playerNumber);
+		renderer.drawAlertMessage(this, this.alertMessage, playerNumber);
+		renderer.drawLives(this, this.lives, this.shipType, playerNumber);
+		renderer.drawLevel(this, this.level, playerNumber);
+		renderer.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1, playerNumber);
+		renderer.drawReloadTimer(this,this.ship,ship.getRemainingReloadTime(), this.shipType, playerNumber);
+		renderer.drawCombo(this,this.combo, playerNumber);
 
 		// Show GameOver if one player ends first
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished() && this.lives <= 0) {
-			drawManager.drawInGameOver(this, playerNumber);
-			drawManager.drawHorizontalLine(this, this.height / 2 - this.height
+			renderer.drawInGameOver(this, playerNumber);
+			renderer.drawHorizontalLine(this, this.height / 2 - this.height
 					/ 12, playerNumber);
-			drawManager.drawHorizontalLine(this, this.height / 2 + this.height
+			renderer.drawHorizontalLine(this, this.height / 2 + this.height
 					/ 12, playerNumber);
 		}
 
 		// Countdown to game start.
 		if (!this.inputDelay.checkFinished()) {
 			int countdown = (int) ((INPUT_DELAY - (System.currentTimeMillis() - this.gameStartTime)) / 1000);
-			drawManager.drawCountDown(this, this.level, countdown,
+			renderer.drawCountDown(this, this.level, countdown,
 					this.bonusLife, playerNumber);
-			drawManager.drawHorizontalLine(this, this.height / 2 - this.height
+			renderer.drawHorizontalLine(this, this.height / 2 - this.height
 					/ 12, playerNumber);
-			drawManager.drawHorizontalLine(this, this.height / 2 + this.height
+			renderer.drawHorizontalLine(this, this.height / 2 + this.height
 					/ 12, playerNumber);
 
 			//Intermediate aggregation
@@ -677,22 +682,22 @@ public class GameScreen extends Screen implements Callable<GameState> {
 					this.maxCombo = 0;
 				} else {
 					// Don't show it just before the game starts, i.e. when the countdown is zero.
-					drawManager.interAggre(this, this.level - 1, this.maxCombo, this.elapsedTime - this.lapTime, this.score, this.tempScore, playerNumber);
+					renderer.interAggre(this, this.level - 1, this.maxCombo, this.elapsedTime - this.lapTime, this.score, this.tempScore, playerNumber);
 				}
 			}
 		}
 
 		//add drawRecord method for drawing
-		drawManager.drawRecord(highScores,this, playerNumber);
+		renderer.drawRecord(highScores,this, playerNumber);
 
 		// Blocker drawing part
 		if (!blockers.isEmpty()) {
 			for (Blocker blocker : blockers) {
-				drawManager.drawRotatedEntity(blocker, blocker.getPositionX(), blocker.getPositionY(), blocker.getAngle(), playerNumber);
+				renderer.drawRotatedEntity(blocker, blocker.getPositionX(), blocker.getPositionY(), blocker.getAngle(), playerNumber);
 			}
 		}
 
-		drawManager.flushBuffer(this, playerNumber);
+		renderer.flushBuffer(this, playerNumber);
 	}
 
 	/**
@@ -871,7 +876,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 *            Second entity, the ship.
 	 * @return Result of the collision test.
 	 */
-	private boolean checkCollision(final Entity a, final Entity b) {
+	private boolean checkCollision(final SpriteEntity a, final SpriteEntity b) {
 		// Calculate center point of the entities in both axis.
 		int centerAX = a.getPositionX() + a.getWidth() / 2;
 		int centerAY = a.getPositionY() + a.getHeight() / 2;
