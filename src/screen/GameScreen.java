@@ -300,6 +300,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	@Override
 	protected final void update() {
 		super.update();
+		createEntity();
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
 			boolean player1Attacking = inputManager.isKeyDown(KeyEvent.VK_SPACE);
 			boolean player2Attacking = inputManager.isKeyDown(KeyEvent.VK_SHIFT);
@@ -472,84 +473,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 */
 	private void draw() {
 		renderer.initDrawing(this);
-		renderer.drawGameTitle(this);
 
-		renderer.drawLaunchTrajectory( this,this.ship.getPositionX());
-
-		renderer.drawSpriteEntity(this.ship, this.ship.getPositionX(), this.ship.getPositionY());
-
-		//draw Spider Web
-        for (Web value : web) {
-            renderer.drawSpriteEntity(value, value.getPositionX(),
-                    value.getPositionY());
-        }
-		//draw Blocks
-		for (Block b : block)
-			renderer.drawSpriteEntity(b, b.getPositionX(),
-					b.getPositionY());
-
-
-		if (this.enemyShipSpecial != null)
-			renderer.drawSpriteEntity(this.enemyShipSpecial,
-					this.enemyShipSpecial.getPositionX(),
-					this.enemyShipSpecial.getPositionY());
-
-		enemyShipFormation.draw();
-
-		for (ItemBox itemBox : this.itemBoxes)
-			renderer.drawSpriteEntity(itemBox, itemBox.getPositionX(), itemBox.getPositionY());
-
-		for (Barrier barrier : this.barriers)
-			renderer.drawSpriteEntity(barrier, barrier.getPositionX(), barrier.getPositionY());
-
-		for (Bullet bullet : this.bullets)
-			renderer.drawSpriteEntity(bullet, bullet.getPositionX(),
-					bullet.getPositionY());
-
-
-		// Interface.
-		renderer.drawScore(this, this.score);
-		renderer.drawElapsedTime(this, this.elapsedTime);
-		renderer.drawAlertMessage(this, this.alertMessage);
-		renderer.drawLives(this, this.lives, this.shipType);
-		renderer.drawLevel(this, this.level);
-		renderer.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1);
-		renderer.drawReloadTimer(this, this.ship, ship.getRemainingReloadTime(), this.shipType);
-		renderer.drawCombo(this, this.combo);
-
-
-		// Countdown to game start.
-		if (!this.inputDelay.checkFinished()) {
-			int countdown = (int) ((INPUT_DELAY - (System.currentTimeMillis() - this.gameStartTime)) / 1000);
-			renderer.drawCountDown(this, this.level, countdown, this.bonusLife);
-			renderer.drawHorizontalLine(this, this.height / 2 - this.height / 12);
-			renderer.drawHorizontalLine(this, this.height / 2 + this.height / 12);
-
-			//Intermediate aggregation
-			if (this.level > 1){
-                if (countdown == 0) {
-					//Reset mac combo and edit temporary values
-                    this.lapTime = this.elapsedTime;
-                    this.tempScore = this.score;
-                    this.maxCombo = 0;
-                } else {
-					// Don't show it just before the game starts, i.e. when the countdown is zero.
-                    renderer.interAggre(this, this.level - 1, this.maxCombo, this.elapsedTime - this.lapTime, this.score, this.tempScore);
-                }
-			}
-		}
-
-
-		//add drawRecord method for drawing
-		renderer.drawRecord(highScores,this);
-
-
-		// Blocker drawing part
-		if (!blockers.isEmpty()) {
-			for (Blocker blocker : blockers) {
-				renderer.drawRotatedEntity(blocker, blocker.getPositionX(), blocker.getPositionY(), blocker.getAngle());
-			}
-		}
+		renderer.drawEntities(frontBufferEntities);
 
 		renderer.completeDrawing(this);
 	}
@@ -562,12 +487,15 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		backBufferEntities.add(this.ship);
 
 		//create Spider Web
-        backBufferEntities.addAll(web);
+		if (web != null)
+        	backBufferEntities.addAll(web);
 
 		//create Blocks
-        backBufferEntities.addAll(block);
+		if (block != null)
+        	backBufferEntities.addAll(block);
 
-		if (this.enemyShipSpecial != null) backBufferEntities.add(this.enemyShipSpecial);
+		if (this.enemyShipSpecial != null)
+			backBufferEntities.add(this.enemyShipSpecial);
 
 
 		//create enemyShip
@@ -575,13 +503,18 @@ public class GameScreen extends Screen implements Callable<GameState> {
 			for (EnemyShip enemyShip : column)
 				if (enemyShip != null)
 					backBufferEntities.add(enemyShip);
-        backBufferEntities.addAll(enemyShipFormation.getEnemyDivers());
 
-		backBufferEntities.addAll(this.itemBoxes);
+		if(enemyShipFormation != null)
+        	backBufferEntities.addAll(enemyShipFormation.getEnemyDivers());
 
-		backBufferEntities.addAll(this.barriers);
+		if (itemBoxes != null)
+			backBufferEntities.addAll(this.itemBoxes);
 
-		backBufferEntities.addAll(this.bullets);
+		if(barriers != null)
+			backBufferEntities.addAll(this.barriers);
+
+		if(bullets != null)
+			backBufferEntities.addAll(this.bullets);
 
 		// Interface.
 		backBufferEntities.add(EntityFactory.createScore(this, this.score));
@@ -616,16 +549,12 @@ public class GameScreen extends Screen implements Callable<GameState> {
 			}
 		}
 
-
-		//add drawRecord method for drawing
-		renderer.drawRecord(highScores,this);
-
+		backBufferEntities.add(EntityFactory.createRecord(this, highScores));
 
 		// Blocker drawing part
-		if (!blockers.isEmpty()) {
-			//drawRoatatedEntity로 draw해야함
+		if (!blockers.isEmpty())
 			backBufferEntities.addAll(blockers);
-		}
+
 
 		swapBuffers();
 	}

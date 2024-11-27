@@ -46,6 +46,12 @@ public class SignUpScreen extends Screen {
 
     protected final void update() {
         super.update();
+        this.createEntity();
+
+        if (signUpSuccess && successCooldown.checkFinished()) {
+            this.menu = Menu.LOGIN;
+        }
+
         draw();
         handleInput();
     }
@@ -145,17 +151,15 @@ public class SignUpScreen extends Screen {
     private void draw() {
         renderer.initDrawing(this);
 
-        renderer.drawSignUpScreen(this, usernameInput, passwordInput, confirmPasswordInput,
-                isUsernameActive, isPasswordActive, isConfirmPasswordActive, !alertCooldown.checkFinished(), signUpSuccess);
-
-        if (signUpSuccess && successCooldown.checkFinished()) {
-            this.menu = Menu.LOGIN;
-        }
+        renderer.drawEntities(frontBufferEntities);
 
         renderer.completeDrawing(this);
     }
 
     protected void createEntity(){
+        backBufferEntities.addAll(EntityFactory.createSignUpScreen(this, usernameInput, passwordInput,
+                confirmPasswordInput, isUsernameActive, isPasswordActive, isConfirmPasswordActive,
+                !alertCooldown.checkFinished(), signUpSuccess));
 
         swapBuffers();
     }

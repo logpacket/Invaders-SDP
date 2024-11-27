@@ -31,4 +31,9 @@ public class Blocker extends SpriteEntity {
     public double getAngle() { return angle; }
 
     public boolean getMoveLeft() { return moveLeft; }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.ROTATED_SPRITE;
+    }
 }
