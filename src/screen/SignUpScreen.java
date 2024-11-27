@@ -134,13 +134,15 @@ public class SignUpScreen extends Screen {
     private void draw() {
         renderer.initDrawing(this);
 
-        renderer.drawSignUpScreen(this, usernameInput, passwordInput, confirmPasswordInput,
-                isUsernameActive, isPasswordActive, isConfirmPasswordActive, !alertCooldown.checkFinished());
+        renderer.drawEntities(frontBufferEntities);
 
         renderer.completeDrawing(this);
     }
 
     protected void createEntity(){
+        backBufferEntities.addAll(EntityFactory.createSignUpScreen(this, usernameInput, passwordInput,
+                confirmPasswordInput, isUsernameActive, isPasswordActive, isConfirmPasswordActive,
+                !alertCooldown.checkFinished()));
 
         swapBuffers();
     }

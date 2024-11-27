@@ -607,12 +607,25 @@ public class EntityFactory {
      * Create recorded highest score on screen TextEntity
      *
      * @param screen screen
-     * @param highScore highScore
+     * @param highScores highScore
      *
      * @return highest record TextEntity
      */
-    public static TextEntity createRecord(final Screen screen, final Score highScore){
-        String string = highScore.score() + " " +highScore.name();
+    public static TextEntity createRecord(final Screen screen, final List<Score> highScores){
+
+        //add variable for highest score
+		int highestScore = -1;
+		String highestPlayer = "";
+
+		// find the highest score from highScores list
+		for (Score entry : highScores) {
+			if (entry.score() > highestScore) {
+				highestScore = entry.score();
+				highestPlayer = entry.name();
+			}
+		}
+
+        String string = highestPlayer + " " + highestScore;
 
         return new TextEntity(screen.getWidth() - FontManager.getFontRegularMetrics().stringWidth(string) - 76,
                 25, Color.LIGHT_GRAY, string, FontManager.getFontRegular());
@@ -651,10 +664,7 @@ public class EntityFactory {
      */
     public static TextEntity createCombo(final Screen screen, final int combo) {
         String comboString = String.format("Combo %03d", combo);
-        if (combo >= 2) {
-            return new TextEntity(screen.getWidth() - 100, 85, Color.WHITE, comboString, FontManager.getFontRegular());
-        }
-        return null;
+        return new TextEntity(screen.getWidth() - 100, 85, Color.WHITE, comboString, FontManager.getFontRegular());
     }
 
     /**
@@ -987,7 +997,7 @@ public class EntityFactory {
 
     }
 
-    public static List<Entity> drawSignUpScreen(final Screen screen, final String usernameInput, final String passwordInput,
+    public static List<Entity> createSignUpScreen(final Screen screen, final String usernameInput, final String passwordInput,
                                  final String confirmPasswordInput, final boolean isUsernameActive,
                                  final boolean isPasswordActive, final boolean isConfirmPasswordActive,
                                  final boolean showAlert, final boolean signUpSuccess) {

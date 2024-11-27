@@ -57,6 +57,7 @@ public class LoginScreen extends Screen {
      */
     protected final void update() {
         super.update();
+        this.createEntity();
         draw();
         handleInput();
     }
@@ -182,13 +183,14 @@ public class LoginScreen extends Screen {
     private void draw() {
         renderer.initDrawing(this);
 
-        renderer.drawLoginScreen(this, usernameInput, passwordInput, isUsernameActive,
-                isPasswordActive, selectedOption, !alertCooldown.checkFinished());
+        renderer.drawEntities(frontBufferEntities);
 
         renderer.completeDrawing(this);
     }
 
     protected void createEntity(){
+        backBufferEntities.addAll(EntityFactory.createLoginScreen(this, usernameInput, passwordInput,
+                isUsernameActive, isPasswordActive, selectedOption, !alertCooldown.checkFinished()));
 
         swapBuffers();
     }
