@@ -4,6 +4,7 @@ import entity.*;
 import screen.Screen;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -824,13 +825,217 @@ public class EntityFactory {
         if (!isMultiPlayer) color = Color.GREEN;
         else color = Color.WHITE;
 
-        /**
-        entities.add(createCenteredRegularString(screen, target, startPoint
-                + (FontManager.getFontRegularMetrics().getHeight() * 2) * i - currentFrame, Color.WHITE));
-         */
+        entities.add(createCenteredRegularString(screen, player1String + spaceString.repeat(40),
+                screen.getHeight() / 100 * 38, color));
+        entities.add(createCenteredRegularString(screen,  name1 + spaceString.repeat(40),
+                screen.getHeight() / 100 * 46, color));
+
+        if (!isMultiPlayer) color = Color.WHITE;
+        else color = Color.GREEN;
+
+        entities.add(createCenteredRegularString(screen, spaceString.repeat(40) + player2String,
+                screen.getHeight() / 100 * 38, color));
+        entities.add(createCenteredRegularString(screen, spaceString.repeat(40) + name2,
+                screen.getHeight() / 100 * 46, color));
+
+        if (difficultyLevel==0) color = Color.GREEN;
+        else color = Color.WHITE;
+        entities.add(createCenteredRegularString(screen, levelEasyString + spaceString.repeat(60),
+                screen.getHeight() / 100 * 62, color));
+
+        if (difficultyLevel==1) color = Color.GREEN;
+        else color = Color.WHITE;
+        entities.add(createCenteredRegularString(screen, levelNormalString, screen.getHeight() / 100 * 62, color));
+
+        if (difficultyLevel==2) color = Color.GREEN;
+        else color = Color.WHITE;
+        entities.add(createCenteredRegularString(screen, spaceString.repeat(60) + levelHardString, screen.getHeight() / 100 * 62,color));
+
+        Ship.ShipType[] shipTypes = Ship.ShipType.values();
+        int shipIndex = 0;
+        for (int i = 0; i < shipTypes.length; i++) {
+            if (shipTypes[i] == shipType) {
+                shipIndex = i;
+                break;
+            }
+        }
+
+        // Ship selection
+        final int SHIP_OFFSET = screen.getWidth() / 100 * 30;
+        final int ARROW_OFFSET = 50;
+
+        Ship currentShip = ShipFactory.create(shipType, 0, 0);
+        currentShip.setColor(Color.GREEN);
+        currentShip.setPositionX(screen.getWidth() / 2 - 13);
+        currentShip.setPositionY(screen.getHeight() / 100 * 80);
+        entities.add(currentShip);
+
+        entities.add(new TextEntity(screen.getWidth() / 2 -  FontManager.getFontRegularMetrics().stringWidth(shipType.name()) / 2,
+                screen.getHeight() / 100 * 80 - 35,Color.GREEN,shipType.name(),FontManager.getFontRegular()));
+
+        final ShipMultipliers multipliers = currentShip.getMultipliers();
+        final Object[][] stats = new Object[][]{
+                {"SPD", multipliers.speed()},
+                {"BUL SPD", multipliers.bulletSpeed()},
+                {"SHOT INT", multipliers.shootInterval()},
+        };
+
+        List<String> statsStr = new ArrayList<>();
+        for (Object[] stat : stats) {
+            // Format it as percentage (+/-)
+            String mult;
+            if ((float) stat[1] < 1) {
+                mult = "-" + Math.round((1 - (float) stat[1]) * 100) + "%";
+            } else {
+                mult = "+" + Math.round(((float) stat[1] - 1) * 100) + "%";
+            }
+            statsStr.add(mult + " " + stat[0]);
+        }
+
+        entities.add(createCenteredSmallString(screen, String.join(", ", statsStr), screen.getHeight() / 100 * 80 + 38,Color.GREEN));
+
+        if (shipIndex > 0) {
+            Ship previousShip = ShipFactory.create(shipTypes[shipIndex - 1], 0, 0);
+            previousShip.setColor(Color.WHITE);
+            previousShip.setPositionX(screen.getWidth() / 2 - SHIP_OFFSET - 13);
+            previousShip.setPositionY(screen.getHeight() / 100 * 80);
+            entities.add(previousShip);
+
+            entities.add(new TextEntity(screen.getWidth() / 2 - SHIP_OFFSET - FontManager.getFontRegularMetrics().stringWidth(shipTypes[shipIndex - 1].name()) / 2,
+                    screen.getHeight() / 100 * 80 - 35, Color.GREEN, shipTypes[shipIndex - 1].name(), FontManager.getFontRegular()));
+
+
+            entities.add(new PolygonEntity(new int[]{
+                 screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 30,
+                 screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15,
+                 screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15},
+                 new int[]{screen.getHeight() / 100 * 80,
+                 screen.getHeight() / 100 * 80 - 15,
+                 screen.getHeight() / 100 * 80 + 15},
+                 Color.WHITE, 3, true)
+            );
+        }
+
+        if (shipIndex < shipTypes.length - 1) {
+            Ship nextShip = ShipFactory.create(shipTypes[shipIndex + 1], 0, 0);
+            nextShip.setColor(Color.WHITE);
+            nextShip.setPositionX(screen.getWidth() / 2 + SHIP_OFFSET - 13);
+            nextShip.setPositionY(screen.getHeight() / 100 * 80);
+            entities.add(nextShip);
+            entities.add(new TextEntity(screen.getWidth() / 2 + SHIP_OFFSET - FontManager.getFontRegularMetrics().stringWidth(shipTypes[shipIndex + 1].name()) / 2,
+                    screen.getHeight() / 100 * 80 - 35, Color.GREEN, shipTypes[shipIndex + 1].name(), FontManager.getFontRegular()));
+
+             // Create arrow right
+            entities.add(new PolygonEntity(
+                    new int[]{screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 30,
+                         screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15,
+                         screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15},
+                    new int[]{screen.getHeight() / 100 * 80,
+                         screen.getHeight() / 100 * 80 - 15,
+                         screen.getHeight() / 100 * 80 + 15},
+                 Color.WHITE, 3, true)
+            );
+        }
+
+        if (selectedRow == 3) color = Color.GREEN;
+        else color = Color.WHITE;
+        entities.add(createCenteredRegularString(screen, startString, screen.getHeight() / 100 * 98, color));
 
         return entities;
     }
 
 
-}
+    public static List<Entity> createLoginScreen(final Screen screen, final String usernameInput, final String passwordInput,
+                                final boolean isUsernameActive, final boolean isPasswordActive,
+                                final int selectedOption, final boolean showAlert) {
+
+        List<Entity> entities = new ArrayList<>();
+
+        String loginTitle = "Login";
+        String usernameLabel = "Username: ";
+        String passwordLabel = "Password: ";
+        String loginButton = "Press ENTER to Login";
+        String signUpButton = "Press ENTER to Sign Up";
+        String alertMessage = "Invalid Username or Password";
+
+        int titleY = Math.round(screen.getHeight() * 0.15f);
+        int inputStartX = screen.getWidth() / 5;
+        int inputStartY = Math.round(screen.getHeight() * 0.4f);
+        int inputSpacing = Math.round(screen.getHeight() * 0.1f);
+        int inputWidth = screen.getWidth() / 2;
+        int inputHeight = Math.round(screen.getHeight() * 0.07f);
+
+        entities.add(createCenteredBigString(screen, loginTitle, titleY, Color.GREEN));
+        entities.add(new TextEntity(inputStartX, inputStartY, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        entities.add(new TextEntity(inputStartX + 160, inputStartY - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontRegular()));
+
+        entities.add(new TextEntity(inputStartX, inputStartY + inputSpacing, isPasswordActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, isPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+
+        String maskedPassword = "*".repeat(passwordInput.length());
+        entities.add(new TextEntity(inputStartX + 160, inputStartY + inputSpacing - 5, isPasswordActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontRegular()));
+
+        entities.add(createCenteredRegularString(screen, loginButton, inputStartY + inputSpacing * 2, selectedOption == 2 ? Color.YELLOW : Color.CYAN));
+        entities.add(createCenteredRegularString(screen, signUpButton, inputStartY + inputSpacing * 3, selectedOption == 3 ? Color.YELLOW : Color.CYAN));
+
+        if (showAlert) {
+            entities.add(createCenteredBigString(screen, alertMessage, inputStartY + inputSpacing * 4, Color.RED));
+        }
+
+        return entities;
+
+    }
+
+    public static List<Entity> drawSignUpScreen(final Screen screen, final String usernameInput, final String passwordInput,
+                                 final String confirmPasswordInput, final boolean isUsernameActive,
+                                 final boolean isPasswordActive, final boolean isConfirmPasswordActive,
+                                 final boolean showAlert, final boolean signUpSuccess) {
+
+        List<Entity> entities = new ArrayList<>();
+
+        String signUpTitle = "Sign Up";
+        String usernameLabel = "Username: ";
+        String passwordLabel = "Password: ";
+        String confirmPasswordLabel = "Confirm: ";
+        String signUpButton = "Press ENTER to Sign Up";
+        String alertMessage = "Passwords do not match or fields are empty!";
+        String successMessage = "Sign Up Successful!";
+
+        int titleY = Math.round(screen.getHeight() * 0.15f);
+        int inputStartX = screen.getWidth() / 5;
+        int inputStartY = Math.round(screen.getHeight() * 0.3f);
+        int inputSpacing = Math.round(screen.getHeight() * 0.1f);
+        int inputWidth = screen.getWidth() / 2;
+        int inputHeight = Math.round(screen.getHeight() * 0.07f);
+
+        entities.add(createCenteredBigString(screen, signUpTitle, titleY, Color.GREEN));
+        entities.add(new TextEntity(inputStartX, inputStartY, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        entities.add(new TextEntity(inputStartX + 160, inputStartY - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontRegular()));
+
+        entities.add(new TextEntity(inputStartX, inputStartY + inputSpacing, isUsernameActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        String maskedPassword = "*".repeat(passwordInput.length());
+        entities.add(new TextEntity(inputStartX + 160, inputStartY + inputSpacing - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontRegular()));
+
+        entities.add(new TextEntity(inputStartX, inputStartY + 2 * inputSpacing, isUsernameActive ? Color.YELLOW : Color.WHITE, confirmPasswordLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + 2 * inputSpacing - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        String maskedConfirmPassword = "*".repeat(confirmPasswordInput.length());
+        entities.add(new TextEntity(inputStartX + 160, inputStartY + 2 * inputSpacing - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, maskedConfirmPassword, FontManager.getFontRegular()));
+
+        entities.add(createCenteredRegularString(screen, signUpButton, inputStartY + 3 * inputSpacing,Color.YELLOW));
+
+        if (showAlert) {
+            entities.add(createCenteredBigString(screen, alertMessage, inputStartY + 4 * inputSpacing, Color.RED));
+        } else if (signUpSuccess) {
+            entities.add(createCenteredBigString(screen, successMessage, inputStartY + 4 * inputSpacing, Color.GREEN));
+        }
+
+        return entities;
+
+    }
+
+
+    }
+
