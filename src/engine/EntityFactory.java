@@ -74,7 +74,7 @@ public class EntityFactory {
         return new TextEntity(20, 25, Color.WHITE, Integer.toString(lives), FontManager.getFontRegular());
     }
 
-    public static List<Entity> createLiveSprites(final Screen screen, final int lives, final Ship.ShipType shipType){
+    public static List<Entity> createLivesSprites(final Screen screen, final int lives, final Ship.ShipType shipType){
         List<Entity> entities = new ArrayList<>();
         for (int i = 0; i < lives; i++)
 			entities.add(ShipFactory.create(shipType, 40 + 35 * i, 10));
@@ -118,6 +118,11 @@ public class EntityFactory {
         entities.add(createCenteredRegularString(screen, instructionsString, screen.getHeight() / 5 * 2, Color.GRAY));
 
         return entities;
+    }
+
+    public static TextEntity createGameTitle(final Screen screen){
+        String titleString = "Invaders";
+        return createCenteredBigString(screen, titleString, screen.getHeight() / 2, Color.DARK_GRAY);
     }
 
 
@@ -171,6 +176,7 @@ public class EntityFactory {
 
         return entities;
     }
+
 
     public static List<Entity> createGameOver(final Screen screen, final boolean acceptsInput,
                                               final boolean isNewRecord){
