@@ -818,12 +818,24 @@ public class EntityFactory {
 
         if (!isMultiPlayer) color = Color.GREEN;
         else color = Color.WHITE;
-        entities.add(createCenteredRegularString(screen, player1String + spaceString.repeat(40), screen.getHeight() / 100 * 38, color));
-        entities.add(createCenteredRegularString(screen, spaceString.repeat(40) + name2, screen.getHeight() / 100 * 46, color));
+
+        entities.add(createCenteredRegularString(screen, player1String + spaceString.repeat(40),
+                screen.getHeight() / 100 * 38, color));
+        entities.add(createCenteredRegularString(screen,  name1 + spaceString.repeat(40),
+                screen.getHeight() / 100 * 46, color));
+
+        if (!isMultiPlayer) color = Color.WHITE;
+        else color = Color.GREEN;
+
+        entities.add(createCenteredRegularString(screen, spaceString.repeat(40) + player2String,
+                screen.getHeight() / 100 * 38, color));
+        entities.add(createCenteredRegularString(screen, spaceString.repeat(40) + name2,
+                screen.getHeight() / 100 * 46, color));
 
         if (difficultyLevel==0) color = Color.GREEN;
         else color = Color.WHITE;
-        entities.add(createCenteredRegularString(screen, levelEasyString + spaceString.repeat(60), screen.getHeight() / 100 * 62, color));
+        entities.add(createCenteredRegularString(screen, levelEasyString + spaceString.repeat(60),
+                screen.getHeight() / 100 * 62, color));
 
         if (difficultyLevel==1) color = Color.GREEN;
         else color = Color.WHITE;
@@ -842,13 +854,16 @@ public class EntityFactory {
             }
         }
 
+        // Ship selection
         final int SHIP_OFFSET = screen.getWidth() / 100 * 30;
         final int ARROW_OFFSET = 50;
-        Ship currentShip = ShipFactory.create(shipType, 0, 0);
 
-        /**추가수정 필요
-        entities.add(createSpriteEntity(screen.getWidth() / 2 - 13, screen.getHeight() / 100 * 80,));
-         */
+        Ship currentShip = ShipFactory.create(shipType, 0, 0);
+        currentShip.setColor(Color.GREEN);
+        currentShip.setPositionX(screen.getWidth() / 2 - 13);
+        currentShip.setPositionY(screen.getHeight() / 100 * 80);
+        entities.add(currentShip);
+
         entities.add(new TextEntity(screen.getWidth() / 2 -  FontManager.getFontRegularMetrics().stringWidth(shipType.name()) / 2,
                 screen.getHeight() / 100 * 80 - 35,Color.GREEN,shipType.name(),FontManager.getFontRegular()));
 
@@ -876,127 +891,53 @@ public class EntityFactory {
         if (shipIndex > 0) {
             Ship previousShip = ShipFactory.create(shipTypes[shipIndex - 1], 0, 0);
             previousShip.setColor(Color.WHITE);
-            entities.add(createSpriteEntity(screen.getWidth() / 2 - SHIP_OFFSET - 13, screen.getHeight() / 100 * 80, ));
+            previousShip.setPositionX(screen.getWidth() / 2 - SHIP_OFFSET - 13);
+            previousShip.setPositionY(screen.getHeight() / 100 * 80);
+            entities.add(previousShip);
+
             entities.add(new TextEntity(screen.getWidth() / 2 - SHIP_OFFSET - FontManager.getFontRegularMetrics().stringWidth(shipTypes[shipIndex - 1].name()) / 2,
                     screen.getHeight() / 100 * 80 - 35, Color.GREEN, shipTypes[shipIndex - 1].name(), FontManager.getFontRegular()));
 
 
-            /**
-             backBufferGraphics.setColor(Color.WHITE);
-             backBufferGraphics.fillPolygon(
-             new int[]{
-             screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 30,
-             screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15,
-             screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15},
-             new int[]{screen.getHeight() / 100 * 80,
-             screen.getHeight() / 100 * 80 - 15,
-             screen.getHeight() / 100 * 80 + 15},
-             3); */
+            entities.add(new PolygonEntity(new int[]{
+                 screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 30,
+                 screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15,
+                 screen.getWidth() / 2 - SHIP_OFFSET - ARROW_OFFSET - 15},
+                 new int[]{screen.getHeight() / 100 * 80,
+                 screen.getHeight() / 100 * 80 - 15,
+                 screen.getHeight() / 100 * 80 + 15},
+                 Color.WHITE, 3, true)
+            );
         }
 
         if (shipIndex < shipTypes.length - 1) {
             Ship nextShip = ShipFactory.create(shipTypes[shipIndex + 1], 0, 0);
             nextShip.setColor(Color.WHITE);
-            entities.add(createSpriteEntity(screen.getWidth() / 2 + SHIP_OFFSET - 13, screen.getHeight() / 100 * 80, ));
+            nextShip.setPositionX(screen.getWidth() / 2 + SHIP_OFFSET - 13);
+            nextShip.setPositionY(screen.getHeight() / 100 * 80);
+            entities.add(nextShip);
             entities.add(new TextEntity(screen.getWidth() / 2 + SHIP_OFFSET - FontManager.getFontRegularMetrics().stringWidth(shipTypes[shipIndex + 1].name()) / 2,
                     screen.getHeight() / 100 * 80 - 35, Color.GREEN, shipTypes[shipIndex + 1].name(), FontManager.getFontRegular()));
-            /**
-             // Draw arrow right
-             backBufferGraphics.setColor(Color.WHITE);
-             backBufferGraphics.fillPolygon(
-             new int[]{screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 30,
-             screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15,
-             screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15},
-             new int[]{screen.getHeight() / 100 * 80,
-             screen.getHeight() / 100 * 80 - 15,
-             screen.getHeight() / 100 * 80 + 15},
-             3
-             );
-             */
 
-            if (selectedRow == 3) color = Color.GREEN;
-            else color = Color.WHITE;
-            entities.add(createCenteredRegularString(screen, startString, screen.getHeight() / 100 * 98,color));
+             // Create arrow right
+            entities.add(new PolygonEntity(
+                    new int[]{screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 30,
+                         screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15,
+                         screen.getWidth() / 2 + SHIP_OFFSET + ARROW_OFFSET + 15},
+                    new int[]{screen.getHeight() / 100 * 80,
+                         screen.getHeight() / 100 * 80 - 15,
+                         screen.getHeight() / 100 * 80 + 15},
+                 Color.WHITE, 3, true)
+            );
         }
+
+        if (selectedRow == 3) color = Color.GREEN;
+        else color = Color.WHITE;
+        entities.add(createCenteredRegularString(screen, startString, screen.getHeight() / 100 * 98, color));
 
         return entities;
     }
 
-    /**
-     *  draw shop
-     * @param screen
-     * 				Screen to draw on.
-     * @param option
-     * 				selected shop item
-     * @param wallet
-     * 				player's wallet
-     * @param moneyAlertCooldown
-     * 				cooldown for insufficient coin alert
-     * @param maxAlertCooldown
-     * 				cooldown for max level alert
-     */
-    public static List<Entity> createShop(final Screen screen, final int option, final Wallet wallet, final Cooldown moneyAlertCooldown, final Cooldown maxAlertCooldown) {
-        List<Entity> entities = new ArrayList<>();
-        String shopString = "Shop";
-        int shopStringY = Math.round(screen.getHeight() * 0.15f);
-
-        String coinString = ":  " + wallet.getCoin();
-        String exitString = "PRESS \"ESC\" TO RETURN TO MAIN MENU";
-        String[] costs = new String[] {"2000", "4000", "8000", "MAX LEVEL"};
-
-        String[] itemString = new String[]{"BULLET SPEED", "SHOT INTERVAL", "ADDITIONAL LIFE","COIN GAIN"};
-        int[] walletLevel = new int[]{wallet.getBulletLevel(), wallet.getShootLevel(), wallet.getLivesLevel(), wallet.getCoinLevel()};
-
-        BufferedImage[] itemImages = new BufferedImage[]{imgBulletSpeed, imgShootInterval, imgAdditionalLife, imgCoinGain};
-
-        int imgStartX = screen.getWidth()/80*23;
-        int imgStartY = screen.getHeight()/80*27;
-        int imgDis = screen.getHeight()/80*12;
-        int coinStartX = screen.getWidth()/80*55;
-        int coinStartY = screen.getHeight()/160*66;
-        int coinDis = screen.getHeight()/80*12;
-        int coinSize = 20;
-        int coinTextStartX = screen.getWidth()/80*60;
-        int coinTextStartY = screen.getHeight()/160*71;
-        int coinTextDis = screen.getHeight()/80*12;
-
-        entities.add(createCenteredBigString(screen, shopString, shopStringY, Color.GREEN));
-        entities.add(createImageEntity(screen.getWidth()/80*39-(coinString.length()-3)*screen.getWidth()/80,screen.getHeight()/80*18,Color.GREEN,coinSize,coinSize,imgCoin));
-        entities.add(new TextEntity(screen.getWidth()/80*44-(coinString.length()-3)*screen.getWidth()/80,screen.getHeight()/80*20, Color.WHITE,coinString, FontManager.getFontRegular()));
-
-        for(int i = 0;i<4;i++) {
-            entities.add(createCenteredRegularString(screen, itemString[i], screen.getHeight() / 80 * (28 + 12 * i), Color.WHITE));
-            for (int j = 0; j < 3; j++)
-            {
-                if (j + 2 <= walletLevel[i])
-                {
-                    entities.add(createRectEntity(screen.getWidth() / 40 * (33 / 2) + j * (screen.getWidth() / 10), screen.getHeight() / 80 * (30 + 12*i),Color.GREEN,20, 20, true));
-                } else
-                {
-                    entities.add(createRectEntity(screen.getWidth() / 40 * (33 / 2) + j * (screen.getWidth() / 10), screen.getHeight() / 80 * (30 + 12*i),Color.WHITE,20, 20, true));
-                }
-            }
-        }
-
-        entities.add(createImageEntity(imgStartX,imgStartY + (imgDis*(option-1)),Color.WHITE,50,40,itemImages[option-1]));
-        entities.add(createImageEntity(coinStartX,coinStartY + (coinDis*(option-1)),Color.WHITE,coinSize,coinSize,imgCoin));
-        entities.add(new TextEntity(coinTextStartX,coinTextStartY + (coinTextDis*(option-1)),Color.WHITE,"X "+costs[walletLevel[option-1]-1],FontManager.getFontRegular()));
-
-        entities.add(createCenteredRegularString(screen,exitString,screen.getHeight()/80*80,Color.WHITE));
-
-        if (!moneyAlertCooldown.checkFinished())
-        {
-            entities.add(createRectEntity((screen.getWidth()-300)/2, (screen.getHeight()-100)/2,Color.red,300, 80, true));
-            entities.add(createCenteredBigString(screen,"Insufficient coin", screen.getHeight()/2, Color.black));
-        }
-        if(!maxAlertCooldown.checkFinished())
-        {
-            entities.add(createRectEntity((screen.getWidth()-300)/2, (screen.getHeight()-100)/2,Color.red,300, 80, true));
-            entities.add(createCenteredBigString(screen,"Already max level", screen.getHeight()/2, Color.black));
-        }
-
-        return entities;
-    }
 
     public static List<Entity> createLoginScreen(final Screen screen, final String usernameInput, final String passwordInput,
                                 final boolean isUsernameActive, final boolean isPasswordActive,

@@ -192,7 +192,7 @@ public final class Renderer {
 			imgBulletSpeed = ImageIO.read(new File("res/image/bullet speed.jpg"));
 			imgCoin = ImageIO.read(new File("res/image/coin.jpg"));
 			imgCoinGain = ImageIO.read(new File("res/image/coin gain.jpg"));
-			imgShootInterval = ImageIO.read(new File("res/image/shoot interval.jpg"));
+			imgShootInterval = ImageIO.read(new File("res/image/shot interval.jpg"));
 		} catch (IOException e) {
 			logger.info("Shop image loading failed");
 		}
@@ -318,6 +318,9 @@ public final class Renderer {
 				case LINE:
 					drawLineEntity((LineEntity) entity);
 					break;
+				case POLYGON:
+					drawFillPolygonEntity((PolygonEntity) entity);
+					break;
                 default:
                     System.out.println("Unknown Entity type: " + entity.getClass().getSimpleName());
             }
@@ -402,8 +405,17 @@ public final class Renderer {
 
 	public void drawRectEntity(final RectEntity rectEntity){
 		backBufferGraphics.setColor(rectEntity.getColor());
-		backBufferGraphics.drawRect(rectEntity.getPositionX(), rectEntity.getPositionY(),
-				rectEntity.getWidth(), rectEntity.getHeight());
+		if (rectEntity.getIsFilled())
+			backBufferGraphics.fillRect(rectEntity.getPositionX(), rectEntity.getPositionY(),
+					rectEntity.getWidth(), rectEntity.getHeight());
+		else
+			backBufferGraphics.drawRect(rectEntity.getPositionX(), rectEntity.getPositionY(),
+					rectEntity.getWidth(), rectEntity.getHeight());
+	}
+
+	public void drawFillPolygonEntity(final PolygonEntity polygonEntity){
+		backBufferGraphics.setColor(polygonEntity.getColor());
+		backBufferGraphics.fillPolygon(polygonEntity.getXPoints(), polygonEntity.getYPoints(), polygonEntity.getNPoints());
 	}
 
 
@@ -1846,14 +1858,18 @@ public final class Renderer {
 		if (!isMultiPlayer) backBufferGraphics.setColor(Color.GREEN);
 		else backBufferGraphics.setColor(Color.WHITE);
 
-		drawCenteredRegularString(screen, player1String + spaceString.repeat(40), screen.getHeight() / 100 * 38);
-		drawCenteredRegularString(screen, name1 + spaceString.repeat(40), screen.getHeight() / 100 * 46);
+		drawCenteredRegularString(screen, player1String + spaceString.repeat(40),
+				screen.getHeight() / 100 * 38);
+		drawCenteredRegularString(screen, name1 + spaceString.repeat(40),
+				screen.getHeight() / 100 * 46);
 
 		if (!isMultiPlayer) backBufferGraphics.setColor(Color.WHITE);
 		else backBufferGraphics.setColor(Color.GREEN);
 
-		drawCenteredRegularString(screen, spaceString.repeat(40) + player2String, screen.getHeight() / 100 * 38);
-		drawCenteredRegularString(screen, spaceString.repeat(40) + name2, screen.getHeight() / 100 * 46);
+		drawCenteredRegularString(screen, spaceString.repeat(40) + player2String,
+				screen.getHeight() / 100 * 38);
+		drawCenteredRegularString(screen, spaceString.repeat(40) + name2,
+				screen.getHeight() / 100 * 46);
 
 		if (difficultyLevel==0) backBufferGraphics.setColor(Color.GREEN);
 		else backBufferGraphics.setColor(Color.WHITE);
