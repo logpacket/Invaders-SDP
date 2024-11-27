@@ -43,6 +43,7 @@ public class SignUpScreen extends Screen {
     @Override
     protected final void update() {
         super.update();
+        this.createEntity();
         draw();
         handleInput();
     }

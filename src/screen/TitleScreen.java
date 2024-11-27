@@ -7,8 +7,6 @@ import java.util.List;
 import engine.*;
 import entity.Entity;
 
-import java.awt.event.KeyEvent;
-
 
 /**
  * Implements the title screen.
