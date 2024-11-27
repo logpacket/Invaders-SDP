@@ -555,6 +555,77 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	}
 
 	protected void createEntity(){
+		backBufferEntities.add(EntityFactory.createGameTitle(this));
+
+		backBufferEntities.addAll(EntityFactory.createLaunchTrajectory(this, this.ship.getPositionX()));
+
+		backBufferEntities.add(this.ship);
+
+		//create Spider Web
+        backBufferEntities.addAll(web);
+
+		//create Blocks
+        backBufferEntities.addAll(block);
+
+		if (this.enemyShipSpecial != null) backBufferEntities.add(this.enemyShipSpecial);
+
+
+		//create enemyShip
+		for (List<EnemyShip> column : enemyShipFormation.getEnemyShips())
+			for (EnemyShip enemyShip : column)
+				if (enemyShip != null)
+					backBufferEntities.add(enemyShip);
+        backBufferEntities.addAll(enemyShipFormation.getEnemyDivers());
+
+		backBufferEntities.addAll(this.itemBoxes);
+
+		backBufferEntities.addAll(this.barriers);
+
+		backBufferEntities.addAll(this.bullets);
+
+		// Interface.
+		backBufferEntities.add(EntityFactory.createScore(this, this.score));
+		backBufferEntities.add(EntityFactory.createElapseTime(this, this.elapsedTime));
+		backBufferEntities.add(EntityFactory.createAlertMessage(this, this.alertMessage));
+		backBufferEntities.add(EntityFactory.createLivesString(this, this.lives));
+		backBufferEntities.addAll(EntityFactory.createLivesSprites(this, this.lives, this.shipType));
+		backBufferEntities.add(EntityFactory.createLevel(this, this.level));
+		backBufferEntities.addAll(EntityFactory.createHorizontalLines(this, SEPARATION_LINE_HEIGHT - 1));
+		backBufferEntities.add(EntityFactory.createReloadTimer(this, this.ship, ship.getRemainingReloadTime(), this.shipType));
+		backBufferEntities.add(EntityFactory.createCombo(this, this.combo));
+
+
+		// Countdown to game start.
+		if (!this.inputDelay.checkFinished()) {
+			int countdown = (int) ((INPUT_DELAY - (System.currentTimeMillis() - this.gameStartTime)) / 1000);
+			backBufferEntities.addAll(EntityFactory.createCountDown(this, this.level, countdown, this.bonusLife));
+			backBufferEntities.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 - this.height / 12));
+			backBufferEntities.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 + this.height / 12));
+
+			//Intermediate aggregation
+			if (this.level > 1){
+				if (countdown == 0) {
+					//Reset mac combo and edit temporary values
+					this.lapTime = this.elapsedTime;
+					this.tempScore = this.score;
+					this.maxCombo = 0;
+				} else {
+					// Don't show it just before the game starts, i.e. when the countdown is zero.
+					backBufferEntities.addAll(EntityFactory.createAggre(this, this.level - 1, this.maxCombo, this.elapsedTime - this.lapTime, this.score, this.tempScore));
+				}
+			}
+		}
+
+
+		//add drawRecord method for drawing
+		renderer.drawRecord(highScores,this);
+
+
+		// Blocker drawing part
+		if (!blockers.isEmpty()) {
+			//drawRoatatedEntity로 draw해야함
+			backBufferEntities.addAll(blockers);
+		}
 
 		swapBuffers();
 	}
