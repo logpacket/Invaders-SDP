@@ -5,7 +5,7 @@ import java.awt.Color;
 import engine.Cooldown;
 import engine.Core;
 import engine.DrawManager.SpriteType;
-import engine.GameState;
+import engine.GameLevelState;
 import engine.Sound;
 import engine.SoundManager;
 
@@ -53,7 +53,7 @@ public class EnemyShip extends Entity {
 	 *            Sprite type, image corresponding to the ship.
 	 */
 	public EnemyShip(final int positionX, final int positionY,
-			final SpriteType spriteType, final GameState gameState, final int difficulty) {
+                     final SpriteType spriteType, final GameLevelState gameLevelState, final int difficulty) {
 		super(positionX, positionY, 12 * 2, 8 * 2, getDefaultColor(spriteType));
 
 		this.spriteType = spriteType;
@@ -61,19 +61,19 @@ public class EnemyShip extends Entity {
 		this.isDestroyed = false;
         //Determine enemy health based on game level
 		this.health = 0;
-		for(int i =1; i<=gameState.level()/3;i++){
+		for(int i = 1; i<= gameLevelState.level()/3; i++){
 			this.health++;
 		}
 
 		switch (this.spriteType) {
 		case ENEMY_SHIP_A1, ENEMY_SHIP_A2:
-			this.pointValue = (int) (A_TYPE_POINTS + (gameState.level() * 0.1) + difficulty);
+			this.pointValue = (int) (A_TYPE_POINTS + (gameLevelState.level() * 0.1) + difficulty);
 			break;
 		case ENEMY_SHIP_B1, ENEMY_SHIP_B2:
-			this.pointValue = (int) (B_TYPE_POINTS + (gameState.level() * 0.1) + difficulty);
+			this.pointValue = (int) (B_TYPE_POINTS + (gameLevelState.level() * 0.1) + difficulty);
 			break;
 		case ENEMY_SHIP_C1, ENEMY_SHIP_C2:
-			this.pointValue = (int) (C_TYPE_POINTS + (gameState.level() * 0.1) + difficulty);
+			this.pointValue = (int) (C_TYPE_POINTS + (gameLevelState.level() * 0.1) + difficulty);
 			break;
 		case ENEMY_SHIP_D1, ENEMY_SHIP_D2:
 			this.pointValue = D_TYPE_POINTS;

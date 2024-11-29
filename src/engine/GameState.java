@@ -1,120 +1,110 @@
 package engine;
 
-import entity.Wallet;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.Timer;
+import java.util.TimerTask;
 
-/**
- * Implements an object that stores the state of the game between levels.
- * 
- * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
- * 
- */
-public record GameState(
-	int level,
-	int score,
-	int livesRemaining,
-	int bulletsShoot,
-	int shipsDestroyed,
-	int elapsedTime,
-	boolean bonusLife,
-	int formationWidth,
-	int formationHeight,
-	int baseSpeed,
-	int shootInterval,
-	int maxCombo,
-	int prevTime,
-	int prevScore,
-	int hitBullets
-) {
-	private static final int EXTRA_LIFE_FREQUENCY = 3;
-	private static final int DEFAULT_FORMATION_SIZE = 4;
-	private static final int DEFAULT_SPEED = 60;
-	private static final int DEFAULT_SHOOT_INTERVAL = 2500;
 
-	@FunctionalInterface
-	interface CheckLambda {
-		boolean check (int inc, int threshold);
-	}
+import engine.*;
+import engine.Menu;
+import entity.*;
 
-	public GameState() {
-		this(1, 0, Wallet.getWallet().getLivesLevel() + 2, 0, 0, 0,
-				false, DEFAULT_FORMATION_SIZE, DEFAULT_FORMATION_SIZE, DEFAULT_SPEED,
-				DEFAULT_SHOOT_INTERVAL, 0, 0, 0, 0);
-	}
+public class GameState {
+    /** Milliseconds until the screen accepts user input. */
+    private static final int INPUT_DELAY = 6000;
+    /** Bonus score for each life remaining at the end of the level. */
+    private static final int LIFE_SCORE = 100;
+    /** Minimum time between bonus ship's appearances. */
+    private static final int BONUS_SHIP_INTERVAL = 20000;
+    /** Maximum variance in the time between bonus ship's appearances. */
+    private static final int BONUS_SHIP_VARIANCE = 10000;
+    /** Time until bonus ship explosion disappears. */
+    private static final int BONUS_SHIP_EXPLOSION = 500;
+    /** Time from finishing the level to screen change. */
+    private static final int SCREEN_CHANGE_INTERVAL = 1500;
+    /** Height of the interface separation line. */
+    private static final int SEPARATION_LINE_HEIGHT = 40;
 
-	public GameState(GameState gameState) {
-		this(gameState.level(), gameState.score(), gameState.livesRemaining(), gameState.bulletsShoot(),
-				gameState.shipsDestroyed(), gameState.elapsedTime(), gameState.bonusLife, gameState.formationWidth(),
-				gameState.formationHeight, gameState.baseSpeed, gameState.shootInterval, gameState.maxCombo(),
-				gameState.prevTime, gameState.prevScore, gameState.hitBullets);
-	}
+    /** Formation of enemy ships. */
+    private EnemyShipFormation enemyShipFormation;
+    /** Player's ship. */
+    private Ship ship;
+    /** Bonus enemy ship that appears sometimes. */
+    private EnemyShip enemyShipSpecial;
+    /** Minimum time between bonus ship appearances. */
+    private Cooldown enemyShipSpecialCooldown;
+    /** Time until bonus ship explosion disappears. */
+    private Cooldown enemyShipSpecialExplosionCooldown;
+    /** Time from finishing the level to screen change. */
+    private Cooldown screenFinishedCooldown;
+    /** Set of all bullets fired by on-screen ships. */
+    private Set<Bullet> bullets;
 
-	public GameState(GameState origin, GameSettings gameSettings) {
-		int level = origin.level + 1;
-		boolean tempBonusLife = (level % EXTRA_LIFE_FREQUENCY == 0 && origin.livesRemaining < gameSettings.maxLives());
-		boolean isUpgradeLevel = false;
-		boolean checkFormWidth = origin.formationWidth < 14;
-		boolean checkFormHeight = origin.formationHeight < 10;
-		boolean checkFormation = origin.formationWidth == origin.formationHeight && checkFormWidth;
-		CheckLambda checkSpeed = (int inc, int threshold) -> origin.baseSpeed - inc > threshold;
-		CheckLambda checkShootInterval = (int inc, int threshold) -> origin.shootInterval - inc > threshold;
+    private int score;
+    /** tempScore records the score up to the previous level. */
+    private int tempScore;
+    /** Player lives left. */
+    private int lives;
+    /** Total bullets shoot by the player. */
+    private int bulletsShoot;
+    /** Total ships destroyed by the player. */
+    private int shipsDestroyed;
+    /** Number of consecutive hits.
+     * maxCombo records the maximum value of combos in that level. */
+    private int combo;
+    private int maxCombo;
+    /** Moment the game starts. */
+    private long gameStartTime;
 
-		int tempFormationWidth = origin.formationWidth;
-		int tempFormationHeight = origin.formationHeight;
-		int tempBaseSpeed = origin.baseSpeed;
-		int tempShootInterval = origin.shootInterval;
+    /** Checks if the level is finished. */
+    private boolean levelFinished;
+    /** Checks if a bonus life is received. */
 
-		int speedInc = 10;
-		int speedThreshold = -150;
-		int shootIntervalInc = 100;
-		int shootIntervalThreshold = 100;
-		int baseShootInterval = 100;
-		int formInc = 1;
+    /** Player number for two player mode **/
+    private int playerNumber;
+    /** list of highScores for find recode. */
+    private List<Score> highScores;
+    /** Elapsed time while playing this game.
+     * lapTime records the time to the previous level. */
+    private int elapsedTime;
+    private int lapTime;
+    /** Keep previous timestamp. */
+    private Integer prevTime;
+    /** Alert Message when a special enemy appears. */
+    private String alertMessage;
+    /** checks if it's executed. */
+    private boolean isExecuted = false;
+    /** Timer */
+    private Timer timer;
+    /** Spider webs restricting player movement */
+    private List<Web> web;
+    /** Obstacles preventing a player's bullet */
+    private List<Block> block;
 
-		switch (gameSettings.difficulty()) {
-			case 0 -> {
-				if ((level%3 == 0 && level < 5) || (level % 2 == 0 && level >= 5) ) isUpgradeLevel = true;
-			}
-			case 1 -> {
-				shootIntervalInc = 200;
-				shootIntervalThreshold = 200;
-				if(level % 2 == 0)  isUpgradeLevel = true;
-				else if (level >= 5) {
-					isUpgradeLevel = true;
-					speedInc = 20;
-				}
-			}
-			case 2 -> {
-				speedInc = 20;
-				shootIntervalInc = 300;
-				if (level%2 == 0 && level < 5) isUpgradeLevel = true;
-				else if (level >= 5) {
-					isUpgradeLevel = true;
-					shootIntervalInc = 400;
-					formInc = 2;
-				}
-			}
-		}
+    private final List<Blocker> blockers = new ArrayList<>();
+    /** Singleton instance of SoundManager */
+    private final SoundManager soundManager = SoundManager.getInstance();
+    /** Singleton instance of ItemManager. */
+    private ItemManager itemManager;
+    /** Item boxes that dropped when kill enemy ships. */
+    private Set<ItemBox> itemBoxes;
+    /** Barriers appear in game screen. */
+    private Set<Barrier> barriers;
+    /** Sound balance for each player*/
+    private float balance = 0.0f;
 
-		if (isUpgradeLevel) {
-			if (checkFormation) tempFormationWidth += formInc;
-			else if (checkFormHeight) tempFormationHeight += formInc;
+    private int maxBlockers = 0;
 
-			tempBaseSpeed = checkSpeed.check(speedInc, speedThreshold) ?
-					origin.baseSpeed - speedInc : speedThreshold;
+    private int hitBullets;
 
-			tempShootInterval = checkShootInterval.check(shootIntervalInc, shootIntervalThreshold) ?
-					origin.shootInterval - shootIntervalInc : baseShootInterval;
-		}
-		this(origin.level + 1, origin.score, (tempBonusLife ? origin.livesRemaining + 1 : origin.livesRemaining),
-				origin.bulletsShoot, origin.shipsDestroyed, origin.elapsedTime, tempBonusLife,
-				tempFormationWidth, tempFormationHeight, tempBaseSpeed, tempShootInterval,
-				origin.maxCombo, origin.prevTime, origin.prevScore, origin.hitBullets);
-	}
-
-	public double getAccuracy() {
-		if (bulletsShoot == 0){
-			return 0;
-		}
-		return ((double) hitBullets / bulletsShoot) * 100;
-	}
 }

@@ -26,7 +26,7 @@ import entity.*;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  * 
  */
-public class GameScreen extends Screen implements Callable<GameState> {
+public class GameScreen extends Screen implements Callable<GameLevelState> {
 
 	/** Milliseconds until the screen accepts user input. */
 	private static final int INPUT_DELAY = 6000;
@@ -121,14 +121,14 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 	private int maxBlockers = 0;
 
-	private final GameState gameState;
+	private final GameLevelState gameLevelState;
 
 	private int hitBullets;
 
     /**
 	 * Constructor, establishes the properties of the screen.
 	 * 
-	 * @param gameState
+	 * @param gameLevelState
 	 *            Current game state.
 	 * @param gameSettings
 	 *            Current game settings.
@@ -139,24 +139,24 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 * @param fps
 	 *            Frames per second, frame rate at which the game is run.
 	 */
-	public GameScreen(final GameState gameState,
+	public GameScreen(final GameLevelState gameLevelState,
 			final GameSettings gameSettings, final int width, final int height, final int fps) {
 		super(width, height, fps);
 
 		this.gameSettings = gameSettings;
-		this.gameState = gameState;
-		this.bonusLife = gameState.bonusLife();
-		this.level = gameState.level();
-		this.score = gameState.score();
-		this.elapsedTime = gameState.elapsedTime();
-		this.lives = gameState.livesRemaining();
-		this.bulletsShoot = gameState.bulletsShoot();
-		this.shipsDestroyed = gameState.shipsDestroyed();
+		this.gameLevelState = gameLevelState;
+		this.bonusLife = gameLevelState.bonusLife();
+		this.level = gameLevelState.level();
+		this.score = gameLevelState.score();
+		this.elapsedTime = gameLevelState.elapsedTime();
+		this.lives = gameLevelState.livesRemaining();
+		this.bulletsShoot = gameLevelState.bulletsShoot();
+		this.shipsDestroyed = gameLevelState.shipsDestroyed();
 		this.playerNumber = -1;
-		this.maxCombo = gameState.maxCombo();
-		this.lapTime = gameState.prevTime();
-		this.tempScore = gameState.prevScore();
-		this.hitBullets = gameState.hitBullets();
+		this.maxCombo = gameLevelState.maxCombo();
+		this.lapTime = gameLevelState.prevTime();
+		this.tempScore = gameLevelState.prevScore();
+		this.hitBullets = gameLevelState.hitBullets();
 		this.shipType = gameSettings.shipType();
 
 		try {
@@ -174,7 +174,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	/**
 	 * Constructor, establishes the properties of the screen for two player mode.
 	 *
-	 * @param gameState
+	 * @param gameLevelState
 	 *            Current game state.
 	 * @param gameSettings
 	 *            Current game settings.
@@ -187,11 +187,11 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 * @param playerNumber
 	 *            Player number for two player mode
 	 */
-	public GameScreen(final GameState gameState,
+	public GameScreen(final GameLevelState gameLevelState,
 					  final GameSettings gameSettings,
 					  final int width, final int height, final int fps,
 					  final int playerNumber) {
-		this(gameState, gameSettings, width, height, fps);
+		this(gameLevelState, gameSettings, width, height, fps);
 		this.playerNumber = playerNumber;
 		this.balance = switch (playerNumber) {
 			case 0: yield -1.0f; // 1P
@@ -207,7 +207,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	public final void initialize() {
 		super.initialize();
 
-		enemyShipFormation = new EnemyShipFormation(this.gameSettings, this.gameState);
+		enemyShipFormation = new EnemyShipFormation(this.gameSettings, this.gameLevelState);
 		enemyShipFormation.attach(this);
         // Appears each 10-30 seconds.
         this.ship = ShipFactory.create(this.shipType, this.width / 2, this.height - 30);
@@ -224,7 +224,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		//Create random Block.
 		int blockCount = level / 2;
 		int playerTopYContainBarrier = this.height - 40 - 150;
-		int enemyBottomY = 100 + (gameState.formationHeight() - 1) * 48;
+		int enemyBottomY = 100 + (gameLevelState.formationHeight() - 1) * 48;
 		this.block = new ArrayList<>();
 		for (int i = 0; i < blockCount; i++) {
 			Block newBlock;
@@ -892,11 +892,11 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 * 
 	 * @return Current game state.
 	 */
-	public final GameState getGameState() {
-		return new GameState(this.level, this.score, this.lives,
+	public final GameLevelState getGameState() {
+		return new GameLevelState(this.level, this.score, this.lives,
 				this.bulletsShoot, this.shipsDestroyed, this.elapsedTime, this.bonusLife,
-				this.gameState.formationWidth(), this.gameState.formationHeight(),
-				this.gameState.baseSpeed(), this.gameState.shootInterval(),
+				this.gameLevelState.formationWidth(), this.gameLevelState.formationHeight(),
+				this.gameLevelState.baseSpeed(), this.gameLevelState.shootInterval(),
 				this.maxCombo, this.lapTime, this.tempScore, this.hitBullets);
 	}
 
@@ -907,7 +907,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	 * @return Current game state.
 	 */
 	@Override
-	public final GameState call() {
+	public final GameLevelState call() {
 		run();
 		return getGameState();
 	}

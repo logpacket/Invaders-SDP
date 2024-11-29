@@ -71,7 +71,7 @@ public final class Core {
 		AchievementManager achievementManager = new AchievementManager();
 
 		Menu menu = Menu.MAIN;
-		GameState gameState = new GameState();
+		GameLevelState gameLevelState = new GameLevelState();
 		GameSettings gameSettings = null;
 		String playerName = "";
 		Screen currentScreen;
@@ -100,16 +100,16 @@ public final class Core {
 
 					do {
 						long startTime = System.currentTimeMillis();
-						currentScreen = new GameScreen(gameState, gameSettings, width, height, FPS);
+						currentScreen = new GameScreen(gameLevelState, gameSettings, width, height, FPS);
 
 						menu = frame.setScreen(currentScreen);
 
-						gameState = ((GameScreen) currentScreen).getGameState();
-						gameState = new GameState(gameState, gameSettings);
+						gameLevelState = ((GameScreen) currentScreen).getGameState();
+						gameLevelState = new GameLevelState(gameLevelState, gameSettings);
 
 						long endTime = System.currentTimeMillis();
-						achievementManager.updatePlaying(gameState.maxCombo(),(int) (endTime - startTime) / 1000, gameSettings.maxLives(), gameState.livesRemaining(), gameState.level() - 1);
-					} while (gameState.livesRemaining() > 0);
+						achievementManager.updatePlaying(gameLevelState.maxCombo(),(int) (endTime - startTime) / 1000, gameSettings.maxLives(), gameLevelState.livesRemaining(), gameLevelState.level() - 1);
+					} while (gameLevelState.livesRemaining() > 0);
 					break;
 
 				case MULTI_PLAY:
@@ -118,14 +118,14 @@ public final class Core {
 					frame.setSize(WIDTH*2, HEIGHT);
 					frame.moveToMiddle();
 
-					currentScreen = new TwoPlayerScreen(gameState, gameSettings, width, height, FPS);
+					currentScreen = new TwoPlayerScreen(gameLevelState, gameSettings, width, height, FPS);
 					menu = frame.setScreen(currentScreen);
 
 					frame.setSize(WIDTH, HEIGHT);
 					frame.moveToMiddle();
 					DrawManager.getInstance().setFrame(frame);
 
-					gameState = ((TwoPlayerScreen) currentScreen).getWinnerGameState();
+					gameLevelState = ((TwoPlayerScreen) currentScreen).getWinnerGameState();
 					int winnerNumber = ((TwoPlayerScreen) currentScreen).getWinnerNumber();
 					playerName = winnerNumber == 1 ? gameSettings.playerName1() : gameSettings.playerName2();
 
@@ -134,12 +134,12 @@ public final class Core {
 				case SCORE:
 					assert gameSettings != null;
 
-					achievementManager.updatePlayed(gameState.getAccuracy(), gameState.score());
+					achievementManager.updatePlayed(gameLevelState.getAccuracy(), gameLevelState.score());
 					achievementManager.updateAllAchievements();
-					currentScreen = new ScoreScreen(playerName, width, height, FPS, gameState, achievementManager, gameSettings.isMultiplayer());
+					currentScreen = new ScoreScreen(playerName, width, height, FPS, gameLevelState, achievementManager, gameSettings.isMultiplayer());
 
 					menu = frame.setScreen(currentScreen);
-					gameState = new GameState();
+					gameLevelState = new GameLevelState();
 					break;
 
 				case SHOP:
