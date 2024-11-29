@@ -1,21 +1,14 @@
 package screen;
 
 import engine.*;
-import engine.network.Event;
-import engine.network.NetworkManager;
-import engine.network.Status;
-import message.User;
+import service.SignUpService;
 
 import java.awt.event.KeyEvent;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class SignUpScreen extends Screen {
 
     private static final int SELECTION_TIME = 200;
     private static final int ALERT_TIME = 1500;
-    private static final int SUCCESS_TIME = 3000;
 
     /** Singleton instance of SoundManager */
     private final SoundManager soundManager = SoundManager.getInstance();
@@ -27,20 +20,16 @@ public class SignUpScreen extends Screen {
     private boolean isUsernameActive;
     private boolean isPasswordActive;
     private boolean isConfirmPasswordActive;
+    private final SignUpService signUpService = new SignUpService();
 
     private final Cooldown selectionCooldown;
     private final Cooldown alertCooldown;
-    private final Cooldown successCooldown;
-
-    private Future<Event> response;
-    private boolean signUpSuccess;
 
     public SignUpScreen(final int width, final int height, final int fps) {
         super(width, height, fps);
 
         this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
         this.alertCooldown = Core.getCooldown(ALERT_TIME);
-        this.successCooldown = Core.getCooldown(SUCCESS_TIME);
 
         this.usernameInput = "";
         this.passwordInput = "";
@@ -48,7 +37,6 @@ public class SignUpScreen extends Screen {
         this.isUsernameActive = true;
         this.isPasswordActive = false;
         this.isConfirmPasswordActive = false;
-        this.signUpSuccess = false;
         this.menu = Menu.SIGN_UP;
     }
 
@@ -57,6 +45,17 @@ public class SignUpScreen extends Screen {
         super.update();
         draw();
         handleInput();
+    }
+
+    private void signUp() {
+        signUpService.signUp(usernameInput, passwordInput, _ -> {
+            this.menu = Menu.LOGIN;
+            isRunning = false;
+        },
+        _ -> {
+            soundManager.playSound(Sound.COIN_INSUFFICIENT);
+            alertCooldown.reset();
+        });
     }
 
     private void handleInput() {
@@ -78,7 +77,7 @@ public class SignUpScreen extends Screen {
                 this.selectionCooldown.reset();
             }
 
-            for (int keyCode = KeyEvent.VK_A; keyCode <= KeyEvent.VK_Z; keyCode++) {
+            for (int keyCode = KeyEvent.VK_0; keyCode <= KeyEvent.VK_Z; keyCode++) {
                 if (inputManager.isKeyDown(keyCode)) {
                     if (isUsernameActive && usernameInput.length() < 20) {
                         usernameInput += (char) keyCode;
@@ -88,22 +87,6 @@ public class SignUpScreen extends Screen {
                         soundManager.playSound(Sound.MENU_TYPING);
                     } else if (isConfirmPasswordActive && confirmPasswordInput.length() < 20) {
                         confirmPasswordInput += (char) keyCode;
-                        soundManager.playSound(Sound.MENU_TYPING);
-                    }
-                    this.selectionCooldown.reset();
-                }
-            }
-
-            for (int keyCode = KeyEvent.VK_0; keyCode <= KeyEvent.VK_9; keyCode++) {
-                if (inputManager.isKeyDown(keyCode)) {
-                    if (isUsernameActive && usernameInput.length() < 20) {
-                        usernameInput += (char) (keyCode);
-                        soundManager.playSound(Sound.MENU_TYPING);
-                    } else if (isPasswordActive && passwordInput.length() < 20) {
-                        passwordInput += (char) (keyCode);
-                        soundManager.playSound(Sound.MENU_TYPING);
-                    } else if (isConfirmPasswordActive && confirmPasswordInput.length() < 20) {
-                        confirmPasswordInput += (char) (keyCode);
                         soundManager.playSound(Sound.MENU_TYPING);
                     }
                     this.selectionCooldown.reset();
@@ -124,26 +107,9 @@ public class SignUpScreen extends Screen {
                 this.selectionCooldown.reset();
             }
 
-            if (inputManager.isKeyDown(KeyEvent.VK_ENTER)) {
-                if (validateSignUp()) {
-                    if (response == null)
-                        response = NetworkManager.getInstance()
-                                .request("signup", new User(this.usernameInput, this.passwordInput));
-                    else if (response.isDone()){
-                        try {
-                            Event event = response.get();
-                            if (event.status() == Status.OK) {
-                                signUpSuccess = true;
-                                isRunning = false;
-                                this.menu = Menu.LOGIN;
-                            }
-                            else { response = null; }
-                        }
-                        catch (ExecutionException | InterruptedException e) {
-                            logger.warning(e.getMessage());
-                            Thread.currentThread().interrupt();
-                        }
-                    }
+            if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
+                if (validateInput()) {
+                    signUp();
                     soundManager.playSound(Sound.MENU_CLICK);
                 } else {
                     soundManager.playSound(Sound.COIN_INSUFFICIENT);
@@ -158,25 +124,18 @@ public class SignUpScreen extends Screen {
         }
     }
 
-    private boolean validateSignUp() {
-        if (usernameInput.isEmpty() || passwordInput.isEmpty() || confirmPasswordInput.isEmpty()) {
+    private boolean validateInput() {
+
+        if (usernameInput.isEmpty() || passwordInput.isEmpty() || confirmPasswordInput.isEmpty())
             return false;
-        }
-        if (!passwordInput.equals(confirmPasswordInput)) {
-            return false;
-        }
-        return true;
+        return passwordInput.equals(confirmPasswordInput);
     }
 
     private void draw() {
         drawManager.initDrawing(this);
 
         drawManager.drawSignUpScreen(this, usernameInput, passwordInput, confirmPasswordInput,
-                isUsernameActive, isPasswordActive, isConfirmPasswordActive, !alertCooldown.checkFinished(), signUpSuccess);
-
-        if (signUpSuccess && successCooldown.checkFinished()) {
-            this.menu = Menu.LOGIN;
-        }
+                isUsernameActive, isPasswordActive, isConfirmPasswordActive, !alertCooldown.checkFinished());
 
         drawManager.completeDrawing(this);
     }

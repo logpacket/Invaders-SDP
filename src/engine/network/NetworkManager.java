@@ -2,20 +2,17 @@ package engine.network;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import engine.Core;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import engine.Core;
 import message.Ping;
 import org.reflections.Reflections;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +28,7 @@ public final class NetworkManager {
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final Map<String, EventHandler> eventHandlers = new HashMap<>();
     private static long latency = 0L;
+    private final Set<UUID> requestSet = new HashSet<>();
 
     private NetworkManager() {
         try {
@@ -69,6 +67,7 @@ public final class NetworkManager {
     }
 
     private void dispatch(Event event) {
+        requestSet.remove(event.id());
         eventHandlers.get(event.name()).handle(event);
     }
 
@@ -105,8 +104,10 @@ public final class NetworkManager {
         eventHandlers.put(key, handler);
     }
 
-    public void sendEvent(String eventName, Body body) {
-        Event event = new Event(eventName, body, Status.OK, System.currentTimeMillis());
+    public UUID sendEvent(String eventName, Body body) {
+        UUID requestId = UUID.randomUUID();
+        requestSet.add(requestId);
+        Event event = new Event(eventName, body, requestId, System.currentTimeMillis());
         executor.execute(() -> {
             try{
                 mapper.writeValue(writer, event);
@@ -118,16 +119,15 @@ public final class NetworkManager {
                 logger.log(Level.WARNING, "Packet send failed", e);
             }
         });
+        return requestId;
     }
 
-    public Future<Event> request(String eventName, Body body) {
-        sendEvent(eventName, body);
-        return executor.submit(() -> {
-            AtomicReference<Event> result = new AtomicReference<>();
-            registerEventHandler(eventName, result::set);
-            while (result.get() == null);
-            return result.get();
-        });
+    public boolean isDone(UUID requestId) {
+        return !requestSet.contains(requestId);
+    }
+
+    public boolean isRequested(UUID requestId) {
+        return requestSet.contains(requestId);
     }
 
     public void close() {

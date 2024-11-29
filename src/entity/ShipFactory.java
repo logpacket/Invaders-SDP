@@ -1,6 +1,9 @@
 package entity;
 
-import entity.ship.*;
+import entity.ship.CosmicCruiser;
+import entity.ship.GalacticGuardian;
+import entity.ship.StarDefender;
+import entity.ship.VoidReaper;
 
 /**
  * Factory for creating ships.

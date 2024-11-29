@@ -1,11 +1,11 @@
 package screen;
 
+import engine.*;
+import entity.Achievement;
+
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.List;
-
-import engine.*;
-import entity.Achievement;
 
 /**
  * Implements the achievement screen.
