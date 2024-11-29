@@ -420,7 +420,7 @@ public final class Renderer {
 
 	public void drawRectEntity(final RectEntity rectEntity){
 		backBufferGraphics.setColor(rectEntity.getColor());
-		if (rectEntity.getIsFilled())
+		if (rectEntity.isFilled())
 			backBufferGraphics.fillRect(rectEntity.getPositionX(), rectEntity.getPositionY(),
 					rectEntity.getWidth(), rectEntity.getHeight());
 		else

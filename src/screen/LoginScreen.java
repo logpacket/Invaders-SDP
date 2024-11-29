@@ -57,7 +57,7 @@ public class LoginScreen extends Screen {
      */
     protected final void update() {
         super.update();
-        this.createEntity();
+        createEntity();
         draw();
         handleInput();
     }

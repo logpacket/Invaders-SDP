@@ -8,6 +8,7 @@ public class RotatedSpriteEntity extends SpriteEntity{
     public RotatedSpriteEntity(final int positionX, final int positionY, final int width,
 						final int height, final Color color, final double angle) {
         super(positionX, positionY, width, height, color);
+        this.angle = angle;
     }
 
     public double getAngle(){ return angle;}

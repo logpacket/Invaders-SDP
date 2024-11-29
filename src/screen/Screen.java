@@ -66,6 +66,7 @@ public abstract class Screen {
 		this.menu = Menu.MAIN;
 		this.frontBufferEntities = new ArrayList<Entity>();
 		this.backBufferEntities = new ArrayList<Entity>();
+		renderer.initDrawing(this);
 	}
 
 	/**

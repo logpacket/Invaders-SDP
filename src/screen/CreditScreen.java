@@ -1,9 +1,6 @@
 package screen;
 
-import engine.FileManager;
-import engine.Menu;
-import engine.Sound;
-import engine.SoundManager;
+import engine.*;
 
 import java.awt.event.KeyEvent;
 import java.io.IOException;

@@ -142,7 +142,7 @@ public class SignUpScreen extends Screen {
 
     protected void createEntity(){
         backBufferEntities.addAll(EntityFactory.createSignUpScreen(this, usernameInput, passwordInput,
-                confirmPasswordInput, isUsernameActive, isPasswordActive, isConfirmPasswordActive,
+                confirmPasswordInput, isUsernameActive,
                 !alertCooldown.checkFinished()));
 
         swapBuffers();
