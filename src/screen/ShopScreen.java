@@ -1,12 +1,12 @@
 package screen;
 
-import java.awt.event.KeyEvent;
-
 import engine.Cooldown;
 import engine.Core;
 import engine.Sound;
 import engine.SoundManager;
 import entity.Wallet;
+
+import java.awt.event.KeyEvent;
 
 public class ShopScreen extends Screen {
 

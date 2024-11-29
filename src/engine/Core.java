@@ -1,14 +1,10 @@
 package engine;
 
-import java.io.IOException;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import engine.network.NetworkManager;
 import screen.*;
+
+import java.io.IOException;
+import java.util.logging.*;
 
 /**
  * Implements core game logic.
@@ -70,7 +66,7 @@ public final class Core {
 
 		AchievementManager achievementManager = new AchievementManager();
 
-		Menu menu = Menu.MAIN;
+		Menu menu = Menu.LOGIN;
 		GameState gameState = new GameState();
 		GameSettings gameSettings = null;
 		String playerName = "";
