@@ -1,8 +1,9 @@
 package entity;
 
 import engine.DrawManager.SpriteType;
-import java.util.Random;
+
 import java.awt.*;
+import java.util.Random;
 
 public class Blocker extends Entity {
 

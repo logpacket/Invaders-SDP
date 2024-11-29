@@ -1,9 +1,9 @@
 package screen;
 
+import engine.*;
+
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-
-import engine.*;
 
 /**
  * Implements a generic screen.

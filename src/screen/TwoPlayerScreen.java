@@ -1,6 +1,8 @@
 package screen;
 
-import engine.*;
+import engine.GameSettings;
+import engine.GameState;
+import engine.Menu;
 
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutorService;

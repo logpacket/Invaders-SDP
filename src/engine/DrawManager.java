@@ -1,21 +1,19 @@
 package engine;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.awt.Graphics2D;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-
 import entity.*;
 import screen.Screen;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Manages screen drawing.
@@ -1987,8 +1985,8 @@ public final class DrawManager {
 		String loginTitle = "Login";
 		String usernameLabel = "Username: ";
 		String passwordLabel = "Password: ";
-		String loginButton = "Press ENTER to Login";
-		String signUpButton = "Press ENTER to Sign Up";
+		String loginButton = "Press SPACE to Login";
+		String signUpButton = "Press SPACE to Sign Up";
 		String alertMessage = "Invalid Username or Password";
 
 		int titleY = Math.round(screen.getHeight() * 0.15f);
@@ -2028,15 +2026,14 @@ public final class DrawManager {
 	public void drawSignUpScreen(final Screen screen, final String usernameInput, final String passwordInput,
 								 final String confirmPasswordInput, final boolean isUsernameActive,
 								 final boolean isPasswordActive, final boolean isConfirmPasswordActive,
-								 final boolean showAlert, final boolean signUpSuccess) {
+								 final boolean showAlert) {
 
 		String signUpTitle = "Sign Up";
 		String usernameLabel = "Username: ";
 		String passwordLabel = "Password: ";
 		String confirmPasswordLabel = "Confirm: ";
-		String signUpButton = "Press ENTER to Sign Up";
-		String alertMessage = "Passwords do not match or fields are empty!";
-		String successMessage = "Sign Up Successful!";
+		String signUpButton = "Press SPACE to Sign Up";
+		String alertMessage = "Duplicate username";
 
 		int titleY = Math.round(screen.getHeight() * 0.15f);
 		int inputStartX = screen.getWidth() / 5;
@@ -2070,10 +2067,7 @@ public final class DrawManager {
 
 		if (showAlert) {
 			backBufferGraphics.setColor(Color.RED);
-			drawCenteredBigString(screen, alertMessage, inputStartY + 4 * inputSpacing);
-		} else if (signUpSuccess) {
-			backBufferGraphics.setColor(Color.GREEN);
-			drawCenteredBigString(screen, successMessage, inputStartY + 4 * inputSpacing);
+			drawCenteredRegularString(screen, alertMessage, inputStartY + 4 * inputSpacing);
 		}
 	}
 }

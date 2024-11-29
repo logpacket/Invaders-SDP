@@ -1,12 +1,11 @@
 package entity;
 
-import java.util.*;
-import java.util.List;
-import java.util.logging.Logger;
-
 import engine.*;
 import engine.DrawManager.SpriteType;
 import screen.Screen;
+
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Groups enemy ships into a formation that moves together.
