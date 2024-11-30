@@ -218,22 +218,6 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	}
 
 	/**
-	 * Draws every individual component of the formation for two player mode.
-	 */
-	public final void draw(final int playerNumber) {
-		for (List<EnemyShip> column : this.enemyShipsGrid)
-			for (EnemyShip enemyShip : column)
-				if (enemyShip != null)
-					renderer.drawSpriteEntity(enemyShip, enemyShip.getPositionX(),
-							enemyShip.getPositionY(), playerNumber);
-
-        for(EnemyShip enemyShip : this.enemyShipsDivers) {
-            renderer.drawSpriteEntity(enemyShip, enemyShip.getPositionX(),
-                    enemyShip.getPositionY(), playerNumber);
-        }
-    }
-
-	/**
 	 * Updates the position of the ships.
 	 */
 	public final void update() {

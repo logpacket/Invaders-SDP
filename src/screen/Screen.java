@@ -40,8 +40,7 @@ public abstract class Screen {
 	/** What kind of screen goes next. */
 	protected Menu menu;
 
-	protected List<Entity> backBufferEntities;
-	protected List<Entity> frontBufferEntities;
+	protected List<Entity> entityList;
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -64,8 +63,7 @@ public abstract class Screen {
 		this.inputDelay = Core.getCooldown(INPUT_DELAY);
 		this.inputDelay.reset();
 		this.menu = Menu.MAIN;
-		this.frontBufferEntities = new ArrayList<Entity>();
-		this.backBufferEntities = new ArrayList<Entity>();
+		this.entityList = new ArrayList<Entity>();
 	}
 
 	/**
@@ -105,6 +103,7 @@ public abstract class Screen {
 	protected void update() {
 		updateEntity();
 		draw();
+		entityList.clear();
 	}
 
 	/**
@@ -114,7 +113,7 @@ public abstract class Screen {
 
 	protected void draw() {
         renderer.initDrawing(this);
-        renderer.drawEntities(frontBufferEntities);
+        renderer.drawEntities(entityList);
         renderer.completeDrawing(this);
     }
 
@@ -136,11 +135,4 @@ public abstract class Screen {
 		return this.height;
 	}
 
-	public void swapBuffers() {
-		List<Entity> temp = frontBufferEntities;
-		frontBufferEntities = backBufferEntities;
-		backBufferEntities = temp;
-
-		backBufferEntities.clear();
-	}
 }

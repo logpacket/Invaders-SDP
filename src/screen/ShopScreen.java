@@ -187,58 +187,57 @@ public class ShopScreen extends Screen {
         int coinTextStartY = this.getHeight()/160*71;
         int coinTextDis = this.getHeight()/80*12;
 
-        backBufferEntities.add(EntityFactory.createCenteredBigString(this, shopString, shopStringY, Color.GREEN));
-        backBufferEntities.add(EntityFactory.createImageEntity(this.getWidth()/80*39-(coinString.length()-3)*this.getWidth()/80,
+        entityList.add(EntityFactory.createCenteredBigString(this, shopString, shopStringY, Color.GREEN));
+        entityList.add(EntityFactory.createImageEntity(this.getWidth()/80*39-(coinString.length()-3)*this.getWidth()/80,
                 this.getHeight()/80*18, Color.GREEN, coinSize, coinSize, imgCoin));
-        backBufferEntities.add(EntityFactory.createTextEntity(this.getWidth()/80*44-(coinString.length()-3)*this.getWidth()/80,
+        entityList.add(EntityFactory.createTextEntity(this.getWidth()/80*44-(coinString.length()-3)*this.getWidth()/80,
                 this.getHeight()/80*20, Color.WHITE, coinString, FontManager.getFontRegular()));
 
         for(int i = 0;i<4;i++) {
-            backBufferEntities.add(EntityFactory.createCenteredRegularString(this, itemString[i],
+            entityList.add(EntityFactory.createCenteredRegularString(this, itemString[i],
                     this.getHeight() / 80 * (28 + 12 * i), Color.WHITE));
             for (int j = 0; j < 3; j++)
             {
                 if (j + 2 <= walletLevel[i])
                 {
-                    backBufferEntities.add(EntityFactory.createRectEntity(this.getWidth() / 40 * (33 / 2) +
+                    entityList.add(EntityFactory.createRectEntity(this.getWidth() / 40 * (33 / 2) +
                             j * (this.getWidth() / 10), this.getHeight() / 80 * (30 + 12*i),
                             Color.GREEN,20, 20, true));
                 } else
                 {
-                    backBufferEntities.add(EntityFactory.createRectEntity(this.getWidth() / 40 * (33 / 2) +
+                    entityList.add(EntityFactory.createRectEntity(this.getWidth() / 40 * (33 / 2) +
                             j * (this.getWidth() / 10), this.getHeight() / 80 * (30 + 12*i),
                             Color.WHITE,20, 20, true));
                 }
             }
         }
 
-        backBufferEntities.add(EntityFactory.createImageEntity(imgStartX,
+        entityList.add(EntityFactory.createImageEntity(imgStartX,
                 imgStartY + (imgDis*(selectedItem-1)),Color.WHITE,50,40,itemImages[selectedItem-1]));
-        backBufferEntities.add(EntityFactory.createImageEntity(coinStartX,
+        entityList.add(EntityFactory.createImageEntity(coinStartX,
                 coinStartY + (coinDis*(selectedItem-1)),Color.WHITE,coinSize,coinSize,imgCoin));
-        backBufferEntities.add(new TextEntity(coinTextStartX,
+        entityList.add(new TextEntity(coinTextStartX,
                 coinTextStartY + (coinTextDis*(selectedItem-1)),Color.WHITE,"X "+costs[walletLevel[selectedItem-1]-1],FontManager.getFontRegular()));
 
-        backBufferEntities.add(EntityFactory.createCenteredRegularString(this,
+        entityList.add(EntityFactory.createCenteredRegularString(this,
                 exitString,this.getHeight()/80*80,Color.WHITE));
 
         if (!moneyAlertCooldown.checkFinished())
         {
-            backBufferEntities.add(EntityFactory.createRectEntity((this.getWidth()-300)/2,
+            entityList.add(EntityFactory.createRectEntity((this.getWidth()-300)/2,
                     (this.getHeight()-100)/2,Color.red,300, 80, true));
-            backBufferEntities.add(EntityFactory.createCenteredBigString(this,"Insufficient coin",
+            entityList.add(EntityFactory.createCenteredBigString(this,"Insufficient coin",
                     this.getHeight()/2, Color.black));
         }
 
         if(!maxAlertCooldown.checkFinished())
         {
-            backBufferEntities.add(EntityFactory.createRectEntity((this.getWidth()-300)/2,
+            entityList.add(EntityFactory.createRectEntity((this.getWidth()-300)/2,
                     (this.getHeight()-100)/2,Color.red,300, 80, true));
-            backBufferEntities.add(EntityFactory.createCenteredBigString(this,"Already max level",
+            entityList.add(EntityFactory.createCenteredBigString(this,"Already max level",
                     this.getHeight()/2, Color.black));
         }
 
-        swapBuffers();
     }
 
     public boolean upgrade(int level)

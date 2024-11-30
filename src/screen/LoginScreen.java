@@ -176,10 +176,8 @@ public class LoginScreen extends Screen {
     }
 
     protected void updateEntity(){
-        backBufferEntities.addAll(EntityFactory.createLoginScreen(this, usernameInput, passwordInput,
+        entityList.addAll(EntityFactory.createLoginScreen(this, usernameInput, passwordInput,
                 isUsernameActive, isPasswordActive, selectedOption, !alertCooldown.checkFinished()));
-
-        swapBuffers();
     }
 
     /**

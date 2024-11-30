@@ -67,8 +67,7 @@ public class GameSettingScreen extends Screen {
 
 		// row 3: start
 		this.selectedRow = 0;
-		this.frontBufferEntities = new ArrayList<Entity>();
-		this.backBufferEntities = new ArrayList<Entity>();
+		this.entityList = new ArrayList<Entity>();
 
 		this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
 		this.selectionCooldown.reset();
@@ -197,14 +196,14 @@ public class GameSettingScreen extends Screen {
 
 
 	protected void updateEntity(){
-		backBufferEntities.add(EntityFactory.createGameSetting(this));
 
-		backBufferEntities.add(EntityFactory.createGameSettingRow(this, this.selectedRow));
+		entityList.add(EntityFactory.createGameSetting(this));
 
-		backBufferEntities.addAll(EntityFactory.createGameSettingElements(this, this.selectedRow,
+		entityList.add(EntityFactory.createGameSettingRow(this, this.selectedRow));
+
+		entityList.addAll(EntityFactory.createGameSettingElements(this, this.selectedRow,
 				isMultiplayer, nameBuilder1.toString(), nameBuilder2.toString(), this.difficulty, this.shipType));
 
-		swapBuffers();
 	}
 
 	public GameSettings getGameSettings() {

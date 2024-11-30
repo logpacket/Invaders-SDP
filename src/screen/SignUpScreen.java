@@ -147,10 +147,9 @@ public class SignUpScreen extends Screen {
     }
 
     protected void updateEntity(){
-        backBufferEntities.addAll(EntityFactory.createSignUpScreen(this, usernameInput, passwordInput,
+        entityList.addAll(EntityFactory.createSignUpScreen(this, usernameInput, passwordInput,
                 confirmPasswordInput, isUsernameActive, isPasswordActive, isConfirmPasswordActive,
                 !alertCooldown.checkFinished(), signUpSuccess));
 
-        swapBuffers();
     }
 }

@@ -75,10 +75,9 @@ public class TitleScreen extends Screen {
 
 
 	protected void updateEntity() {
-		backBufferEntities.addAll(EntityFactory.createTitle(this));
-		backBufferEntities.addAll(EntityFactory.createMenu(this, this.menu));
+		entityList.addAll(EntityFactory.createTitle(this));
+		entityList.addAll(EntityFactory.createMenu(this, this.menu));
 
-		swapBuffers();
 	}
 
 

@@ -47,9 +47,8 @@ public class CreditScreen extends Screen{
 
 
     protected void updateEntity(){
-        backBufferEntities.addAll(EntityFactory.createEndingCredit(this, this.creditlist, currentFrame));
+        entityList.addAll(EntityFactory.createEndingCredit(this, this.creditlist, currentFrame));
 
-        swapBuffers();
     }
 
 }

@@ -162,11 +162,10 @@ public class ScoreScreen extends Screen {
 	}
 
 	protected void updateEntity(){
-		frontBufferEntities.addAll(EntityFactory.createGameOver(this, this.inputDelay.checkFinished(),
+		entityList.addAll(EntityFactory.createGameOver(this, this.inputDelay.checkFinished(),
 				this.isNewRecord));
-		frontBufferEntities.addAll(EntityFactory.createResults(this, this.score, this.livesRemaining,
+		entityList.addAll(EntityFactory.createResults(this, this.score, this.livesRemaining,
 				this.shipsDestroyed, this.accuracy, this.isNewRecord, this.coinsEarned));
 
-		swapBuffers();
 	}
 }

@@ -97,23 +97,22 @@ public class SettingScreen extends Screen {
 
 
     protected void updateEntity(){
-        backBufferEntities.add(EntityFactory.createSettingsScreen(this));
+        entityList.add(EntityFactory.createSettingsScreen(this));
 
         for (int i = 0; i < menuItems.length; i++) {
             boolean isSelected = (i == selectedItem);
-            backBufferEntities.add(EntityFactory.createCenteredRegularString(this, menuItems[i],
+            entityList.add(EntityFactory.createCenteredRegularString(this, menuItems[i],
                     this.getHeight() / 3 + i * MENU_ITEM_GAP, isSelected));
         }
 
         int filledWidth = (volumeLevel * VOLUME_BAR_WIDTH) / 100;
         boolean isVolumeSelected = (selectedItem == 0);
 
-        backBufferEntities.addAll(EntityFactory.createVolumeBar(this, this.getWidth() / 2 - VOLUME_BAR_WIDTH / 2,
+        entityList.addAll(EntityFactory.createVolumeBar(this, this.getWidth() / 2 - VOLUME_BAR_WIDTH / 2,
                 this.getHeight() / 3 + VOLUME_BAR_GAP, VOLUME_BAR_WIDTH, filledWidth, isVolumeSelected));
 
-        backBufferEntities.add(EntityFactory.createVolumePercentage(this, this.getHeight() / 3 + VOLUME_BAR_GAP
+        entityList.add(EntityFactory.createVolumePercentage(this, this.getHeight() / 3 + VOLUME_BAR_GAP
                         + VOLUME_PERCENTAGE_GAP, volumeLevel, isVolumeSelected));
 
-        swapBuffers();
     }
 }

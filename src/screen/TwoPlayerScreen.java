@@ -1,8 +1,10 @@
 package screen;
 
 import engine.*;
+import entity.Entity;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -28,6 +30,9 @@ public class TwoPlayerScreen extends Screen {
     private static final int PLAYER1_NUMBER = 0;
     /** Player 2's number**/
     private static final int PLAYER2_NUMBER = 1;
+
+    private List<Entity> player1entities;
+    private List<Entity> player2entities;
 
     /**
      * Constructor, establishes the properties of the screen.
@@ -76,14 +81,12 @@ public class TwoPlayerScreen extends Screen {
     @Override
     protected void draw() {
         renderer.initDrawing(this);
-        renderer.mergeDrawing(this);
-        renderer.drawVerticalLine(this);
+
         renderer.completeDrawing(this);
     }
 
     protected void updateEntity(){
 
-        swapBuffers();
     }
 
     /**
@@ -113,6 +116,7 @@ public class TwoPlayerScreen extends Screen {
         } catch (Exception e) {
             logger.warning(e.getMessage());
         }
+
     }
     /**
      * Progression logic each games.
@@ -125,6 +129,7 @@ public class TwoPlayerScreen extends Screen {
             GameScreen gameScreen = new GameScreen(gameState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
             gameScreen.initialize();
             players[playerNumber] = executor.submit(gameScreen);
+
         }
         else gameFinished[playerNumber] = true;
     }
@@ -136,4 +141,6 @@ public class TwoPlayerScreen extends Screen {
     public int getWinnerNumber() {
         return ((gameStates[PLAYER1_NUMBER].score() >= gameStates[PLAYER2_NUMBER].score()) ? PLAYER1_NUMBER : PLAYER2_NUMBER) + 1;
     }
+
+
 }

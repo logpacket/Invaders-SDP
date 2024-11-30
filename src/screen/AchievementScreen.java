@@ -69,11 +69,10 @@ public class AchievementScreen extends Screen {
 
 
 	protected void updateEntity(){
-		backBufferEntities.addAll(EntityFactory.createAchievementMenu(this, this.totalScore, this.totalPlayTime,
+		entityList.addAll(EntityFactory.createAchievementMenu(this, this.totalScore, this.totalPlayTime,
 				this.maxCombo, this.currentPerfectStage, this.currentPerfectStage+1,
 				this.checkFlawlessFailure));
-		backBufferEntities.addAll(EntityFactory.createHighScores(this, this.highScores));
+		entityList.addAll(EntityFactory.createHighScores(this, this.highScores));
 
-		swapBuffers();
 	}
 }
