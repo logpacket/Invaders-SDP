@@ -1,11 +1,8 @@
 package screen;
 
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import engine.*;
-import entity.Entity;
 
 
 /**
@@ -55,8 +52,6 @@ public class TitleScreen extends Screen {
 	protected final void update() {
 		super.update();
 
-		createEntity();
-		draw();
 		if (this.selectionCooldown.checkFinished()
 				&& this.inputDelay.checkFinished()) {
 			if (inputManager.isKeyDown(KeyEvent.VK_UP)
@@ -78,18 +73,8 @@ public class TitleScreen extends Screen {
 		}
 	}
 
-	/**
-	 * Draws the elements associated with the screen.
-	 */
-	private void draw() {
-		renderer.initDrawing(this);
 
-		renderer.drawEntities(frontBufferEntities);
-
-		renderer.completeDrawing(this);
-	}
-
-	protected void createEntity() {
+	protected void updateEntity() {
 		backBufferEntities.addAll(EntityFactory.createTitle(this));
 		backBufferEntities.addAll(EntityFactory.createMenu(this, this.menu));
 

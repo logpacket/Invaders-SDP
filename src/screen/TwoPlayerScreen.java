@@ -1,8 +1,6 @@
 package screen;
 
-import engine.GameSettings;
-import engine.GameState;
-import engine.Menu;
+import engine.*;
 
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutorService;
@@ -75,14 +73,15 @@ public class TwoPlayerScreen extends Screen {
     /**
      * Draws the elements associated with the screen.
      */
-    private void draw() {
+    @Override
+    protected void draw() {
         renderer.initDrawing(this);
         renderer.mergeDrawing(this);
         renderer.drawVerticalLine(this);
         renderer.completeDrawing(this);
     }
 
-    protected void createEntity(){
+    protected void updateEntity(){
 
         swapBuffers();
     }
@@ -92,7 +91,7 @@ public class TwoPlayerScreen extends Screen {
      */
     @Override
     protected final void update() {
-        draw();
+
         try {
             if (players[PLAYER1_NUMBER].isDone()) {
                 gameStates[PLAYER1_NUMBER] = players[PLAYER1_NUMBER].get();

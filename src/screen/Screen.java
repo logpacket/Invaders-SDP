@@ -66,7 +66,6 @@ public abstract class Screen {
 		this.menu = Menu.MAIN;
 		this.frontBufferEntities = new ArrayList<Entity>();
 		this.backBufferEntities = new ArrayList<Entity>();
-		renderer.initDrawing(this);
 	}
 
 	/**
@@ -104,12 +103,20 @@ public abstract class Screen {
 	 * Updates the elements on screen and checks for events.
 	 */
 	protected void update() {
+		updateEntity();
+		draw();
 	}
 
 	/**
 	 * Create Entities to BackBufferEntities And swapBuffer
 	 */
-	protected abstract void createEntity();
+	protected abstract void updateEntity();
+
+	protected void draw() {
+        renderer.initDrawing(this);
+        renderer.drawEntities(frontBufferEntities);
+        renderer.completeDrawing(this);
+    }
 
 	/**
 	 * Getter for screen width.

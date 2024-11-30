@@ -15,12 +15,12 @@ public class RectEntity extends Entity{
 		this.isFilled = isFilled;
     }
 
+	public final boolean getIsFilled() { return this.isFilled;}
+
     @Override
 	public EntityType getType() {
 		return EntityType.RECT;
 	}
-
-	public final boolean isFilled() { return this.isFilled;}
 
     /**
 	 * Getter for the width of the image associated to the entity.

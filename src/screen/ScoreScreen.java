@@ -1,12 +1,12 @@
 package screen;
 
-import engine.*;
-import entity.Wallet;
-
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+
+import engine.*;
+import entity.Wallet;
 
 /**
  * Implements the score screen.
@@ -100,8 +100,7 @@ public class ScoreScreen extends Screen {
 	@Override
 	protected final void update() {
 		super.update();
-		this.createEntity();
-		draw();
+
 		if (this.inputDelay.checkFinished()) {
 			if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
 				// Return to main menu.
@@ -162,18 +161,7 @@ public class ScoreScreen extends Screen {
 		}
 	}
 
-	/**
-	 * Draws the elements associated with the screen.
-	 */
-	private void draw() {
-		renderer.initDrawing(this);
-
-		renderer.drawEntities(frontBufferEntities);
-
-		renderer.completeDrawing(this);
-	}
-
-	protected void createEntity(){
+	protected void updateEntity(){
 		frontBufferEntities.addAll(EntityFactory.createGameOver(this, this.inputDelay.checkFinished(),
 				this.isNewRecord));
 		frontBufferEntities.addAll(EntityFactory.createResults(this, this.score, this.livesRemaining,

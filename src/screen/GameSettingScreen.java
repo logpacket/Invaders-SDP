@@ -1,5 +1,9 @@
 package screen;
 
+import engine.Cooldown;
+import engine.Core;
+import engine.GameSettings;
+import engine.InputManager;
 import engine.*;
 import entity.Entity;
 import entity.Ship;
@@ -77,8 +81,6 @@ public class GameSettingScreen extends Screen {
 	protected final void update() {
 		super.update();
 
-		createEntity();
-		draw();
 		if (this.inputDelay.checkFinished() && this.selectionCooldown.checkFinished()) {
 			if (inputManager.isKeyDown(KeyEvent.VK_UP)){
 				this.selectedRow = (this.selectedRow - 1 + TOTAL_ROWS) % TOTAL_ROWS;
@@ -174,17 +176,17 @@ public class GameSettingScreen extends Screen {
 	 *            Input manager.
 	 */
 	private void handleNameInput(InputManager inputManager) {
-		for (int keyCode = KeyEvent.VK_0; keyCode <= KeyEvent.VK_Z; keyCode++) {
+		for (int keyCode = KeyEvent.VK_A; keyCode <= KeyEvent.VK_Z; keyCode++) {
 			if (inputManager.isKeyDown(keyCode)) {
 				if (isMultiplayer) {
 					if (this.nameBuilder2.length() < NAME_LIMIT) {
-						this.nameBuilder2.append((char) keyCode);
+						this.nameBuilder2.append(keyCode);
 						this.selectionCooldown.reset();
 						soundManager.playSound(Sound.MENU_TYPING);
 					}
 				} else{
 					if (this.nameBuilder1.length() < NAME_LIMIT) {
-						this.nameBuilder1.append((char) keyCode);
+						this.nameBuilder1.append(keyCode);
 						this.selectionCooldown.reset();
 						soundManager.playSound(Sound.MENU_TYPING);
 					}
@@ -193,18 +195,8 @@ public class GameSettingScreen extends Screen {
 		}
 	}
 
-	/**
-	 * Draws the elements associated with the screen.
-	 */
-	private void draw() {
-		renderer.initDrawing(this);
 
-		renderer.drawEntities(frontBufferEntities);
-
-		renderer.completeDrawing(this);
-	}
-
-	protected void createEntity(){
+	protected void updateEntity(){
 		backBufferEntities.add(EntityFactory.createGameSetting(this));
 
 		backBufferEntities.add(EntityFactory.createGameSettingRow(this, this.selectedRow));

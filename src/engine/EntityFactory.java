@@ -471,7 +471,7 @@ public class EntityFactory {
     public static TextEntity createCenteredSmallString(final Screen screen,
                                                        final String string, final int height, final Color color){
         return new TextEntity(screen.getWidth() / 2 - FontManager.getFontSmallMetrics().stringWidth(string) / 2,
-                height, color, string, FontManager.getFontSmall());
+                height, color, string, FontManager.getFontRegular());
     }
 
     public static TextEntity createCenteredRegularString(final Screen screen,
@@ -977,11 +977,11 @@ public class EntityFactory {
 
         entities.add(createCenteredBigString(screen, loginTitle, titleY, Color.GREEN));
         entities.add(new TextEntity(inputStartX, inputStartY, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontRegular()));
-        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
         entities.add(new TextEntity(inputStartX + 160, inputStartY - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontRegular()));
 
         entities.add(new TextEntity(inputStartX, inputStartY + inputSpacing, isPasswordActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontRegular()));
-        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, isPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, isPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
 
         String maskedPassword = "*".repeat(passwordInput.length());
         entities.add(new TextEntity(inputStartX + 160, inputStartY + inputSpacing - 5, isPasswordActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontRegular()));
@@ -999,7 +999,8 @@ public class EntityFactory {
 
     public static List<Entity> createSignUpScreen(final Screen screen, final String usernameInput, final String passwordInput,
                                  final String confirmPasswordInput, final boolean isUsernameActive,
-                                 final boolean showAlert) {
+                                 final boolean isPasswordActive, final boolean isConfirmPasswordActive,
+                                 final boolean showAlert, final boolean signUpSuccess) {
 
         List<Entity> entities = new ArrayList<>();
 
@@ -1009,6 +1010,7 @@ public class EntityFactory {
         String confirmPasswordLabel = "Confirm: ";
         String signUpButton = "Press ENTER to Sign Up";
         String alertMessage = "Passwords do not match or fields are empty!";
+        String successMessage = "Sign Up Successful!";
 
         int titleY = Math.round(screen.getHeight() * 0.15f);
         int inputStartX = screen.getWidth() / 5;
@@ -1034,8 +1036,11 @@ public class EntityFactory {
 
         entities.add(createCenteredRegularString(screen, signUpButton, inputStartY + 3 * inputSpacing,Color.YELLOW));
 
-        if (showAlert)
+        if (showAlert) {
             entities.add(createCenteredBigString(screen, alertMessage, inputStartY + 4 * inputSpacing, Color.RED));
+        } else if (signUpSuccess) {
+            entities.add(createCenteredBigString(screen, successMessage, inputStartY + 4 * inputSpacing, Color.GREEN));
+        }
 
         return entities;
 

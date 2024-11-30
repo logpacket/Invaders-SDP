@@ -1,10 +1,10 @@
 package screen;
 
-import engine.*;
-
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.List;
+
+import engine.*;
 
 public class CreditScreen extends Screen{
 
@@ -38,8 +38,6 @@ public class CreditScreen extends Screen{
             this.isRunning = false;
         }
 
-        this.createEntity();
-        draw();
         if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)
                 && this.inputDelay.checkFinished()) {
             this.isRunning = false;
@@ -47,13 +45,8 @@ public class CreditScreen extends Screen{
         }
     }
 
-    private void draw(){
-        renderer.initDrawing(this);
-        renderer.drawEntities(frontBufferEntities);
-        renderer.completeDrawing(this);
-    }
 
-    protected void createEntity(){
+    protected void updateEntity(){
         backBufferEntities.addAll(EntityFactory.createEndingCredit(this, this.creditlist, currentFrame));
 
         swapBuffers();

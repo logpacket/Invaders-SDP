@@ -1,8 +1,8 @@
 package screen;
 
-import engine.*;
-
 import java.awt.event.KeyEvent;
+
+import engine.*;
 
 public class SettingScreen extends Screen {
 
@@ -92,23 +92,11 @@ public class SettingScreen extends Screen {
             }
         }
 
-        this.createEntity();
-        draw();
-    }
-
-    /**
-     * Draws the elements associated with the screen.
-     */
-    private void draw() {
-        renderer.initDrawing(this);
-
-        renderer.drawEntities(frontBufferEntities);
-
-        renderer.completeDrawing(this);
     }
 
 
-    protected void createEntity(){
+
+    protected void updateEntity(){
         backBufferEntities.add(EntityFactory.createSettingsScreen(this));
 
         for (int i = 0; i < menuItems.length; i++) {

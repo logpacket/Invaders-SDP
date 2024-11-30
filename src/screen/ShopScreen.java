@@ -8,10 +8,6 @@ import java.io.IOException;
 
 import engine.*;
 import entity.TextEntity;
-import engine.Cooldown;
-import engine.Core;
-import engine.Sound;
-import engine.SoundManager;
 import entity.Wallet;
 
 import javax.imageio.ImageIO;
@@ -88,8 +84,7 @@ public class ShopScreen extends Screen {
      */
     protected final void update() {
         super.update();
-        createEntity();
-        draw();
+
         if (this.selectionCooldown.checkFinished()
                 && this.inputDelay.checkFinished()
                 && this.moneyAlertCooldown.checkFinished()
@@ -167,15 +162,8 @@ public class ShopScreen extends Screen {
             this.selectedItem--;
     }
 
-    private void draw() {
-        renderer.initDrawing(this);
 
-        renderer.drawEntities(frontBufferEntities);
-
-        renderer.completeDrawing(this);
-    }
-
-    protected void createEntity(){
+    protected void updateEntity(){
         String shopString = "Shop";
         int shopStringY = Math.round(this.getHeight() * 0.15f);
 

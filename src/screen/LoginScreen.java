@@ -1,7 +1,6 @@
 package screen;
 
 import engine.*;
-import service.LoginService;
 
 import java.awt.event.KeyEvent;
 
@@ -20,11 +19,9 @@ public class LoginScreen extends Screen {
     private boolean isUsernameActive;
     private boolean isPasswordActive;
 
-    private final LoginService loginService = new LoginService();
-
     /** Time until alert message disappears */
-    private final Cooldown selectionCooldown;
-    private final Cooldown alertCooldown;
+    private Cooldown selectionCooldown;
+    private Cooldown alertCooldown;
 
     /** Option selected (0 = Username Input, 1 = Password Input, 2 = Login Button, 3 = Sign Up Button) */
     private int selectedOption;
@@ -40,16 +37,18 @@ public class LoginScreen extends Screen {
         super(width, height, fps);
 
         this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
-        this.alertCooldown = Core.getCooldown(ALERT_TIME);
         this.usernameInput = "";
         this.passwordInput = "";
         this.isUsernameActive = true;
         this.isPasswordActive = false;
+        this.alertCooldown = Core.getCooldown(ALERT_TIME);
         this.selectedOption = 0;
         this.menu = Menu.LOGIN;
 
         if (!soundManager.isSoundPlaying(Sound.BGM_LOGIN))
             soundManager.loopSound(Sound.BGM_LOGIN);
+
+        renderer.initDrawing(this); //to initialize FontManager.fontMetrics
     }
 
     /**
@@ -57,8 +56,6 @@ public class LoginScreen extends Screen {
      */
     protected final void update() {
         super.update();
-        createEntity();
-        draw();
         handleInput();
     }
 
@@ -93,8 +90,8 @@ public class LoginScreen extends Screen {
                 handleTextInput();
             }
 
-            if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
-                handleSpaceKey();
+            if (inputManager.isKeyDown(KeyEvent.VK_ENTER)) {
+                handleEnterKey();
             }
         }
     }
@@ -144,7 +141,7 @@ public class LoginScreen extends Screen {
     /**
      * Handles the ENTER key functionality based on the selected option.
      */
-    private void handleSpaceKey() {
+    private void handleEnterKey() {
         if (selectedOption == 0) {
             isUsernameActive = true;
             isPasswordActive = false;
@@ -152,7 +149,16 @@ public class LoginScreen extends Screen {
             isUsernameActive = false;
             isPasswordActive = true;
         } else if (selectedOption == 2) {
-            login();
+            if (validateLogin()) {
+                soundManager.playSound(Sound.MENU_CLICK);
+                if (soundManager.isSoundPlaying(Sound.BGM_LOGIN))
+                    soundManager.stopSound(Sound.BGM_LOGIN);
+                this.isRunning = false;
+
+            } else {
+                soundManager.playSound(Sound.COIN_INSUFFICIENT);
+                alertCooldown.reset();
+            }
         } else if (selectedOption == 3) {
             this.menu = Menu.SIGN_UP;
             soundManager.playSound(Sound.MENU_CLICK);
@@ -161,34 +167,15 @@ public class LoginScreen extends Screen {
     }
 
     /**
-     * Login to validate credentials
+     * Validates login credentials.
      *
+     * @return True if login is successful, false otherwise.
      */
-    private void login() {
-        loginService.login(usernameInput, passwordInput, _ -> {
-            soundManager.playSound(Sound.MENU_CLICK);
-            soundManager.stopSound(Sound.BGM_LOGIN);
-            this.menu = Menu.MAIN;
-            isRunning = false;
-        },
-        _ -> {
-            soundManager.playSound(Sound.COIN_INSUFFICIENT);
-            alertCooldown.reset();
-        });
+    private boolean validateLogin() {
+        return usernameInput.equals("ADMIN") && passwordInput.equals("1234");
     }
 
-    /**
-     * Draws the login screen elements.
-     */
-    private void draw() {
-        renderer.initDrawing(this);
-
-        renderer.drawEntities(frontBufferEntities);
-
-        renderer.completeDrawing(this);
-    }
-
-    protected void createEntity(){
+    protected void updateEntity(){
         backBufferEntities.addAll(EntityFactory.createLoginScreen(this, usernameInput, passwordInput,
                 isUsernameActive, isPasswordActive, selectedOption, !alertCooldown.checkFinished()));
 
