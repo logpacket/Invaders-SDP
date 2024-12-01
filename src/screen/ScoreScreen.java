@@ -1,12 +1,12 @@
 package screen;
 
+import engine.*;
+import entity.Wallet;
+
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
-import engine.*;
-import entity.Wallet;
 
 /**
  * Implements the score screen.

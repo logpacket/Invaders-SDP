@@ -1,14 +1,10 @@
 package engine;
 
-import java.io.IOException;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import engine.network.NetworkManager;
 import screen.*;
+
+import java.io.IOException;
+import java.util.logging.*;
 
 /**
  * Implements core game logic.
@@ -70,7 +66,7 @@ public final class Core {
 
 		AchievementManager achievementManager = new AchievementManager();
 
-		Menu menu = Menu.MAIN;
+		Menu menu = Menu.LOGIN;
 		GameLevelState gameLevelState = new GameLevelState();
 		GameSettings gameSettings = null;
 		String playerName = "";
@@ -97,6 +93,7 @@ public final class Core {
 					break;
 				case SINGLE_PLAY:
 					assert gameSettings != null;
+					GameLevelState currentGameLevelState;
 
 					do {
 						long startTime = System.currentTimeMillis();
@@ -104,12 +101,12 @@ public final class Core {
 
 						menu = frame.setScreen(currentScreen);
 
-						gameLevelState = ((GameScreen) currentScreen).getGameState();
-						gameLevelState = new GameLevelState(gameLevelState, gameSettings);
+						currentGameLevelState = ((GameScreen) currentScreen).getGameState();
+						gameLevelState = new GameLevelState(currentGameLevelState, gameSettings);
 
 						long endTime = System.currentTimeMillis();
 						achievementManager.updatePlaying(gameLevelState.maxCombo(),(int) (endTime - startTime) / 1000, gameSettings.maxLives(), gameLevelState.livesRemaining(), gameLevelState.level() - 1);
-					} while (gameLevelState.livesRemaining() > 0);
+					} while (currentGameLevelState.livesRemaining() > 0);
 					break;
 
 				case MULTI_PLAY:

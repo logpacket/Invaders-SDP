@@ -1,23 +1,16 @@
 package screen;
 
+import engine.Menu;
+import engine.*;
+import entity.*;
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
-import java.util.Timer;
-import java.util.TimerTask;
-
-
-import engine.*;
-import engine.Menu;
-import entity.*;
 
 
 /**
@@ -463,6 +456,7 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished()) {
 			//Reset alert message when level is finished
 			this.alertMessage = "";
+			this.menu = Menu.SCORE;
 			this.isRunning = false;
 		}
 	}
