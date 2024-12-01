@@ -4,26 +4,26 @@ import entity.Wallet;
 
 /**
  * Implements an object that stores the state of the game between levels.
- * 
+ *
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
- * 
+ *
  */
 public record GameState(
-	int level,
-	int score,
-	int livesRemaining,
-	int bulletsShoot,
-	int shipsDestroyed,
-	int elapsedTime,
-	boolean bonusLife,
-	int formationWidth,
-	int formationHeight,
-	int baseSpeed,
-	int shootInterval,
-	int maxCombo,
-	int prevTime,
-	int prevScore,
-	int hitBullets
+		int level,
+		int score,
+		int livesRemaining,
+		int bulletsShoot,
+		int shipsDestroyed,
+		int elapsedTime,
+		boolean bonusLife,
+		int formationWidth,
+		int formationHeight,
+		int baseSpeed,
+		int shootInterval,
+		int maxCombo,
+		int prevTime,
+		int prevScore,
+		int hitBullets
 ) {
 	private static final int EXTRA_LIFE_FREQUENCY = 3;
 	private static final int DEFAULT_FORMATION_SIZE = 4;
