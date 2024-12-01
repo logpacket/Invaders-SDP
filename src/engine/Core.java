@@ -93,6 +93,7 @@ public final class Core {
 					break;
 				case SINGLE_PLAY:
 					assert gameSettings != null;
+					GameState currentGameState;
 
 					do {
 						long startTime = System.currentTimeMillis();
@@ -100,12 +101,12 @@ public final class Core {
 
 						menu = frame.setScreen(currentScreen);
 
-						gameState = ((GameScreen) currentScreen).getGameState();
-						gameState = new GameState(gameState, gameSettings);
+						currentGameState = ((GameScreen) currentScreen).getGameState();
+						gameState = new GameState(currentGameState, gameSettings);
 
 						long endTime = System.currentTimeMillis();
 						achievementManager.updatePlaying(gameState.maxCombo(),(int) (endTime - startTime) / 1000, gameSettings.maxLives(), gameState.livesRemaining(), gameState.level() - 1);
-					} while (gameState.livesRemaining() > 0);
+					} while (currentGameState.livesRemaining() > 0);
 					break;
 
 				case MULTI_PLAY:

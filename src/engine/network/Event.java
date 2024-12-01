@@ -1,6 +1,5 @@
 package engine.network;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import message.Error;
 
 import java.util.UUID;
