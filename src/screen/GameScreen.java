@@ -2,14 +2,17 @@ package screen;
 
 import engine.Menu;
 import engine.*;
+import engine.network.NetworkManager;
 import entity.*;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.Timer;
 import java.util.concurrent.Callable;
 
 
@@ -117,8 +120,10 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	private final GameState gameState;
 
 	private int hitBullets;
+	private long ping = 0L;
 
-    /**
+
+	/**
 	 * Constructor, establishes the properties of the screen.
 	 * 
 	 * @param gameState
@@ -436,6 +441,11 @@ public class GameScreen extends Screen implements Callable<GameState> {
 			this.enemyShipFormation.updateSmooth();
 		}
 
+		if (System.currentTimeMillis() % 300 == 0) { // Ping update every 3 seconds
+			updatePing();
+		}
+
+
 		manageCollisions();
 		cleanBullets();
 		if (playerNumber >= 0)
@@ -504,6 +514,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		// Interface.
 		drawManager.drawScore(this, this.score);
 		drawManager.drawElapsedTime(this, this.elapsedTime);
+		drawManager.drawPing(this, this.ping); // Add ping
 		drawManager.drawAlertMessage(this, this.alertMessage);
 		drawManager.drawLives(this, this.lives, this.shipType);
 		drawManager.drawLevel(this, this.level);
@@ -635,6 +646,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		// Interface.
 		drawManager.drawScore(this, this.score, playerNumber);
+		drawManager.drawPing(this, this.ping, playerNumber);// Add ping
 		drawManager.drawElapsedTime(this, this.elapsedTime, playerNumber);
 		drawManager.drawAlertMessage(this, this.alertMessage, playerNumber);
 		drawManager.drawLives(this, this.lives, this.shipType, playerNumber);
@@ -915,4 +927,14 @@ public class GameScreen extends Screen implements Callable<GameState> {
 			this.lives = 0;
 		}
 	}
+
+	/**
+	 * Updates the current ping value from the NetworkManager.
+	 */
+
+	private void updatePing() {
+		this.ping = NetworkManager.getLatency();
+	}
+
+
 }

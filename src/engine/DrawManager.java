@@ -1,6 +1,7 @@
 package engine;
 
 import entity.*;
+import screen.GameScreen;
 import screen.Screen;
 
 import javax.imageio.ImageIO;
@@ -702,6 +703,42 @@ public final class DrawManager {
 		threadBufferGraphics[threadNumber].setColor(Color.DARK_GRAY);
 		drawCenteredBigString(screen, titleString, screen.getHeight() / 2, threadNumber);
 	}
+
+
+	/**
+	 * Draws the ping value on the screen
+	 *
+	 * @param screen
+	 *           Screen to draw on.
+	 * @param ping
+	 *           The latency value in milliseconds.
+	 */
+	public void drawPing(GameScreen screen, long ping) {
+		String pingText = "PING: " + ping + " MS";
+		backBufferGraphics.setFont(fontRegular);
+		backBufferGraphics.setColor(Color.WHITE);
+		backBufferGraphics.drawString(pingText, screen.getWidth() - 100, 60); // 우측 상단
+	}
+
+	/**
+	 * Draws the ping value on the screen
+	 *
+	 * @param screen
+	 *           screen to draw on.
+	 * @param ping
+	 *           The latency value in milliseconds.
+	 * @param threadNumber
+	 *           Thread number for two player mode
+	 */
+
+	public void drawPing(GameScreen  screen,final long ping, final int threadNumber) {
+		String pingText = "PING: " + ping + " MS";
+		threadBufferGraphics[threadNumber].setFont(fontRegular);
+		threadBufferGraphics[threadNumber].setColor(Color.WHITE);
+		threadBufferGraphics[threadNumber].drawString(pingText, screen.getWidth() -100, 60);
+	}
+
+
 
 
 	/**
