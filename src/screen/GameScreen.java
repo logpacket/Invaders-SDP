@@ -297,9 +297,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		if (playerNumber == -1)
 			super.update();
 		else{
-			updateEntity();
 
-			entityList.clear();
 		}
 
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
@@ -810,7 +808,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 	}
 
 	//Enemy bullet damage increases depending on stage level
-	public void levelDamage(){
+	public void levelDamage() {
 		for(int i = 0; i<= level /3; i++){
 			this.lives--;
 		}
@@ -819,5 +817,10 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		}
 	}
 
-
+	public List<Entity> getEntities() {
+		updateEntity();
+		List<Entity> tmpList = new ArrayList<>(entityList);
+		entityList.clear();
+		return tmpList;
+	}
 }

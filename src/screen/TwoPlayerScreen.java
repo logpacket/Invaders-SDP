@@ -31,6 +31,8 @@ public class TwoPlayerScreen extends Screen {
     /** Player 2's number**/
     private static final int PLAYER2_NUMBER = 1;
 
+
+    private GameScreen[] gameScreens = new GameScreen[2];
     private List<Entity> player1entities;
     private List<Entity> player2entities;
 
@@ -81,6 +83,7 @@ public class TwoPlayerScreen extends Screen {
     @Override
     protected void draw() {
         renderer.initDrawing(this);
+        renderer.drawEntities(player1entities);
 
         renderer.completeDrawing(this);
     }
@@ -117,6 +120,9 @@ public class TwoPlayerScreen extends Screen {
             logger.warning(e.getMessage());
         }
 
+        player1entities = gameScreens[PLAYER1_NUMBER].getEntities();
+        player2entities = gameScreens[PLAYER2_NUMBER].getEntities();
+        draw();
     }
     /**
      * Progression logic each games.
@@ -126,9 +132,9 @@ public class TwoPlayerScreen extends Screen {
 
         if (gameState.livesRemaining() > 0) {
             logger.info(MessageFormat.format("difficulty is {0}", gameSettings[playerNumber].difficulty()));
-            GameScreen gameScreen = new GameScreen(gameState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
-            gameScreen.initialize();
-            players[playerNumber] = executor.submit(gameScreen);
+            gameScreens[playerNumber] = new GameScreen(gameState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
+            gameScreens[playerNumber].initialize();
+            players[playerNumber] = executor.submit(gameScreens[playerNumber]);
 
         }
         else gameFinished[playerNumber] = true;
@@ -141,6 +147,4 @@ public class TwoPlayerScreen extends Screen {
     public int getWinnerNumber() {
         return ((gameStates[PLAYER1_NUMBER].score() >= gameStates[PLAYER2_NUMBER].score()) ? PLAYER1_NUMBER : PLAYER2_NUMBER) + 1;
     }
-
-
 }
