@@ -1,5 +1,6 @@
 package screen;
 
+import engine.GameLevelState;
 import engine.GameSettings;
 import engine.GameState;
 import engine.Menu;
@@ -16,6 +17,8 @@ public class TwoPlayerScreen extends Screen {
     private final ExecutorService executor;
     /** Game difficulty settings each player **/
     private final GameSettings[] gameSettings = new GameSettings[2];
+
+    private GameState gameState;
 
     /** Game states for each player **/
     private final GameLevelState[] gameLevelStates = new GameLevelState[2];
@@ -46,7 +49,7 @@ public class TwoPlayerScreen extends Screen {
      * @param fps
      *            Frames per second, frame rate at which the game is run.
      */
-    public TwoPlayerScreen(final GameLevelState gameLevelState, final GameSettings gameSettings,
+    public TwoPlayerScreen(final GameState gameState, final GameLevelState gameLevelState, final GameSettings gameSettings,
                            final int width, final int height, final int fps) {
         super(width * 2, height, fps * 2);
 
@@ -115,10 +118,11 @@ public class TwoPlayerScreen extends Screen {
      */
     private void runGameScreen(int playerNumber){
         GameLevelState gameLevelState = playerNumber == 0 ? gameLevelStates[PLAYER1_NUMBER] : gameLevelStates[PLAYER2_NUMBER];
+        GameState gameState = new GameState(gameLevelState, gameSettings[playerNumber]);
 
         if (gameLevelState.livesRemaining() > 0) {
             logger.info(MessageFormat.format("difficulty is {0}", gameSettings[playerNumber].difficulty()));
-            GameScreen gameScreen = new GameScreen(gameLevelState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
+            GameScreen gameScreen = new GameScreen(gameState, gameLevelState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
             gameScreen.initialize();
             players[playerNumber] = executor.submit(gameScreen);
         }

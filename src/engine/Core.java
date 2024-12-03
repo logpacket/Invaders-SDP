@@ -69,6 +69,7 @@ public final class Core {
 		Menu menu = Menu.LOGIN;
 		GameLevelState gameLevelState = new GameLevelState();
 		GameSettings gameSettings = null;
+		GameState gameState = null;
 		String playerName = "";
 		Screen currentScreen;
 		do {
@@ -93,15 +94,16 @@ public final class Core {
 					break;
 				case SINGLE_PLAY:
 					assert gameSettings != null;
+					gameState = new GameState(gameLevelState, gameSettings);
 					GameLevelState currentGameLevelState;
 
 					do {
 						long startTime = System.currentTimeMillis();
-						currentScreen = new GameScreen(gameLevelState, gameSettings, width, height, FPS);
+						currentScreen = new GameScreen(gameState, gameLevelState, gameSettings, width, height, FPS);
 
 						menu = frame.setScreen(currentScreen);
 
-						currentGameLevelState = ((GameScreen) currentScreen).getGameState();
+						currentGameLevelState = ((GameScreen) currentScreen).getGameLevelState();
 						gameLevelState = new GameLevelState(currentGameLevelState, gameSettings);
 
 						long endTime = System.currentTimeMillis();
@@ -111,11 +113,12 @@ public final class Core {
 
 				case MULTI_PLAY:
 					assert gameSettings != null;
+					gameState = new GameState(gameLevelState, gameSettings);
 
 					frame.setSize(WIDTH*2, HEIGHT);
 					frame.moveToMiddle();
 
-					currentScreen = new TwoPlayerScreen(gameLevelState, gameSettings, width, height, FPS);
+					currentScreen = new TwoPlayerScreen(gameState, gameLevelState, gameSettings, width, height, FPS);
 					menu = frame.setScreen(currentScreen);
 
 					frame.setSize(WIDTH, HEIGHT);
