@@ -84,7 +84,8 @@ public class TwoPlayerScreen extends Screen {
     protected void draw() {
         renderer.initDrawing(this);
         renderer.drawEntities(player1entities);
-
+        renderer.drawEntities(player2entities, this.width);
+        renderer.drawVerticalLine(this);
         renderer.completeDrawing(this);
     }
 

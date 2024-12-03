@@ -77,6 +77,6 @@ public abstract class Entity {
 	}
 
 	public enum EntityType {
-		TEXT, SPRITE, LINE, IMAGE, RECT, ARC, POLYGON, ROTATED_SPRITE
+		TEXT, SPRITE, LINE, IMAGE, RECT, ARC, POLYGON, BLOCKER
 	}
 }

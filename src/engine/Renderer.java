@@ -228,6 +228,15 @@ public final class Renderer {
 				frame.getInsets().top, frame);
 	}
 
+	public void initThreadDrawing(final Screen screen, final int threadNumber) {
+		BufferedImage threadBuffer = new BufferedImage(screen.getWidth(),screen.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics threadGraphic = threadBuffer.getGraphics();
+
+		threadBuffers[threadNumber] = threadBuffer;
+		threadBufferGraphics[threadNumber] = threadGraphic;
+	}
+
+
 	/**
 	 * Merge second buffers to back buffer
 	 *
@@ -279,8 +288,8 @@ public final class Renderer {
 				case ARC:
 					drawFillArcEntity((ArcEntity) entity);
 					break;
-				case ROTATED_SPRITE:
-					drawRotatedEntity((RotatedSpriteEntity) entity);
+				case BLOCKER:
+					drawBlockerEntity((Blocker) entity);
 					break;
                 default:
                     System.out.println("Unknown Entity type: " + entity.getClass().getSimpleName());
@@ -288,26 +297,39 @@ public final class Renderer {
 		}
 	}
 
-	/**
-	 * Draws an entity, using the appropriate image.
-	 * 
-	 * @param spriteEntity
-	 *            Entity to be drawn.
-	 * @param positionX
-	 *            Coordinates for the left side of the image.
-	 * @param positionY
-	 *            Coordinates for the upper side of the image.
-	 */
-	public void drawSpriteEntity(final SpriteEntity spriteEntity, final int positionX,
-								 final int positionY) {
-		boolean[][] image = spriteMap.get(spriteEntity.getSpriteType());
+	public void drawEntities(final List<Entity> entities, final int screenWidth) {
 
-		backBufferGraphics.setColor(spriteEntity.getColor());
-		for (int i = 0; i < image.length; i++)
-			for (int j = 0; j < image[i].length; j++)
-				if (image[i][j])
-					backBufferGraphics.drawRect(positionX + i * 2, positionY
-							+ j * 2, 1, 1);
+		int screenGap = screenWidth / 2 + LINE_WIDTH;
+		for (Entity entity : entities) {
+			switch (entity.getType()) {
+				case TEXT:
+					drawTextEntity((TextEntity) entity, screenGap);
+					break;
+				case SPRITE:
+					drawSpriteEntity((SpriteEntity) entity, screenGap);
+					break;
+				case IMAGE:
+					drawImageEntity((ImageEntity) entity, screenGap);
+					break;
+				case RECT:
+					drawRectEntity((RectEntity) entity, screenGap);
+					break;
+				case LINE:
+					drawLineEntity((LineEntity) entity, screenGap);
+					break;
+				case POLYGON:
+					drawFillPolygonEntity((PolygonEntity) entity, screenGap);
+					break;
+				case ARC:
+					drawFillArcEntity((ArcEntity) entity, screenGap);
+					break;
+				case BLOCKER:
+					drawBlockerEntity((Blocker) entity, screenGap);
+					break;
+				default:
+					System.out.println("Unknown Entity type: " + entity.getClass().getSimpleName());
+			}
+		}
 	}
 
 	public void drawSpriteEntity(final SpriteEntity spriteEntity) {
@@ -326,6 +348,7 @@ public final class Renderer {
 		backBufferGraphics.setFont(textEntity.getFont());
 		backBufferGraphics.drawString(textEntity.getText(), textEntity.getPositionX(), textEntity.getPositionY());
 	}
+
 
 	public void drawImageEntity(final ImageEntity imageEntity){
 		backBufferGraphics.setColor(imageEntity.getColor());
@@ -363,22 +386,101 @@ public final class Renderer {
 
 
 	//Drawing an Entity (Blocker) that requires angle setting
-	public void drawRotatedEntity(RotatedSpriteEntity rotatedSpriteEntity) {
+	public void drawBlockerEntity(final Blocker blocker) {
 		Graphics2D g2d = (Graphics2D) backBufferGraphics; // Convert to Graphics2D
 		AffineTransform oldTransform = g2d.getTransform(); // Save previous conversion
 
 		//Set center point to rotate
-		int centerX = rotatedSpriteEntity.getPositionX() + rotatedSpriteEntity.getWidth() / 2;
-		int centerY = rotatedSpriteEntity.getPositionY() + rotatedSpriteEntity.getHeight() / 2;
+		int centerX = blocker.getPositionX() + blocker.getWidth() / 2;
+		int centerY = blocker.getPositionY() + blocker.getHeight() / 2;
 
 		//rotate by a given angle
-		g2d.rotate(Math.toRadians(rotatedSpriteEntity.getAngle()), centerX, centerY);
+		g2d.rotate(Math.toRadians(blocker.getAngle()), centerX, centerY);
 
 		//Drawing entities
-		drawSpriteEntity(rotatedSpriteEntity, rotatedSpriteEntity.getPositionX(), rotatedSpriteEntity.getPositionY());
+		drawSpriteEntity(blocker);
 
 		g2d.setTransform(oldTransform); // Restore to original conversion state
 	}
+
+	public void drawSpriteEntity(final SpriteEntity spriteEntity, final int screenGap) {
+		boolean[][] image = spriteMap.get(spriteEntity.getSpriteType());
+
+		backBufferGraphics.setColor(spriteEntity.getColor());
+		for (int i = 0; i < image.length; i++)
+			for (int j = 0; j < image[i].length; j++)
+				if (image[i][j])
+					backBufferGraphics.drawRect(spriteEntity.getPositionX() + screenGap + i * 2, spriteEntity.getPositionY()
+							+ j * 2, 1, 1);
+	}
+
+	public void drawTextEntity(final TextEntity textEntity, final int screenGap){
+		backBufferGraphics.setColor(textEntity.getColor());
+		backBufferGraphics.setFont(textEntity.getFont());
+		backBufferGraphics.drawString(textEntity.getText(), textEntity.getPositionX() + screenGap, textEntity.getPositionY());
+	}
+
+
+	public void drawImageEntity(final ImageEntity imageEntity, final int screenGap){
+		backBufferGraphics.setColor(imageEntity.getColor());
+		backBufferGraphics.drawImage(imageEntity.getImage(), imageEntity.getPositionX() + screenGap, imageEntity.getPositionY()
+				, imageEntity.getWidth(), imageEntity.getHeight(), null);
+
+	}
+
+	public void drawLineEntity(final LineEntity lineEntity, final int screenGap){
+		backBufferGraphics.setColor(lineEntity.getColor());
+		backBufferGraphics.drawLine(lineEntity.getPositionX() + screenGap, lineEntity.getPositionY()
+				, lineEntity.getPositionX2() + screenGap, lineEntity.getPositionY2());
+	}
+
+	public void drawFillArcEntity(final ArcEntity arcEntity, final int screenGap){
+		backBufferGraphics.setColor(arcEntity.getColor());
+		backBufferGraphics.fillArc(arcEntity.getPositionX() + screenGap, arcEntity.getPositionY(),
+				arcEntity.getWidth(), arcEntity.getHeight(), arcEntity.getStartAngle(), arcEntity.getEndAngle());
+	}
+
+	public void drawRectEntity(final RectEntity rectEntity, final int screenGap){
+		backBufferGraphics.setColor(rectEntity.getColor());
+		if (rectEntity.getIsFilled())
+			backBufferGraphics.fillRect(rectEntity.getPositionX() + screenGap, rectEntity.getPositionY(),
+					rectEntity.getWidth(), rectEntity.getHeight());
+		else
+			backBufferGraphics.drawRect(rectEntity.getPositionX() + screenGap, rectEntity.getPositionY(),
+					rectEntity.getWidth(), rectEntity.getHeight());
+	}
+
+	public void drawFillPolygonEntity(final PolygonEntity polygonEntity, final int screenGap){
+		backBufferGraphics.setColor(polygonEntity.getColor());
+		backBufferGraphics.fillPolygon(addOffsetToArrayWithStream(polygonEntity.getXPoints(), screenGap), polygonEntity.getYPoints(), polygonEntity.getNPoints());
+	}
+
+	// to use drawFillPolygonEntity
+	public int[] addOffsetToArrayWithStream(int[] array, int offset) {
+		return Arrays.stream(array) // create array stream
+				.map(value -> value + offset) // apply offset
+				.toArray(); // transform to array
+	}
+
+
+	//Drawing an Entity (Blocker) that requires angle setting
+	public void drawBlockerEntity(final Blocker blocker, final int screenGap) {
+		Graphics2D g2d = (Graphics2D) backBufferGraphics; // Convert to Graphics2D
+		AffineTransform oldTransform = g2d.getTransform(); // Save previous conversion
+
+		//Set center point to rotate
+		int centerX = blocker.getPositionX() + screenGap + blocker.getWidth() / 2;
+		int centerY = blocker.getPositionY() + blocker.getHeight() / 2;
+
+		//rotate by a given angle
+		g2d.rotate(Math.toRadians(blocker.getAngle()), centerX, centerY);
+
+		//Drawing entities
+		drawSpriteEntity(blocker);
+
+		g2d.setTransform(oldTransform); // Restore to original conversion state
+	}
+
 
 
 	/**

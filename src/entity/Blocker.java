@@ -34,6 +34,6 @@ public class Blocker extends SpriteEntity {
 
     @Override
     public EntityType getType() {
-        return EntityType.ROTATED_SPRITE;
+        return EntityType.BLOCKER;
     }
 }

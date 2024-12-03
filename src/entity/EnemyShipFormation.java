@@ -202,22 +202,6 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	}
 
 	/**
-	 * Draws every individual component of the formation.
-	 */
-	public final void draw() {
-		for (List<EnemyShip> column : this.enemyShipsGrid)
-			for (EnemyShip enemyShip : column)
-				if (enemyShip != null)
-				    renderer.drawSpriteEntity(enemyShip, enemyShip.getPositionX(),
-                 enemyShip.getPositionY());
-
-		for(EnemyShip enemyShip : this.enemyShipsDivers) {
-			renderer.drawSpriteEntity(enemyShip, enemyShip.getPositionX(),
-					enemyShip.getPositionY());
-		}
-	}
-
-	/**
 	 * Updates the position of the ships.
 	 */
 	public final void update() {
