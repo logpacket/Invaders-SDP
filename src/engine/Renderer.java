@@ -32,12 +32,8 @@ public final class Renderer {
 	private Graphics graphics;
 	/** Buffer Graphics. */
 	private Graphics backBufferGraphics;
-	/** Buffer Graphics for multi screens. */
-	private final Graphics[] threadBufferGraphics = new Graphics[2];
 	/** Buffer image. */
 	private BufferedImage backBuffer;
-	/** Buffer images for multi screens **/
-	private final BufferedImage[] threadBuffers = new BufferedImage[4];
 	/** Small sized font. */
 	private Font fontSmall;
 	/** Regular sized font. */
@@ -226,42 +222,6 @@ public final class Renderer {
 	public void completeDrawing(final Screen screen) {
 		graphics.drawImage(backBuffer, frame.getInsets().left,
 				frame.getInsets().top, frame);
-	}
-
-	public void initThreadDrawing(final Screen screen, final int threadNumber) {
-		BufferedImage threadBuffer = new BufferedImage(screen.getWidth(),screen.getHeight(), BufferedImage.TYPE_INT_RGB);
-		Graphics threadGraphic = threadBuffer.getGraphics();
-
-		threadBuffers[threadNumber] = threadBuffer;
-		threadBufferGraphics[threadNumber] = threadGraphic;
-	}
-
-
-	/**
-	 * Merge second buffers to back buffer
-	 *
-	 * @param screen
-	 *            Screen to draw on.
-	 */
-	public void mergeDrawing(final Screen screen) {
-		backBufferGraphics.drawImage(threadBuffers[2], 0, 0, frame);
-		backBufferGraphics.drawImage(threadBuffers[3], screen.getWidth() / 2 + LINE_WIDTH, 0, frame);
-	}
-
-	/**
-	 * Flush buffer to second buffer
-	 *
-	 * @param screen
-	 *            Screen to draw on.
-	 * @param threadNumber
-	 * 			  Thread number for two player mode
-	 */
-	public void flushBuffer(final Screen screen, final int threadNumber) {
-		BufferedImage threadBuffer = new BufferedImage(screen.getWidth(),screen.getHeight(), BufferedImage.TYPE_INT_RGB);
-		Graphics threadGraphic = threadBuffer.getGraphics();
-
-		threadGraphic.drawImage(threadBuffers[threadNumber], 0, 0, frame);
-		threadBuffers[threadNumber + 2] = threadBuffer;
 	}
 
 	public void drawEntities(final List<Entity> entities) {

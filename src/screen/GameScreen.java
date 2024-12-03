@@ -819,8 +819,8 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 	public List<Entity> getEntities() {
 		updateEntity();
-		List<Entity> tmpList = new ArrayList<>(entityList);
+		List<Entity> tmpEntities = (List<Entity>) ((ArrayList<Entity>) entityList).clone();
 		entityList.clear();
-		return tmpList;
+		return tmpEntities;
 	}
 }
