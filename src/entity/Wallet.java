@@ -1,44 +1,31 @@
 package entity;
 
 import engine.Core;
-import engine.Session;
-import message.Shop;
-import handler.ShopHandler;
+import service.ShopService;
 
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 public class Wallet {
-    private static final Logger logger = Core.getLogger();
-    private final String username;
+    private static final Logger LOGGER = Logger.getLogger(Core.class.getSimpleName());
     private int coin;
     private int bulletLevel;
     private int shootLevel;
     private int livesLevel;
     private int coinLevel;
+    private final ShopService shopService;
 
-    public Wallet(String username) {
-        this.username = username;
-        this.coin = 0;
-        this.bulletLevel = 1;
-        this.shootLevel = 1;
-        this.livesLevel = 1;
-        this.coinLevel = 1;
-        saveWalletToServer();
+    public Wallet() {
+        this.shopService = new ShopService();
     }
 
-    public Wallet(String username, int coin, int bulletLevel, int shootLevel, int livesLevel, int coinLevel) {
-        this.username = username;
-        this.coin = coin;
-        this.bulletLevel = bulletLevel;
-        this.shootLevel = shootLevel;
-        this.livesLevel = livesLevel;
-        this.coinLevel = coinLevel;
+    public static Wallet getWallet() {
+        // 실제로는 ShopService 등과의 연결을 통해 불러오거나 데이터를 초기화 후 반환해야 할 수 있습니다.
+        Wallet wallet = new Wallet();
+        wallet.fetchShopData(); // 서버에서 데이터를 로드하는 비동기 작업
+        return wallet;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
+    // Getter methods
     public int getCoin() {
         return coin;
     }
@@ -59,82 +46,81 @@ public class Wallet {
         return coinLevel;
     }
 
+    // Setter methods with server sync
     public void setBulletLevel(int bulletLevel) {
         this.bulletLevel = bulletLevel;
-        saveWalletToServer();
-        logger.info("Bullet Level upgraded to: " + bulletLevel);
+        saveShopToServer();
+        LOGGER.info("Bullet Level upgraded to: " + bulletLevel);
     }
 
     public void setShootLevel(int shootLevel) {
         this.shootLevel = shootLevel;
-        saveWalletToServer();
-        logger.info("Shoot Level upgraded to: " + shootLevel);
+        saveShopToServer();
+        LOGGER.info("Shoot Level upgraded to: " + shootLevel);
     }
 
     public void setLivesLevel(int livesLevel) {
         this.livesLevel = livesLevel;
-        saveWalletToServer();
-        logger.info("Lives Level upgraded to: " + livesLevel);
+        saveShopToServer();
+        LOGGER.info("Lives Level upgraded to: " + livesLevel);
     }
 
     public void setCoinLevel(int coinLevel) {
         this.coinLevel = coinLevel;
-        saveWalletToServer();
-        logger.info("Coin Gain Level upgraded to: " + coinLevel);
+        saveShopToServer();
+        LOGGER.info("Coin Gain Level upgraded to: " + coinLevel);
     }
 
     public void deposit(int amount) {
         if (amount <= 0) return;
         coin += amount;
-        saveWalletToServer();
-        logger.info("Deposit completed. Current coin: " + coin);
+        saveShopToServer();
+        LOGGER.info("Deposit completed. Current coin: " + coin);
     }
 
     public boolean withdraw(int amount) {
         if (amount <= 0) return false;
         if (coin < amount) {
-            logger.warning("Insufficient coin balance.");
+            LOGGER.warning("Insufficient coin balance.");
             return false;
         }
         coin -= amount;
-        saveWalletToServer();
-        logger.info("Withdraw completed. Remaining coin: " + coin);
+        saveShopToServer();
+        LOGGER.info("Withdraw completed. Remaining coin: " + coin);
         return true;
     }
 
-    private void saveWalletToServer() {
-        try {
-            Shop shopMessage = new Shop(username, coin, bulletLevel, shootLevel, livesLevel, coinLevel);
-
-            Session session = Session.getInstance();
-            ShopHandler shopHandler = new ShopHandler();
-            shopHandler.saveShopToServer(session, shopMessage);
-        } catch (Exception e) {
-            logger.warning("Failed to save wallet to server: " + e.getMessage());
-        }
+    // Save data to the server (for sync)
+    private void saveShopToServer() {
+        shopService.saveShop(coin, bulletLevel, shootLevel, livesLevel, coinLevel,
+                _ -> LOGGER.info("Wallet data saved to server successfully."),
+                _ -> LOGGER.warning("Error saving shop data."));
     }
 
-    public static Wallet loadWalletFromServer(Session session, String username) {
-        try {
-            ShopHandler shopHandler = new ShopHandler();
-            Shop shopMessage = shopHandler.loadShop(session, username);
+    // Fetch the shop data from server
+    public void fetchShopData() {
+        shopService.callShop(
+                (event) -> {
+                    if (event.body() instanceof message.Wallet wallet) {
+                        this.coin = wallet.coin();
+                        this.bulletLevel = wallet.bulletLevel();
+                        this.shootLevel = wallet.shootLevel();
+                        this.livesLevel = wallet.livesLevel();
+                        this.coinLevel = wallet.coinLevel();
 
-            if (shopMessage != null) {
-                return new Wallet(
-                        username,
-                        shopMessage.coin(),
-                        shopMessage.bulletLevel(),
-                        shopMessage.shootLevel(),
-                        shopMessage.livesLevel(),
-                        shopMessage.coinLevel()
-                );
-            } else {
-                logger.info("No wallet data found for username: " + username + ". Initializing default values.");
-                return new Wallet(username);
-            }
-        } catch (Exception e) {
-            logger.warning("Failed to load wallet from server for username " + username + ": " + e.getMessage());
-            return new Wallet(username);
-        }
+                        // 수정된 로그 메시지
+                        LOGGER.info(String.format("Wallet data loaded from server: coin=%d, bulletLevel=%d, shootLevel=%d, livesLevel=%d, coinLevel=%d",
+                                coin, bulletLevel, shootLevel, livesLevel, coinLevel));
+                    } else {
+                        LOGGER.warning("Unexpected response type: " + event.body().getClass().getName());
+                        LOGGER.warning("Response body: " + event.body());  // 더 구체적인 응답 로깅
+                    }
+                },
+                (error) -> {
+                    LOGGER.warning("Error loading shop data: " + error.message());
+                    LOGGER.warning("Error details: " + error);  // 에러 세부 사항 로깅
+                }
+        );
     }
+
 }
