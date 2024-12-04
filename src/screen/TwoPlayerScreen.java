@@ -118,11 +118,10 @@ public class TwoPlayerScreen extends Screen {
      */
     private void runGameScreen(int playerNumber){
         GameLevelState gameLevelState = playerNumber == 0 ? gameLevelStates[PLAYER1_NUMBER] : gameLevelStates[PLAYER2_NUMBER];
-        GameState gameState = new GameState(gameLevelState, gameSettings[playerNumber]);
 
         if (gameLevelState.livesRemaining() > 0) {
             logger.info(MessageFormat.format("difficulty is {0}", gameSettings[playerNumber].difficulty()));
-            GameScreen gameScreen = new GameScreen(gameState, gameLevelState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
+            GameScreen gameScreen = new GameScreen(gameLevelState, gameSettings[playerNumber], width / 2, height, fps / 2);
             gameScreen.initialize();
             players[playerNumber] = executor.submit(gameScreen);
         }

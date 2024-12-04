@@ -94,12 +94,11 @@ public final class Core {
 					break;
 				case SINGLE_PLAY:
 					assert gameSettings != null;
-					gameState = new GameState(gameLevelState, gameSettings);
 					GameLevelState currentGameLevelState;
 
 					do {
 						long startTime = System.currentTimeMillis();
-						currentScreen = new GameScreen(gameState, gameLevelState, gameSettings, width, height, FPS);
+						currentScreen = new GameScreen(gameLevelState, gameSettings, width, height, FPS);
 
 						menu = frame.setScreen(currentScreen);
 
