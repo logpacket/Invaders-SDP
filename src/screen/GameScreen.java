@@ -49,8 +49,6 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 	private Cooldown enemyShipSpecialExplosionCooldown;
 	/** Time from finishing the level to screen change. */
 	private Cooldown screenFinishedCooldown;
-	/** Set of all bullets fired by on-screen ships. */
-	private Set<Bullet> bullets;
 
 	private int score;
 	/** tempScore records the score up to the previous level. */
@@ -69,7 +67,6 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 	private int maxCombo;
 	/** Moment the game starts. */
 	private long gameStartTime;
-
 	/** Checks if the level is finished. */
 	private boolean levelFinished;
 	/** Checks if a bonus life is received. */
@@ -208,24 +205,15 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		logger.info("Player ship created " + this.shipType + " at " + gameState.getShip().getPositionX() + ", " + gameState.getShip().getPositionY());
 		gameState.getShip().applyItem();
 		// Initialize Spider Webs in GameState
-		gameState.initializeSpiderWebs(gameLevelState.level(), this.width, this.height);
+		gameState.initializeSpiderWebs(gameState.getLevel(), this.width, this.height);
 
-//		// Log the creation of Spider Webs
-//		for (Web web : gameState.getWeb()) {
-//			this.logger.info("Spider web creation location: " + web.getPositionX());
-//		}
 		//Create random Block.
 		gameState.initializeBlock(
 				gameState.getLevel(),
-				this.width,
-				this.height,
+				this,
 				gameLevelState.formationHeight()
 		);
 
-//		// Log the creation of Blocks
-//		for (Block block : gameState.getBlock()) {
-//			this.logger.info("Block creation location: " + block.getPositionX() + ", " + block.getPositionY());
-//		}
 		// Appears each 10-30 seconds.
 		this.enemyShipSpecialCooldown = Core.getVariableCooldown(
 				BONUS_SHIP_INTERVAL, BONUS_SHIP_VARIANCE);
@@ -279,14 +267,8 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		super.update();
 		if (this.inputDelay.checkFinished() && !this.levelFinished) {
 			boolean playerAttacking = inputManager.isKeyDown(KeyEvent.VK_SPACE);
-			if (playerAttacking) {
-				if (gameState.getShip().shoot(gameState.getBullets(), this.itemManager.getShootNum()))
-					this.bulletsShoot += this.itemManager.getShootNum();
-			} else {
-				if (playerAttacking && gameState.getShip().shoot(gameState.getBullets(), this.itemManager.getShootNum(), 0.0f)) {
-					this.bulletsShoot += this.itemManager.getShootNum();
-				}
-			}
+			if (playerAttacking && gameState.getShip().shoot(gameState.getBullets(), this.itemManager.getShootNum()))
+				this.bulletsShoot += this.itemManager.getShootNum();
 			/*Elapsed Time Update*/
 			long currentTime = System.currentTimeMillis();
 
@@ -454,8 +436,7 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 			drawManager.drawEntity(barrier, barrier.getPositionX(), barrier.getPositionY());
 
 		for (Bullet bullet : gameState.getBullets())
-			drawManager.drawEntity(bullet, bullet.getPositionX(),
-					bullet.getPositionY());
+			drawManager.drawEntity(bullet, bullet.getPositionX(), bullet.getPositionY());
 
 		// Interface.
 		drawManager.drawScore(this, this.score);

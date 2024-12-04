@@ -1,8 +1,12 @@
 package engine;
 
 import entity.*;
+import screen.GameScreen;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -10,15 +14,27 @@ import java.util.logging.Logger;
  */
 public class GameState {
 
+    /** Milliseconds until the screen accepts user input. */
+    private static final int INPUT_DELAY = 6000;
+    /** Bonus score for each life remaining at the end of the level. */
+    private static final int LIFE_SCORE = 100;
+    /** Minimum time between bonus ship's appearances. */
+    private static final int BONUS_SHIP_INTERVAL = 20000;
+    /** Maximum variance in the time between bonus ship's appearances. */
+    private static final int BONUS_SHIP_VARIANCE = 10000;
+    /** Time until bonus ship explosion disappears. */
+    private static final int BONUS_SHIP_EXPLOSION = 500;
+    /** Time from finishing the level to screen change. */
+    private static final int SCREEN_CHANGE_INTERVAL = 1500;
     /** Height of the interface separation line. */
     private static final int SEPARATION_LINE_HEIGHT = 40;
 
     /** Application logger. */
     protected Logger logger;
     /** Screen width. */
-    protected int width;
+    private int width;
     /** Screen height. */
-    protected int height;
+    private int height;
     protected int screenWidth = 586;
     protected int screenHeight = 613;
 
@@ -26,8 +42,6 @@ public class GameState {
     private final SoundManager soundManager = SoundManager.getInstance();
     /** Singleton instance of ItemManager. */
     private ItemManager itemManager;
-    /** Time until bonus ship explosion disappears. */
-    private Cooldown enemyShipSpecialExplosionCooldown;
 
     /** Formation of enemy ships. */
     private EnemyShipFormation enemyShipFormation;
@@ -38,28 +52,37 @@ public class GameState {
     /** Bonus enemy ship that appears sometimes. */
     private EnemyShip enemyShipSpecial;
     /** Set of all bullets fired by on-screen ships. */
-    private Set<Bullet> bullets;
+    private final Set<Bullet> bullets;
     /** Item boxes that dropped when kill enemy ships. */
     private Set<ItemBox> itemBoxes;
 
+    private int formationWidth;
+    private int formationHeight;
     private List<Block> block;
     private List<Blocker> blockers;
     private List<Web> web;
     /** Barriers appear in game screen. */
     private Set<Barrier> barriers;
-
+    /** Keep previous timestamp. */
+    private Integer prevTime;
+    /** Alert Message when a special enemy appears. */
+    private String alertMessage;
     /** Checks if the level is finished. */
     private boolean levelFinished;
     /** Sound balance for each player*/
     private float balance = 0.0f;
     /** checks if it's executed. */
     private boolean isExecuted = false;
+    /** Minimum time between bonus ship appearances. */
+    private Cooldown enemyShipSpecialCooldown;
+    /** Time until bonus ship explosion disappears. */
+    private Cooldown enemyShipSpecialExplosionCooldown;
+    /** Time from finishing the level to screen change. */
+    private Cooldown screenFinishedCooldown;
     /** Timer */
     private Timer timer;
     private int level;
     private int score;
-    /** tempScore records the score up to the previous level. */
-    private int tempScore;
     /** Player lives left. */
     private int lives;
     /** Number of consecutive hits.
@@ -69,10 +92,10 @@ public class GameState {
     private int bulletsShoot;
     private int shipsDestroyed;
     private int elapsedTime;
-    private int lapTime;
+
     private int hitBullets;
-    private int formationWidth;
-    private int formationHeight;
+
+    private GameScreen gameScreen;
 
     private static final int EXTRA_LIFE_FREQUENCY = 3;
     private static final int DEFAULT_FORMATION_SIZE = 4;
@@ -188,10 +211,55 @@ public class GameState {
         return block;
     }
 
-    public void initializeBlock(int level, int width, int height,  int formationHeight) {
+    public void initialize (int level, int width, int height, int formationHeight) {
+        if (this.web == null) {
+            this.web = new ArrayList<>(); // web 초기화
+        }
+        int webCount = 1 + level / 3;
+        for (int i = 0; i < webCount; i++) {
+            double randomValue = Math.random();
+            int positionX = (int) Math.max(0, randomValue * width - 12 * 2);
+            int positionY = height - 30;
+            this.web.add(new Web(positionX, positionY)); // Create a new Web
+        }
+
         if (this.block == null) {
             this.block = new ArrayList<>();
         }
+        int blockCount = level / 2;
+        int playerTopYContainBarrier = height - 40 - 150;
+        int enemyBottomY = 100 + (formationHeight - 1) * 48;
+        this.block.clear(); // Clear existing blocks
+
+        for (int i = 0; i < blockCount; i++) {
+            Block newBlock;
+            boolean overlapping;
+
+            do {
+                newBlock = new Block(0, 0);
+                int positionX = (int) (Math.random() * (width - newBlock.getWidth()));
+                int positionY = (int) (Math.random() * (playerTopYContainBarrier - enemyBottomY - newBlock.getHeight())) + enemyBottomY;
+                newBlock = new Block(positionX, positionY);
+
+                overlapping = false;
+                for (Block b : block) {
+                    if (checkCollision(newBlock, b)) {
+                        overlapping = true;
+                        break;
+                    }
+                }
+            } while (overlapping);
+
+            block.add(newBlock);
+        }
+    }
+
+    public void initializeBlock(int level, GameScreen gameScreen, int formationHeight) {
+        if (this.block == null) {
+            this.block = new ArrayList<>();
+        }
+        int height = gameScreen.getHeight();
+        int width = gameScreen.getWidth();
         int blockCount = level / 2;
         int playerTopYContainBarrier = height - 40 - 150;
         int enemyBottomY = 100 + (formationHeight - 1) * 48;
@@ -234,6 +302,7 @@ public class GameState {
         this.bullets.removeAll(recyclable);
         BulletPool.recycle(recyclable);
     }
+
 
     /**
      * Checks if two entities are colliding.
@@ -401,7 +470,6 @@ public class GameState {
                 }
             }
         }
-
         // remove crashed obstacle
         block.removeAll(removableBlocks);
         this.bullets.removeAll(recyclable);
