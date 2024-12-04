@@ -4,7 +4,6 @@ import entity.*;
 import screen.Screen;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,11 +50,11 @@ public class EntityFactory {
         return new TextEntity(screen.getWidth() / 2 - 60, 25, Color.WHITE, scoreString, FontManager.getFontRegular());
     }
 
-    public static TextEntity createElapseTime(final Screen screen, final int elapsedTime) {
+    public static TextEntity createElapsedTime(final Screen screen, final int elapsedTime) {
         int cent = (elapsedTime % 1000)/10;
-		int seconds = elapsedTime / 1000;
-		int sec = seconds % 60;
-		int min = seconds / 60;
+        int seconds = elapsedTime / 1000;
+        int sec = seconds % 60;
+        int min = seconds / 60;
 
         String elapsedTimeString;
         if (min < 1){
@@ -67,7 +66,7 @@ public class EntityFactory {
     }
 
     public static TextEntity createAlertMessage(final Screen screen, final String alertMessage){
-        return new TextEntity((screen.getWidth() - FontManager.getFontSmallMetrics().stringWidth(alertMessage))/2, 65,
+        return new TextEntity((screen.getWidth() - FontManager.getFontRegularMetrics().stringWidth(alertMessage))/2, 65,
                 Color.RED, alertMessage, FontManager.getFontRegular());
     }
 
@@ -192,15 +191,8 @@ public class EntityFactory {
                 / height - FontManager.getFontBigMetrics().getHeight() * 2, Color.GREEN));
 
 
-        TextEntity textEntity = createCenteredRegularString(screen, continueOrExitString,
-                screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 10, Color.GREEN);
-
-        if (acceptsInput)
-            textEntity.setColor(Color.GREEN);
-        else
-            textEntity.setColor(Color.GRAY);
-
-        entities.add(textEntity);
+        entities.add(createCenteredRegularString(screen, continueOrExitString, screen.getHeight() / 2 +
+                FontManager.getFontRegularMetrics().getHeight() * 10, acceptsInput ? Color.GREEN : Color.GRAY));
 
         return entities;
     }
@@ -247,13 +239,13 @@ public class EntityFactory {
         if (currentPerfectStage <= 6){
             entities.add(createRightSideAchievementCoinBigString(screen, PERFECT_COIN_REWARD[currentPerfectStage],
                     screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
-            + FontManager.getFontBigMetrics().getHeight() * 3, Color.orange));
+            + FontManager.getFontBigMetrics().getHeight() * 3, Color.ORANGE));
             entities.add(createRightSideAchievementSmallString1(screen, "current",
                     screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
-            + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.green));
+            + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.GREEN));
             entities.add(createRightSideAchievementSmallString2(screen, "target",
                     screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
-            + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.red));
+            + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.RED));
 
             String sampleAchievementsString2 = "lv." + currentPerfectStage + "   =>  lv." +
 					nextPerfectStage;
@@ -1000,7 +992,7 @@ public class EntityFactory {
     public static List<Entity> createSignUpScreen(final Screen screen, final String usernameInput, final String passwordInput,
                                  final String confirmPasswordInput, final boolean isUsernameActive,
                                  final boolean isPasswordActive, final boolean isConfirmPasswordActive,
-                                 final boolean showAlert, final boolean signUpSuccess) {
+                                 final boolean showAlert) {
 
         List<Entity> entities = new ArrayList<>();
 
@@ -1009,8 +1001,7 @@ public class EntityFactory {
         String passwordLabel = "Password: ";
         String confirmPasswordLabel = "Confirm: ";
         String signUpButton = "Press ENTER to Sign Up";
-        String alertMessage = "Passwords do not match or fields are empty!";
-        String successMessage = "Sign Up Successful!";
+        String alertMessage = "Duplicate username";
 
         int titleY = Math.round(screen.getHeight() * 0.15f);
         int inputStartX = screen.getWidth() / 5;
@@ -1020,28 +1011,36 @@ public class EntityFactory {
         int inputHeight = Math.round(screen.getHeight() * 0.07f);
 
         entities.add(createCenteredBigString(screen, signUpTitle, titleY, Color.GREEN));
-        entities.add(new TextEntity(inputStartX, inputStartY, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontRegular()));
-        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
-        entities.add(new TextEntity(inputStartX + 160, inputStartY - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontRegular()));
 
-        entities.add(new TextEntity(inputStartX, inputStartY + inputSpacing, isUsernameActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontRegular()));
-        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+
+        entities.add(new TextEntity(inputStartX, inputStartY,
+                isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10,
+                isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
+        entities.add(new TextEntity(inputStartX + 160, inputStartY - 5,
+                isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontRegular()));
+
+        entities.add(new TextEntity(inputStartX, inputStartY + inputSpacing,
+                isPasswordActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10,
+                isPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
         String maskedPassword = "*".repeat(passwordInput.length());
-        entities.add(new TextEntity(inputStartX + 160, inputStartY + inputSpacing - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontRegular()));
+        entities.add(new TextEntity(inputStartX + 160, inputStartY + inputSpacing - 5,
+                isPasswordActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontRegular()));
 
-        entities.add(new TextEntity(inputStartX, inputStartY + 2 * inputSpacing, isUsernameActive ? Color.YELLOW : Color.WHITE, confirmPasswordLabel, FontManager.getFontRegular()));
-        entities.add(createRectEntity(inputStartX + 150, inputStartY + 2 * inputSpacing - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        entities.add(new TextEntity(inputStartX, inputStartY + 2 * inputSpacing,
+                isConfirmPasswordActive ? Color.YELLOW : Color.WHITE, confirmPasswordLabel, FontManager.getFontRegular()));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + 2 * inputSpacing - inputHeight + 10,
+                isConfirmPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
         String maskedConfirmPassword = "*".repeat(confirmPasswordInput.length());
-        entities.add(new TextEntity(inputStartX + 160, inputStartY + 2 * inputSpacing - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, maskedConfirmPassword, FontManager.getFontRegular()));
+        entities.add(new TextEntity(inputStartX + 160, inputStartY + 2 * inputSpacing - 5,
+                isConfirmPasswordActive ? Color.YELLOW : Color.WHITE, maskedConfirmPassword, FontManager.getFontRegular()));
 
         entities.add(createCenteredRegularString(screen, signUpButton, inputStartY + 3 * inputSpacing,Color.YELLOW));
 
         if (showAlert) {
             entities.add(createCenteredBigString(screen, alertMessage, inputStartY + 4 * inputSpacing, Color.RED));
-        } else if (signUpSuccess) {
-            entities.add(createCenteredBigString(screen, successMessage, inputStartY + 4 * inputSpacing, Color.GREEN));
         }
-
         return entities;
 
     }

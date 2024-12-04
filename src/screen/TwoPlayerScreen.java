@@ -4,6 +4,7 @@ import engine.*;
 import entity.Entity;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,8 +34,7 @@ public class TwoPlayerScreen extends Screen {
 
 
     private GameScreen[] gameScreens = new GameScreen[2];
-    private List<Entity> player1entities;
-    private List<Entity> player2entities;
+    private List<Entity>[] playersEntities = new ArrayList[2];
 
     /**
      * Constructor, establishes the properties of the screen.
@@ -61,6 +61,8 @@ public class TwoPlayerScreen extends Screen {
             gameFinished[playerNumber] = false;
         }
 
+        playersEntities[PLAYER1_NUMBER] = new ArrayList<>();
+        playersEntities[PLAYER2_NUMBER] = new ArrayList<>();
         executor = Executors.newFixedThreadPool(2);
         this.menu = Menu.SCORE;
     }
@@ -83,8 +85,8 @@ public class TwoPlayerScreen extends Screen {
     @Override
     protected void draw() {
         renderer.initDrawing(this);
-        renderer.drawEntities(player1entities);
-        renderer.drawEntities(player2entities, this.width);
+        renderer.drawEntities(playersEntities[PLAYER1_NUMBER]);
+        renderer.drawEntities(playersEntities[PLAYER2_NUMBER], this.width);
         renderer.drawVerticalLine(this);
         renderer.completeDrawing(this);
     }
@@ -121,8 +123,8 @@ public class TwoPlayerScreen extends Screen {
             logger.warning(e.getMessage());
         }
 
-        player1entities = gameScreens[PLAYER1_NUMBER].getEntities();
-        player2entities = gameScreens[PLAYER2_NUMBER].getEntities();
+        playersEntities[PLAYER1_NUMBER] = gameScreens[PLAYER1_NUMBER].getEntities();
+        playersEntities[PLAYER2_NUMBER] = gameScreens[PLAYER2_NUMBER].getEntities();
         draw();
     }
     /**

@@ -1,6 +1,7 @@
 package screen;
 
 import engine.*;
+import service.SignUpService;
 
 import java.awt.event.KeyEvent;
 
@@ -8,7 +9,6 @@ public class SignUpScreen extends Screen {
 
     private static final int SELECTION_TIME = 200;
     private static final int ALERT_TIME = 1500;
-    private static final int SUCCESS_TIME = 3000;
 
     /** Singleton instance of SoundManager */
     private final SoundManager soundManager = SoundManager.getInstance();
@@ -20,19 +20,16 @@ public class SignUpScreen extends Screen {
     private boolean isUsernameActive;
     private boolean isPasswordActive;
     private boolean isConfirmPasswordActive;
+    private final SignUpService signUpService = new SignUpService();
 
-    private Cooldown selectionCooldown;
-    private Cooldown alertCooldown;
-    private Cooldown successCooldown;
-
-    private boolean signUpSuccess;
+    private final Cooldown selectionCooldown;
+    private final Cooldown alertCooldown;
 
     public SignUpScreen(final int width, final int height, final int fps) {
         super(width, height, fps);
 
         this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
         this.alertCooldown = Core.getCooldown(ALERT_TIME);
-        this.successCooldown = Core.getCooldown(SUCCESS_TIME);
 
         this.usernameInput = "";
         this.passwordInput = "";
@@ -40,18 +37,24 @@ public class SignUpScreen extends Screen {
         this.isUsernameActive = true;
         this.isPasswordActive = false;
         this.isConfirmPasswordActive = false;
-        this.signUpSuccess = false;
         this.menu = Menu.SIGN_UP;
     }
 
+    @Override
     protected final void update() {
         super.update();
-
-        if (signUpSuccess && successCooldown.checkFinished()) {
-            this.menu = Menu.LOGIN;
-        }
-
         handleInput();
+    }
+
+    private void signUp() {
+        signUpService.signUp(usernameInput, passwordInput, _ -> {
+            this.menu = Menu.LOGIN;
+            isRunning = false;
+        },
+        _ -> {
+            soundManager.playSound(Sound.COIN_INSUFFICIENT);
+            alertCooldown.reset();
+        });
     }
 
     private void handleInput() {
@@ -73,7 +76,7 @@ public class SignUpScreen extends Screen {
                 this.selectionCooldown.reset();
             }
 
-            for (int keyCode = KeyEvent.VK_A; keyCode <= KeyEvent.VK_Z; keyCode++) {
+            for (int keyCode = KeyEvent.VK_0; keyCode <= KeyEvent.VK_Z; keyCode++) {
                 if (inputManager.isKeyDown(keyCode)) {
                     if (isUsernameActive && usernameInput.length() < 20) {
                         usernameInput += (char) keyCode;
@@ -83,22 +86,6 @@ public class SignUpScreen extends Screen {
                         soundManager.playSound(Sound.MENU_TYPING);
                     } else if (isConfirmPasswordActive && confirmPasswordInput.length() < 20) {
                         confirmPasswordInput += (char) keyCode;
-                        soundManager.playSound(Sound.MENU_TYPING);
-                    }
-                    this.selectionCooldown.reset();
-                }
-            }
-
-            for (int keyCode = KeyEvent.VK_0; keyCode <= KeyEvent.VK_9; keyCode++) {
-                if (inputManager.isKeyDown(keyCode)) {
-                    if (isUsernameActive && usernameInput.length() < 20) {
-                        usernameInput += (char) (keyCode);
-                        soundManager.playSound(Sound.MENU_TYPING);
-                    } else if (isPasswordActive && passwordInput.length() < 20) {
-                        passwordInput += (char) (keyCode);
-                        soundManager.playSound(Sound.MENU_TYPING);
-                    } else if (isConfirmPasswordActive && confirmPasswordInput.length() < 20) {
-                        confirmPasswordInput += (char) (keyCode);
                         soundManager.playSound(Sound.MENU_TYPING);
                     }
                     this.selectionCooldown.reset();
@@ -119,9 +106,9 @@ public class SignUpScreen extends Screen {
                 this.selectionCooldown.reset();
             }
 
-            if (inputManager.isKeyDown(KeyEvent.VK_ENTER)) {
-                if (validateSignUp()) {
-                    signUpSuccess = true;
+            if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
+                if (validateInput()) {
+                    signUp();
                     soundManager.playSound(Sound.MENU_CLICK);
                 } else {
                     soundManager.playSound(Sound.COIN_INSUFFICIENT);
@@ -136,20 +123,17 @@ public class SignUpScreen extends Screen {
         }
     }
 
-    private boolean validateSignUp() {
-        if (usernameInput.isEmpty() || passwordInput.isEmpty() || confirmPasswordInput.isEmpty()) {
+    private boolean validateInput() {
+
+        if (usernameInput.isEmpty() || passwordInput.isEmpty() || confirmPasswordInput.isEmpty())
             return false;
-        }
-        if (!passwordInput.equals(confirmPasswordInput)) {
-            return false;
-        }
-        return true;
+        return passwordInput.equals(confirmPasswordInput);
     }
 
     protected void updateEntity(){
-        entityList.addAll(EntityFactory.createSignUpScreen(this, usernameInput, passwordInput,
-                confirmPasswordInput, isUsernameActive, isPasswordActive, isConfirmPasswordActive,
-                !alertCooldown.checkFinished(), signUpSuccess));
+        entityList.addAll(EntityFactory.createSignUpScreen(this, usernameInput, passwordInput, confirmPasswordInput,
+                isUsernameActive, isPasswordActive, isConfirmPasswordActive,
+                !alertCooldown.checkFinished()));
 
     }
 }

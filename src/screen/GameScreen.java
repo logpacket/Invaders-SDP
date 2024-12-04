@@ -505,7 +505,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 		// Interface.
 		entityList.add(EntityFactory.createScore(this, this.score));
-		entityList.add(EntityFactory.createElapseTime(this, this.elapsedTime));
+		entityList.add(EntityFactory.createElapsedTime(this, this.elapsedTime));
 		entityList.add(EntityFactory.createAlertMessage(this, this.alertMessage));
 		entityList.add(EntityFactory.createLivesString(this, this.lives));
 		entityList.addAll(EntityFactory.createLivesSprites(this, this.lives, this.shipType));
