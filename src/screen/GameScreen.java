@@ -460,6 +460,7 @@ public class GameScreen extends Screen implements Callable<GameState> {
 		if (this.levelFinished && this.screenFinishedCooldown.checkFinished()) {
 			//Reset alert message when level is finished
 			this.alertMessage = "";
+			this.menu = Menu.SCORE;
 			this.isRunning = false;
 		}
 	}
