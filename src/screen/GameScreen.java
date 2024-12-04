@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.Callable;
 
-
 /**
  * Implements the game screen, where the action happens.
  *
@@ -204,14 +203,8 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
         // Appears each 10-30 seconds.
 		logger.info("Player ship created " + this.shipType + " at " + gameState.getShip().getPositionX() + ", " + gameState.getShip().getPositionY());
 		gameState.getShip().applyItem();
-		// Initialize Spider Webs in GameState
-		gameState.initializeSpiderWebs(gameState.getLevel(), this.width, this.height);
 
-		//Create random Block.
-		gameState.initializeBlock(
-				gameState.getLevel(),
-				this,
-				gameLevelState.formationHeight()
+		gameState.initialize(gameState.getLevel(),	this, gameLevelState.formationHeight()
 		);
 
 		// Appears each 10-30 seconds.
@@ -381,7 +374,7 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		}
 
 		gameState.manageCollisions();
-		gameState.cleanBullets();
+		gameState.cleanBullets(this);
 
 		draw();
 

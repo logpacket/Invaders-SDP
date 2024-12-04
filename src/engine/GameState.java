@@ -56,8 +56,6 @@ public class GameState {
     /** Item boxes that dropped when kill enemy ships. */
     private Set<ItemBox> itemBoxes;
 
-    private int formationWidth;
-    private int formationHeight;
     private List<Block> block;
     private List<Blocker> blockers;
     private List<Web> web;
@@ -108,18 +106,20 @@ public class GameState {
         this.blockers = new ArrayList<>();
         this.web = new ArrayList<>();
         this.barriers = new HashSet<>();
-        this.itemManager = new ItemManager(this.ship, this.enemyShipFormation, this.barriers, this.width, this.height, this.balance);
-        level = gameLevelState.level();
-        score = gameLevelState.score();
-        lives = gameLevelState.livesRemaining();
-        maxCombo = gameLevelState.maxCombo();
-        bulletsShoot = gameLevelState.bulletsShoot();
-        shipsDestroyed = gameLevelState.shipsDestroyed();
-        elapsedTime = gameLevelState.elapsedTime();
-        hitBullets = gameLevelState.hitBullets();
-        formationWidth = gameLevelState.formationWidth();
-        formationHeight = gameLevelState.formationHeight();
+        this.level = gameLevelState.level();
+        this.score = gameLevelState.score();
+        this.lives = gameLevelState.livesRemaining();
+        this.maxCombo = gameLevelState.maxCombo();
+        this.bulletsShoot = gameLevelState.bulletsShoot();
+        this.shipsDestroyed = gameLevelState.shipsDestroyed();
+        this.elapsedTime = gameLevelState.elapsedTime();
+        this.hitBullets = gameLevelState.hitBullets();
         this.shipType = gameSettings.shipType();
+        this.logger = Core.getLogger();
+    }
+
+    public int getLives() {
+        return lives;
     }
 
     public int getLevel() { return level; }
@@ -184,26 +184,6 @@ public class GameState {
         return web;
     }
 
-    /**
-     * Initializes random Spider Webs based on the current level and screen dimensions.
-     *
-     * @param level The current level of the game.
-     * @param width The width of the game screen.
-     * @param height The height of the game screen.
-     */
-    public void initializeSpiderWebs(int level, int width, int height) {
-        if (this.web == null) {
-            this.web = new ArrayList<>(); // web 초기화
-        }
-        int webCount = 1 + level / 3;
-        for (int i = 0; i < webCount; i++) {
-            double randomValue = Math.random();
-            int positionX = (int) Math.max(0, randomValue * width - 12 * 2);
-            int positionY = height - 30;
-            this.web.add(new Web(positionX, positionY)); // Create a new Web
-        }
-    }
-
     public List<Block> getBlock() {
         if (block == null) {
             block = new ArrayList<>();
@@ -211,7 +191,12 @@ public class GameState {
         return block;
     }
 
-    public void initialize (int level, int width, int height, int formationHeight) {
+    public void initialize (int level, GameScreen gameScreen, int formationHeight) {
+        int width = gameScreen.getWidth();
+        int height = gameScreen.getHeight();
+        this.itemManager = new ItemManager(this.ship, this.enemyShipFormation, this.barriers, gameScreen.getWidth(), gameScreen.getHeight(), this.balance);
+
+        // initialize web
         if (this.web == null) {
             this.web = new ArrayList<>(); // web 초기화
         }
@@ -223,43 +208,10 @@ public class GameState {
             this.web.add(new Web(positionX, positionY)); // Create a new Web
         }
 
+        // initialize block
         if (this.block == null) {
             this.block = new ArrayList<>();
         }
-        int blockCount = level / 2;
-        int playerTopYContainBarrier = height - 40 - 150;
-        int enemyBottomY = 100 + (formationHeight - 1) * 48;
-        this.block.clear(); // Clear existing blocks
-
-        for (int i = 0; i < blockCount; i++) {
-            Block newBlock;
-            boolean overlapping;
-
-            do {
-                newBlock = new Block(0, 0);
-                int positionX = (int) (Math.random() * (width - newBlock.getWidth()));
-                int positionY = (int) (Math.random() * (playerTopYContainBarrier - enemyBottomY - newBlock.getHeight())) + enemyBottomY;
-                newBlock = new Block(positionX, positionY);
-
-                overlapping = false;
-                for (Block b : block) {
-                    if (checkCollision(newBlock, b)) {
-                        overlapping = true;
-                        break;
-                    }
-                }
-            } while (overlapping);
-
-            block.add(newBlock);
-        }
-    }
-
-    public void initializeBlock(int level, GameScreen gameScreen, int formationHeight) {
-        if (this.block == null) {
-            this.block = new ArrayList<>();
-        }
-        int height = gameScreen.getHeight();
-        int width = gameScreen.getWidth();
         int blockCount = level / 2;
         int playerTopYContainBarrier = height - 40 - 150;
         int enemyBottomY = 100 + (formationHeight - 1) * 48;
@@ -291,18 +243,17 @@ public class GameState {
     /**
      * Cleans bullets that go off-screen.
      */
-    public void cleanBullets() {
+    public void cleanBullets(GameScreen gameScreen) {
         Set<Bullet> recyclable = new HashSet<>();
         for (Bullet bullet : this.bullets) {
             bullet.update();
             if (bullet.getPositionY() < SEPARATION_LINE_HEIGHT
-                    || bullet.getPositionY() > this.height)
+                    || bullet.getPositionY() > gameScreen.getHeight())
                 recyclable.add(bullet);
         }
         this.bullets.removeAll(recyclable);
         BulletPool.recycle(recyclable);
     }
-
 
     /**
      * Checks if two entities are colliding.
