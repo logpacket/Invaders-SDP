@@ -31,12 +31,6 @@ public class GameState {
 
     /** Application logger. */
     protected Logger logger;
-    /** Screen width. */
-    private int width;
-    /** Screen height. */
-    private int height;
-    protected int screenWidth = 586;
-    protected int screenHeight = 613;
 
     /** Singleton instance of SoundManager */
     private final SoundManager soundManager = SoundManager.getInstance();
@@ -51,20 +45,18 @@ public class GameState {
     private final Ship.ShipType shipType;
     /** Bonus enemy ship that appears sometimes. */
     private EnemyShip enemyShipSpecial;
+
     /** Set of all bullets fired by on-screen ships. */
     private final Set<Bullet> bullets;
     /** Item boxes that dropped when kill enemy ships. */
     private Set<ItemBox> itemBoxes;
-
     private List<Block> block;
     private List<Blocker> blockers;
     private List<Web> web;
     /** Barriers appear in game screen. */
     private Set<Barrier> barriers;
-    /** Keep previous timestamp. */
-    private Integer prevTime;
-    /** Alert Message when a special enemy appears. */
-    private String alertMessage;
+    /** Checks if a bonus life is received. */
+    private final boolean bonusLife;
     /** Checks if the level is finished. */
     private boolean levelFinished;
     /** Sound balance for each player*/
@@ -72,13 +64,19 @@ public class GameState {
     /** checks if it's executed. */
     private boolean isExecuted = false;
     /** Minimum time between bonus ship appearances. */
-    private Cooldown enemyShipSpecialCooldown;
+    private final Cooldown enemyShipSpecialCooldown;
     /** Time until bonus ship explosion disappears. */
-    private Cooldown enemyShipSpecialExplosionCooldown;
+    private final Cooldown enemyShipSpecialExplosionCooldown;
     /** Time from finishing the level to screen change. */
-    private Cooldown screenFinishedCooldown;
+    private final Cooldown screenFinishedCooldown;
     /** Timer */
     private Timer timer;
+    /** Elapsed time while playing this game.
+     * lapTime records the time to the previous level. */
+    /** Keep previous timestamp. */
+    private Integer prevTime;
+    private int elapsedTime;
+    private int lapTime;
     private int level;
     private int score;
     /** Player lives left. */
@@ -89,15 +87,13 @@ public class GameState {
     private int maxCombo;
     private int bulletsShoot;
     private int shipsDestroyed;
-    private int elapsedTime;
-
     private int hitBullets;
+    /** tempScore records the score up to the previous level. */
+    private int tempScore;
+    long currentTime = System.currentTimeMillis();
+
 
     private GameScreen gameScreen;
-
-    private static final int EXTRA_LIFE_FREQUENCY = 3;
-    private static final int DEFAULT_FORMATION_SIZE = 4;
-    private static final int DEFAULT_SPEED = 60;
 
     public GameState(final GameLevelState gameLevelState, final GameSettings gameSettings) {
         this.bullets = new HashSet<>();
@@ -109,32 +105,79 @@ public class GameState {
         this.level = gameLevelState.level();
         this.score = gameLevelState.score();
         this.lives = gameLevelState.livesRemaining();
+        this.bonusLife = gameLevelState.bonusLife();
         this.maxCombo = gameLevelState.maxCombo();
         this.bulletsShoot = gameLevelState.bulletsShoot();
         this.shipsDestroyed = gameLevelState.shipsDestroyed();
-        this.elapsedTime = gameLevelState.elapsedTime();
         this.hitBullets = gameLevelState.hitBullets();
         this.shipType = gameSettings.shipType();
         this.logger = Core.getLogger();
+        this.enemyShipSpecialCooldown = Core.getVariableCooldown(
+                BONUS_SHIP_INTERVAL, BONUS_SHIP_VARIANCE);
+        this.enemyShipSpecialCooldown.reset();
+        this.enemyShipSpecialExplosionCooldown = Core
+                .getCooldown(BONUS_SHIP_EXPLOSION);
+        this.screenFinishedCooldown = Core.getCooldown(SCREEN_CHANGE_INTERVAL);
+
     }
 
-    public int getLives() {
-        return lives;
+    public int getLives() { return lives;}
+    public boolean getBonusLife() {
+        return bonusLife;
     }
-
     public int getLevel() { return level; }
-    public void setLevel(int level) { this.level = level; }
-
     public Ship getShip() {
-        return ship;
+        return this.ship;
+    }
+    public int getCombo() { return combo;}
+    public int getMaxCombo() { return maxCombo;}
+    public int getTempScore() { return tempScore;}
+    public void setTempScore() {
+            tempScore = this.score;
+    }
+    public Integer getPrevTime() {return prevTime;}
+    public void setPrevTime() {
+        prevTime = (int) currentTime;
+    }
+    public int getElapsedTime() {
+        return elapsedTime;
+    }
+    public void setElapsedTime() {
+        elapsedTime = (int) (currentTime - prevTime);
     }
 
-    public void setShip() {
-        this.ship = ShipFactory.create(this.shipType, screenWidth / 2, screenHeight - 30);;
+    public int getLapTime() {
+        return lapTime;
+    }
+
+    public void setLapTime() {
+        lapTime = elapsedTime;
+    }
+    public void setMaxCombo() {maxCombo = 0;}
+    public int getBulletsShoot() {return bulletsShoot;}
+    public void setBulletsShoot(){
+        bulletsShoot += itemManager.getShootNum();
+    }
+    public void setShip(GameScreen gameScreen) {
+        this.ship = ShipFactory.create(this.shipType, gameScreen.getWidth() / 2, gameScreen.getHeight() - 30);;
+    }
+    public int getShipsDestroyed() {return shipsDestroyed;}
+    public Cooldown setScreenFinishedCooldown() {
+        return screenFinishedCooldown;
+    }
+
+    public void setLevelFinished() {
+        this.levelFinished = true;
+    }
+
+    public boolean isLevelFinished() { return levelFinished; }
+
+    public int getHitBullets() {
+        return hitBullets;
     }
 
     public Set<Bullet> getBullets() {
-        return bullets;
+        return this.bullets;
     }
 
     public Set<ItemBox> getItemBoxes() {
@@ -146,11 +189,12 @@ public class GameState {
     }
 
     public int getScore() {
-        return score;
+        return this.score;
     }
 
-    public void setScore(int score) {
-        this.score = score;
+    public void addScore(int lives) {
+        this.score += LIFE_SCORE * (lives - 1);
+        if(lives == 0) this.score += 100;
     }
 
     public List<Blocker> getBlockers() {
@@ -282,7 +326,7 @@ public class GameState {
     }
 
     public void manageCollisions() {
-        for (EnemyShip diver : getEnemyShipFormation().getDivingShips()) {
+        for (EnemyShip diver : this.enemyShipFormation.getDivingShips()) {
             if(checkCollision(diver, this.ship) && !this.levelFinished && !this.ship.isDestroyed()) {
                 this.ship.destroy(balance);
                 this.lives--;
@@ -341,7 +385,7 @@ public class GameState {
                 }
 
             } else {	// Player ship's bullets
-                for (EnemyShip enemyShip : getEnemyShipFormation())
+                for (EnemyShip enemyShip : this.enemyShipFormation)
                     if (enemyShip != null && !enemyShip.isDestroyed()
                             && checkCollision(bullet, enemyShip)) {
                         // Decide whether to destroy according to physical strength
@@ -432,9 +476,8 @@ public class GameState {
         for(int i = 0; i<= level /3; i++){
             this.lives--;
         }
-        if(this.lives < 0){
+        if(this.lives< 0){
             this.lives = 0;
         }
     }
-
 }
