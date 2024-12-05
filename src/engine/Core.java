@@ -66,7 +66,7 @@ public final class Core {
 
 		AchievementManager achievementManager = new AchievementManager();
 
-		Menu menu = Menu.MAIN;
+		Menu menu = Menu.LOGIN;
 		GameState gameState = new GameState();
 		GameSettings gameSettings = null;
 		String playerName = "";
