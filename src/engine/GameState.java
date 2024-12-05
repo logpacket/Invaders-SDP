@@ -1,5 +1,6 @@
 package engine;
 
+import engine.network.NetworkManager;
 import entity.*;
 import screen.GameScreen;
 
@@ -73,11 +74,11 @@ public class GameState {
     /** Blocker appearance cooldown */
     private final Cooldown blockerCooldown;
     private final Random random;
-    private String alertMessage;
+    private String alertMessage = "";
     /** Sound balance for each player*/
     private float balance = 0.0f;
 
-    /* Sources from GameLevelState */
+    /** Sources from GameLevelState */
     private int level;
     private int score;
     private int lives;
@@ -91,6 +92,7 @@ public class GameState {
     private int lapTime;
     private int hitBullets;
     private int tempScore;
+    private long ping = 0;
 
 
     public GameState(final GameLevelState gameLevelState, final GameSettings gameSettings) {
@@ -120,7 +122,6 @@ public class GameState {
         this.random = new Random();
         this.blockerCooldown = Core.getVariableCooldown(10000, 14000);
         this.blockerCooldown.reset();
-
     }
 
     public int getLives() { return lives;}
@@ -210,6 +211,10 @@ public class GameState {
         return block;
     }
 
+    public long getPing() { return ping; }
+
+    public String getAlertMessage() { return alertMessage; }
+
     public void initialize(GameSettings gameSettings, GameLevelState gameLevelState, GameScreen gameScreen, int formationHeight) {
         this.gameScreen = gameScreen;
 
@@ -272,6 +277,7 @@ public class GameState {
             bulletsShoot += itemManager.getShootNum();
 
         long currentTime = System.currentTimeMillis();
+        ping = NetworkManager.getLatency();
 
         if (prevTime != null)
             elapsedTime += (int) (currentTime - prevTime);
@@ -282,10 +288,8 @@ public class GameState {
             ship.setColor(Color.GREEN);
 
         if (!ship.isDestroyed()) {
-            // TODO: add isRightBorder method to Ship class
             boolean isRightBorder = ship.getPositionX()
                     + ship.getWidth() + ship.getSpeed() > gameScreen.getWidth() - 1;
-            // -> ship.getNextRightPosition() > gameScreen.getWidth() -1;
             boolean isLeftBorder = ship.getPositionX()
                     - ship.getSpeed() < 1;
 

@@ -2,18 +2,25 @@ package screen;
 
 import engine.Menu;
 import engine.*;
+import engine.network.NetworkManager;
 import entity.*;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.List;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.Timer;
 import java.util.concurrent.Callable;
+
 
 /**
  * Implements the game screen, where the action happens.
- *
+ * 
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
- *
+ * 
  */
 public class GameScreen extends Screen implements Callable<GameLevelState> {
 
@@ -32,8 +39,6 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 	private long gameStartTime;
 	/** list of highScores for find recode. */
 	private List<Score>highScores;
-	/** Alert Message when a special enemy appears. */
-	private String alertMessage;
 	/** Singleton instance of SoundManager */
 	private final SoundManager soundManager = SoundManager.getInstance();
 
@@ -41,6 +46,7 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 
 	private final GameState gameState;
 
+    private long ping = 0L;
     /**
 	 * Constructor, establishes the properties of the screen.
 	 *
@@ -69,7 +75,6 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		} catch (IOException e) {
 			logger.warning("Couldn't load high scores!");
 		}
-		this.alertMessage = "";
 	}
 
 	/**
@@ -150,7 +155,6 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		// leave this in GameScreen
 		if (gameState.isLevelFinished() && gameState.setScreenFinishedCooldown().checkFinished()) {
 			//Reset alert message when level is finished
-			this.alertMessage = "";
 			this.menu = Menu.SCORE;
 			this.isRunning = false;
 		}
@@ -164,6 +168,7 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		drawManager.drawGameTitle(this);
 		drawManager.drawLaunchTrajectory( this,gameState.getShip().getPositionX());
 		drawManager.drawEntity(gameState.getShip(), gameState.getShip().getPositionX(), gameState.getShip().getPositionY());
+		drawManager.drawPing(this, gameState.getPing());
 
 		//draw Spider Web
         for (Web web : gameState.getWebList()) {
@@ -195,7 +200,7 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		// Interface.
 		drawManager.drawScore(this, gameState.getScore());
 		drawManager.drawElapsedTime(this, gameState.getElapsedTime());
-		drawManager.drawAlertMessage(this, this.alertMessage);
+		drawManager.drawAlertMessage(this, gameState.getAlertMessage());
 		drawManager.drawLives(this, gameState.getLives(), this.shipType);
 		drawManager.drawLevel(this, this.level);
 		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1);
