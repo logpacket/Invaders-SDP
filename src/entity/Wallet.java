@@ -19,13 +19,11 @@ public class Wallet {
     }
 
     public static Wallet getWallet() {
-        // 실제로는 ShopService 등과의 연결을 통해 불러오거나 데이터를 초기화 후 반환해야 할 수 있습니다.
         Wallet wallet = new Wallet();
-        wallet.fetchShopData(); // 서버에서 데이터를 로드하는 비동기 작업
+        wallet.fetchShopData();
         return wallet;
     }
 
-    // Getter methods
     public int getCoin() {
         return coin;
     }
@@ -46,7 +44,6 @@ public class Wallet {
         return coinLevel;
     }
 
-    // Setter methods with server sync
     public void setBulletLevel(int bulletLevel) {
         this.bulletLevel = bulletLevel;
         saveShopToServer();
@@ -90,14 +87,12 @@ public class Wallet {
         return true;
     }
 
-    // Save data to the server (for sync)
     private void saveShopToServer() {
         shopService.saveShop(coin, bulletLevel, shootLevel, livesLevel, coinLevel,
                 _ -> LOGGER.info("Wallet data saved to server successfully."),
                 _ -> LOGGER.warning("Error saving shop data."));
     }
 
-    // Fetch the shop data from server
     public void fetchShopData() {
         shopService.callShop(
                 (event) -> {
@@ -108,17 +103,16 @@ public class Wallet {
                         this.livesLevel = wallet.livesLevel();
                         this.coinLevel = wallet.coinLevel();
 
-                        // 수정된 로그 메시지
                         LOGGER.info(String.format("Wallet data loaded from server: coin=%d, bulletLevel=%d, shootLevel=%d, livesLevel=%d, coinLevel=%d",
                                 coin, bulletLevel, shootLevel, livesLevel, coinLevel));
                     } else {
                         LOGGER.warning("Unexpected response type: " + event.body().getClass().getName());
-                        LOGGER.warning("Response body: " + event.body());  // 더 구체적인 응답 로깅
+                        LOGGER.warning("Response body: " + event.body());
                     }
                 },
                 (error) -> {
                     LOGGER.warning("Error loading shop data: " + error.message());
-                    LOGGER.warning("Error details: " + error);  // 에러 세부 사항 로깅
+                    LOGGER.warning("Error details: " + error);
                 }
         );
     }
