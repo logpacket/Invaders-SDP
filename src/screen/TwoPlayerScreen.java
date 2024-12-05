@@ -1,5 +1,6 @@
 package screen;
 
+import engine.GameLevelState;
 import engine.GameSettings;
 import engine.GameState;
 import engine.Menu;
@@ -17,11 +18,13 @@ public class TwoPlayerScreen extends Screen {
     /** Game difficulty settings each player **/
     private final GameSettings[] gameSettings = new GameSettings[2];
 
+    private GameState gameState;
+
     /** Game states for each player **/
-    private final GameState[] gameStates = new GameState[2];
+    private final GameLevelState[] gameLevelStates = new GameLevelState[2];
 
     /** Players game task **/
-    private final Future<GameState>[] players = new Future[2];
+    private final Future<GameLevelState>[] players = new Future[2];
 
     /** Player game finished flags **/
     private final boolean[] gameFinished = new boolean[2];
@@ -35,7 +38,7 @@ public class TwoPlayerScreen extends Screen {
      * Constructor, establishes the properties of the screen.
      *
      *
-     * @param gameState
+     * @param gameLevelState
      *            Initial game state
      * @param gameSettings
      *            Game settings list.
@@ -46,13 +49,13 @@ public class TwoPlayerScreen extends Screen {
      * @param fps
      *            Frames per second, frame rate at which the game is run.
      */
-    public TwoPlayerScreen(final GameState gameState, final GameSettings gameSettings,
+    public TwoPlayerScreen(final GameState gameState, final GameLevelState gameLevelState, final GameSettings gameSettings,
                            final int width, final int height, final int fps) {
         super(width * 2, height, fps * 2);
 
         for (int playerNumber = 0; playerNumber < 2; playerNumber++) {
             this.gameSettings[playerNumber] = new GameSettings(gameSettings);
-            this.gameStates[playerNumber] = new GameState(gameState);
+            this.gameLevelStates[playerNumber] = new GameLevelState(gameLevelState);
             gameFinished[playerNumber] = false;
         }
 
@@ -90,14 +93,14 @@ public class TwoPlayerScreen extends Screen {
         draw();
         try {
             if (players[PLAYER1_NUMBER].isDone()) {
-                gameStates[PLAYER1_NUMBER] = players[PLAYER1_NUMBER].get();
-                gameStates[PLAYER1_NUMBER] = new GameState(gameStates[PLAYER1_NUMBER],
+                gameLevelStates[PLAYER1_NUMBER] = players[PLAYER1_NUMBER].get();
+                gameLevelStates[PLAYER1_NUMBER] = new GameLevelState(gameLevelStates[PLAYER1_NUMBER],
                         gameSettings[PLAYER1_NUMBER]);
                 runGameScreen(PLAYER1_NUMBER);
             }
             if (players[PLAYER2_NUMBER].isDone()) {
-                gameStates[PLAYER2_NUMBER] = players[PLAYER2_NUMBER].get();
-                gameStates[PLAYER2_NUMBER] = new GameState(gameStates[PLAYER2_NUMBER],
+                gameLevelStates[PLAYER2_NUMBER] = players[PLAYER2_NUMBER].get();
+                gameLevelStates[PLAYER2_NUMBER] = new GameLevelState(gameLevelStates[PLAYER2_NUMBER],
                         gameSettings[PLAYER2_NUMBER]);
                 runGameScreen(PLAYER2_NUMBER);
             }
@@ -114,22 +117,22 @@ public class TwoPlayerScreen extends Screen {
      * Progression logic each games.
      */
     private void runGameScreen(int playerNumber){
-        GameState gameState = playerNumber == 0 ? gameStates[PLAYER1_NUMBER] : gameStates[PLAYER2_NUMBER];
+        GameLevelState gameLevelState = playerNumber == 0 ? gameLevelStates[PLAYER1_NUMBER] : gameLevelStates[PLAYER2_NUMBER];
 
-        if (gameState.livesRemaining() > 0) {
+        if (gameLevelState.livesRemaining() > 0) {
             logger.info(MessageFormat.format("difficulty is {0}", gameSettings[playerNumber].difficulty()));
-            GameScreen gameScreen = new GameScreen(gameState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
+            GameScreen gameScreen = new GameScreen(gameLevelState, gameSettings[playerNumber], width / 2, height, fps / 2);
             gameScreen.initialize();
             players[playerNumber] = executor.submit(gameScreen);
         }
         else gameFinished[playerNumber] = true;
     }
 
-    public GameState getWinnerGameState() {
-        return gameStates[getWinnerNumber() - 1];
+    public GameLevelState getWinnerGameState() {
+        return gameLevelStates[getWinnerNumber() - 1];
     }
 
     public int getWinnerNumber() {
-        return ((gameStates[PLAYER1_NUMBER].score() >= gameStates[PLAYER2_NUMBER].score()) ? PLAYER1_NUMBER : PLAYER2_NUMBER) + 1;
+        return ((gameLevelStates[PLAYER1_NUMBER].score() >= gameLevelStates[PLAYER2_NUMBER].score()) ? PLAYER1_NUMBER : PLAYER2_NUMBER) + 1;
     }
 }
