@@ -66,7 +66,7 @@ public final class Core {
 
 		AchievementManager achievementManager = new AchievementManager();
 
-		Menu menu = Menu.LOGIN;
+		Menu menu = Menu.MAIN;
 		GameLevelState gameLevelState = new GameLevelState();
 		GameSettings gameSettings = null;
 		GameState gameState = null;

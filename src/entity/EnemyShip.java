@@ -2,12 +2,8 @@ package entity;
 
 import java.awt.Color;
 
-import engine.Cooldown;
-import engine.Core;
+import engine.*;
 import engine.Renderer.SpriteType;
-import engine.GameState;
-import engine.Sound;
-import engine.SoundManager;
 
 /**
  * Implements a enemy ship, to be destroyed by the player.
@@ -53,7 +49,7 @@ public class EnemyShip extends SpriteEntity {
 	 *            Sprite type, image corresponding to the ship.
 	 */
 	public EnemyShip(final int positionX, final int positionY,
-                     final SpriteType spriteType, final GameLevelState gameLevelState, final int difficulty) {
+					 final SpriteType spriteType, final GameLevelState gameLevelState, final int difficulty) {
 		super(positionX, positionY, 12 * 2, 8 * 2, getDefaultColor(spriteType));
 
 		this.spriteType = spriteType;

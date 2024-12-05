@@ -1,7 +1,7 @@
 package entity;
 
 import engine.*;
-import engine.DrawManager.SpriteType;
+import engine.Renderer.SpriteType;
 import screen.Screen;
 
 import java.util.*;

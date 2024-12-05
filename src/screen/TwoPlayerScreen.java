@@ -141,7 +141,7 @@ public class TwoPlayerScreen extends Screen {
 
         if (gameLevelState.livesRemaining() > 0) {
             logger.info(MessageFormat.format("difficulty is {0}", gameSettings[playerNumber].difficulty()));
-            gameScreens[playerNumber] = new GameScreen(gameLevelState, gameSettings[playerNumber], width / 2, height, fps / 2, playerNumber);
+            gameScreens[playerNumber] = new GameScreen(gameLevelState, gameSettings[playerNumber], width / 2, height, fps / 2);
             gameScreens[playerNumber].initialize();
             players[playerNumber] = executor.submit(gameScreens[playerNumber]);
 

@@ -374,10 +374,10 @@ public class GameState {
         else if (level >= 11) maxBlockers = 3;
 
         int kind = random.nextInt(2 - 1 + 1) + 1; // 1~2
-        DrawManager.SpriteType newSprite = switch (kind) {
-            case 1 -> DrawManager.SpriteType.BLOCKER_1; // artificial satellite
-            case 2 -> DrawManager.SpriteType.BLOCKER_2; // astronaut
-            default -> DrawManager.SpriteType.BLOCKER_1;
+        Renderer.SpriteType newSprite = switch (kind) {
+            case 1 -> Renderer.SpriteType.BLOCKER_1; // artificial satellite
+            case 2 -> Renderer.SpriteType.BLOCKER_2; // astronaut
+            default -> Renderer.SpriteType.BLOCKER_1;
         };
 
         // Check number of blockers and cooldown
@@ -437,7 +437,7 @@ public class GameState {
      *            Second entity, the ship.
      * @return Result of the collision test.
      */
-    public boolean checkCollision(final Entity a, final Entity b) {
+    public boolean checkCollision(final SpriteEntity a, final SpriteEntity b) {
         if (a == null || b == null) return false;
         // Calculate center point of the entities in both axis.
         int centerAX = a.getPositionX() + a.getWidth() / 2;
