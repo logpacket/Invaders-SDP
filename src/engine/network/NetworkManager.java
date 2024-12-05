@@ -8,6 +8,8 @@ import message.Ping;
 import org.reflections.Reflections;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
@@ -16,7 +18,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// NetworkManager 클래스
 public final class NetworkManager {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(NetworkManager.class);
     private static NetworkManager instance;
@@ -41,7 +42,7 @@ public final class NetworkManager {
             mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
 
             Reflections reflections = new Reflections("message");
-            for (Class<? extends Body> bodyClass : reflections.getSubTypesOf(Body.class)){
+            for (Class<? extends Body> bodyClass : reflections.getSubTypesOf(Body.class)) {
                 mapper.registerSubtypes(bodyClass);
             }
 
@@ -49,10 +50,13 @@ public final class NetworkManager {
                 latency = System.currentTimeMillis() - ((Ping) event.body()).sendTimestamp();
                 logger.info("Network latency: " + latency + "ms");
             });
+
             executor.execute(this::listen);
             executor.execute(this::trackLatency);
         } catch (IOException e) {
             logger.log(Level.WARNING, "Network IO Exception", e);
+            // Server connection failed
+            showErrorPopup("Failed to connect to the server. Please check your connection and try again.");
         }
     }
 
@@ -73,7 +77,7 @@ public final class NetworkManager {
 
     private void listen() {
         try {
-            while(socket.isConnected()) {
+            while (socket.isConnected()) {
                 if (reader.ready()) {
                     Event event = mapper.readValue(reader, Event.class);
                     if (!event.name().equals("ping"))
@@ -81,15 +85,15 @@ public final class NetworkManager {
                     dispatch(event);
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            logger.log(Level.WARNING,"Packet receive failed", e);
+            logger.log(Level.WARNING, "Packet receive failed", e);
+            showErrorPopup("Connection lost. Please try reconnecting.");
         }
     }
 
     private void trackLatency() {
-        while(socket.isConnected()) {
+        while (socket.isConnected()) {
             sendEvent("ping", new Ping(System.currentTimeMillis()));
             try {
                 Thread.sleep(3000);
@@ -109,14 +113,14 @@ public final class NetworkManager {
         requestSet.add(requestId);
         Event event = new Event(eventName, body, requestId, System.currentTimeMillis());
         executor.execute(() -> {
-            try{
+            try {
                 mapper.writeValue(writer, event);
                 if (!eventName.equals("ping"))
                     logger.info("Event sent: " + eventName);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 logger.log(Level.WARNING, e.getMessage(), e);
                 logger.log(Level.WARNING, "Packet send failed", e);
+                showErrorPopup("Failed to send data to the server.");
             }
         });
         return requestId;
@@ -139,5 +143,10 @@ public final class NetworkManager {
         } catch (IOException e) {
             logger.log(Level.WARNING, "Network IO Exception", e);
         }
+    }
+
+    // Error pop-up
+    private void showErrorPopup(String message) {
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, message, "Connection Error", JOptionPane.ERROR_MESSAGE));
     }
 }

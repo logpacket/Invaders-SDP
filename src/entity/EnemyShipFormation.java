@@ -1,7 +1,7 @@
 package entity;
 
 import engine.*;
-import engine.Renderer.SpriteType;
+import engine.DrawManager.SpriteType;
 import screen.Screen;
 
 import java.util.*;
@@ -122,19 +122,19 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	 * @param gameSettings
 	 *            Current game settings.
 	 */
-	public EnemyShipFormation(final GameSettings gameSettings, final GameState gameState) {
-		this.renderer = Renderer.getInstance();
+	public EnemyShipFormation(final GameSettings gameSettings, final GameLevelState gameLevelState) {
+        this.renderer = Renderer.getInstance();
 		this.logger = Core.getLogger();
 		this.enemyShipsGrid = new ArrayList<>();
 		this.enemyShipsDivers = new ArrayList<>();
 		this.currentDirection = Direction.RIGHT;
 		this.movementInterval = 0;
-		this.formationWidth = gameState.formationWidth();
-		this.formationHeight = gameState.formationHeight();
-		this.shootingInterval = gameState.shootInterval();
-		this.shootingVariance = (int) (gameState.shootInterval()
+		this.formationWidth = gameLevelState.formationWidth();
+		this.formationHeight = gameLevelState.formationHeight();
+		this.shootingInterval = gameLevelState.shootInterval();
+		this.shootingVariance = (int) (gameLevelState.shootInterval()
 				* SHOOTING_VARIANCE);
-		this.baseSpeed = gameState.baseSpeed();
+		this.baseSpeed = gameLevelState.baseSpeed();
 		this.movementSpeed = this.baseSpeed;
 		this.positionX = INIT_POS_X;
 		this.positionY = INIT_POS_Y;
@@ -166,7 +166,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 				column.add(new EnemyShip((SEPARATION_DISTANCE 
 						* this.enemyShipsGrid.indexOf(column))
 								+ positionX, (SEPARATION_DISTANCE * i)
-								+ positionY, spriteType, gameState, difficulty));
+								+ positionY, spriteType, gameLevelState, difficulty));
 				this.shipCount++;
 			}
 		}
@@ -183,10 +183,10 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 			this.shooters.add(column.getLast());
 
 		this.logger.info("Initializing Divers");
-		for(int i = 1; i <= Math.min(gameState.level(), 8); i++) {
+		for(int i = 1; i <= Math.min(gameLevelState.level(), 8); i++) {
 			// cannot use screen.getWidth() because screen has not been attached yet
-			this.enemyShipsDivers.add(new EnemyShipDiver(600 / (1 + Math.min(gameState.level(), 8)) * i,
-					INIT_POS_Y - SEPARATION_DISTANCE, gameState, difficulty));
+			this.enemyShipsDivers.add(new EnemyShipDiver(600 / (1 + Math.min(gameLevelState.level(), 8)) * i,
+					INIT_POS_Y - SEPARATION_DISTANCE, gameLevelState, difficulty));
 			this.shipCount++;
 		}
 	}
