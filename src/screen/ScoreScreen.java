@@ -53,19 +53,19 @@ public class ScoreScreen extends Screen {
 	 *            Screen height.
 	 * @param fps
 	 *            Frames per second, frame rate at which the game is run.
-	 * @param gameState
+	 * @param gameLevelState
 	 *            Current game state.
 	 */
 	public ScoreScreen(final String name1, final int width, final int height, final int fps,
-			final GameState gameState, final AchievementManager achievementManager,
-		    final boolean isMultiplayer) {
+                       final GameLevelState gameLevelState, final AchievementManager achievementManager,
+                       final boolean isMultiplayer) {
 		super(width, height, fps);
 
 		this.name1 = name1;
 
-		this.score = gameState.score();
-		this.livesRemaining = gameState.livesRemaining();
-		this.shipsDestroyed = gameState.shipsDestroyed();
+		this.score = gameLevelState.score();
+		this.livesRemaining = gameLevelState.livesRemaining();
+		this.shipsDestroyed = gameLevelState.shipsDestroyed();
 		this.isMultiplayer = isMultiplayer;
 
 		Wallet wallet = Wallet.getWallet();
@@ -82,7 +82,7 @@ public class ScoreScreen extends Screen {
 		this.coinsEarned += achievementManager.getAchievementReward();
 
 		// deposit the earned coins to wallet
-		this.accuracy = gameState.getAccuracy();
+		this.accuracy = gameLevelState.getAccuracy();
 		wallet.deposit(coinsEarned);
 
 		soundManager.loopSound(Sound.BGM_GAME_OVER);
