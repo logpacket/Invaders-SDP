@@ -467,81 +467,109 @@ public class GameScreen extends Screen implements Callable<GameState> {
 
 
 	protected void updateEntity(){
-		entityList.add(EntityFactory.createGameTitle(this));
+		try {
+			entityList.add(EntityFactory.createGameTitle(this));
 
-		entityList.addAll(EntityFactory.createLaunchTrajectory(this, this.ship.getPositionX()));
+			entityList.addAll(EntityFactory.createLaunchTrajectory(this, this.ship.getPositionX()));
 
-		entityList.add(this.ship);
+			entityList.add(this.ship);
 
-		//create Spider Web
-		if (web != null)
-        	entityList.addAll(web);
+			//create Spider Web
+			if (web != null)
+				entityList.addAll(web);
 
-		//create Blocks
-		if (block != null)
-        	entityList.addAll(block);
+			//create Blocks
+			if (block != null)
+				entityList.addAll(block);
 
-		if (this.enemyShipSpecial != null)
-			entityList.add(this.enemyShipSpecial);
-
-
-		//create enemyShip
-		for (List<EnemyShip> column : enemyShipFormation.getEnemyShips())
-			for (EnemyShip enemyShip : column)
-				if (enemyShip != null)
-					entityList.add(enemyShip);
-
-		if(enemyShipFormation != null)
-        	entityList.addAll(enemyShipFormation.getEnemyDivers());
-
-		if (itemBoxes != null)
-			entityList.addAll(this.itemBoxes);
-
-		if(barriers != null)
-			entityList.addAll(this.barriers);
-
-		if(bullets != null)
-			entityList.addAll(this.bullets);
-
-		// Interface.
-		entityList.add(EntityFactory.createScore(this, this.score));
-		entityList.add(EntityFactory.createElapsedTime(this, this.elapsedTime));
-		entityList.add(EntityFactory.createAlertMessage(this, this.alertMessage));
-		entityList.add(EntityFactory.createLivesString(this, this.lives));
-		entityList.addAll(EntityFactory.createLivesSprites(this, this.lives, this.shipType));
-		entityList.add(EntityFactory.createLevel(this, this.level));
-		entityList.addAll(EntityFactory.createHorizontalLines(this, SEPARATION_LINE_HEIGHT - 1));
-		entityList.add(EntityFactory.createReloadTimer(this, this.ship, ship.getRemainingReloadTime(), this.shipType));
-		entityList.add(EntityFactory.createCombo(this, this.combo));
+			if (this.enemyShipSpecial != null)
+				entityList.add(this.enemyShipSpecial);
 
 
-		// Countdown to game start.
-		if (!this.inputDelay.checkFinished()) {
-			int countdown = (int) ((INPUT_DELAY - (System.currentTimeMillis() - this.gameStartTime)) / 1000);
-			entityList.addAll(EntityFactory.createCountDown(this, this.level, countdown, this.bonusLife));
-			entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 - this.height / 12));
-			entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 + this.height / 12));
+			//create enemyShip
+			for (List<EnemyShip> column : enemyShipFormation.getEnemyShips())
+				for (EnemyShip enemyShip : column)
+					if (enemyShip != null)
+						entityList.add(enemyShip);
 
-			//Intermediate aggregation
-			if (this.level > 1){
-				if (countdown == 0) {
-					//Reset mac combo and edit temporary values
-					this.lapTime = this.elapsedTime;
-					this.tempScore = this.score;
-					this.maxCombo = 0;
-				} else {
-					// Don't show it just before the game starts, i.e. when the countdown is zero.
-					entityList.addAll(EntityFactory.createAggre(this, this.level - 1, this.maxCombo, this.elapsedTime - this.lapTime, this.score, this.tempScore));
+			if (enemyShipFormation != null)
+				entityList.addAll(enemyShipFormation.getEnemyDivers());
+
+			if (itemBoxes != null)
+				entityList.addAll(this.itemBoxes);
+
+			if (barriers != null)
+				entityList.addAll(this.barriers);
+
+			if (bullets != null)
+				entityList.addAll(this.bullets);
+
+			// Interface.
+			entityList.add(EntityFactory.createScore(this, this.score));
+			entityList.add(EntityFactory.createElapsedTime(this, this.elapsedTime));
+			entityList.add(EntityFactory.createAlertMessage(this, this.alertMessage));
+			entityList.add(EntityFactory.createLivesString(this, this.lives));
+			entityList.addAll(EntityFactory.createLivesSprites(this, this.lives, this.shipType));
+			entityList.add(EntityFactory.createLevel(this, this.level));
+			entityList.addAll(EntityFactory.createHorizontalLines(this, SEPARATION_LINE_HEIGHT - 1));
+			entityList.add(EntityFactory.createReloadTimer(this, this.ship, ship.getRemainingReloadTime(), this.shipType));
+			entityList.add(EntityFactory.createCombo(this, this.combo));
+
+			if (playerNumber >= 0 && this.levelFinished && this.screenFinishedCooldown.checkFinished() && this.lives <= 0) {
+				entityList.addAll(EntityFactory.createInGameOver(this));
+				entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2
+						- this.height / 12));
+				entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2
+						+ this.height / 12));
+			}
+
+
+			// Countdown to game start.
+			if (!this.inputDelay.checkFinished()) {
+				int countdown = (int) ((INPUT_DELAY - (System.currentTimeMillis() - this.gameStartTime)) / 1000);
+				entityList.addAll(EntityFactory.createCountDown(this, this.level, countdown, this.bonusLife));
+				entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 - this.height / 12));
+				entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 + this.height / 12));
+
+				//Intermediate aggregation
+				if (this.level > 1) {
+					if (countdown == 0) {
+						//Reset mac combo and edit temporary values
+						this.lapTime = this.elapsedTime;
+						this.tempScore = this.score;
+						this.maxCombo = 0;
+					} else {
+						// Don't show it just before the game starts, i.e. when the countdown is zero.
+						entityList.addAll(EntityFactory.createAggre(this, this.level - 1, this.maxCombo, this.elapsedTime - this.lapTime, this.score, this.tempScore));
+					}
 				}
 			}
+
+			entityList.add(EntityFactory.createRecord(this, highScores));
+
+			// Blocker drawing part
+			if (!blockers.isEmpty())
+				entityList.addAll(blockers);
+		} catch (Exception e) {
+			entityList.clear();
+			entityList.add(EntityFactory.createCenteredSmallString(this, "", 0, Color.BLACK));
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.logger.info("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+
 		}
-
-		entityList.add(EntityFactory.createRecord(this, highScores));
-
-		// Blocker drawing part
-		if (!blockers.isEmpty())
-			entityList.addAll(blockers);
-
 	}
 
 

@@ -144,6 +144,8 @@ public class EntityFactory {
                 + FontManager.getFontRegularMetrics().getHeight() * 2, Color.WHITE));
         entities.add(createCenteredRegularString(screen, shipsDestroyedString, screen.getHeight() / height
                 + FontManager.getFontRegularMetrics().getHeight() * 4, Color.WHITE));
+        entities.add(createCenteredRegularString(screen, accuracyString, screen.getHeight() / height
+                + FontManager.getFontRegularMetrics().getHeight() * 6, Color.WHITE));
         entities.add(createCenteredRegularString(screen, coinsEarnedString, screen.getHeight() / height
                 + FontManager.getFontRegularMetrics().getHeight() * 9, Color.YELLOW));
 
@@ -240,9 +242,11 @@ public class EntityFactory {
             entities.add(createRightSideAchievementCoinBigString(screen, PERFECT_COIN_REWARD[currentPerfectStage],
                     screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
             + FontManager.getFontBigMetrics().getHeight() * 3, Color.ORANGE));
+
             entities.add(createRightSideAchievementSmallString1(screen, "current",
                     screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
             + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.GREEN));
+
             entities.add(createRightSideAchievementSmallString2(screen, "target",
                     screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
             + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.RED));
@@ -272,38 +276,47 @@ public class EntityFactory {
         // draw instruction
         entities.add(createCenteredRegularString(screen, instructionsString,
                 screen.getHeight() / 8 + FontManager.getFontRegularMetrics().getHeight(), Color.GRAY));
+
         entities.add(createCenteredRegularString(screen, achievementsExplain,
-                screen.getHeight() / 8 + FontManager.getFontRegularMetrics().getHeight(), Color.cyan));
+                screen.getHeight() / 7 + FontManager.getFontBigMetrics().getHeight(), Color.cyan));
 
         // draw "high score"
         entities.add(createLeftSideScoreRegularString(screen, highScoreTitle,
 				screen.getHeight() / 5+ FontManager.getFontBigMetrics().getHeight(), Color.GREEN));
+
         // draw total score
         entities.add(createRightSideCumulativeRegularString(screen, totalScoreTitle,
                 screen.getHeight() / 5 + FontManager.getFontBigMetrics().getHeight(), Color.yellow));
+
         // draw "Total play-time"
         entities.add(createRightSideCumulativeRegularString(screen, totalPlayTimesTitle,
                 screen.getHeight() / 5 + 2 * FontManager.getFontRegularMetrics().getHeight()
                         + 2 * FontManager.getFontBigMetrics().getHeight()+ 10, Color.yellow));
+
         // draw "Total Score"
         String totalScoreString = String.format("%s", totalScore);
-        entities.add(createCenteredBigString(screen, totalScoreString,
-                screen.getHeight() / 3 + FontManager.getFontBigMetrics().getHeight() + 10, Color.WHITE));
+        entities.add(createRightSideCumulativeBigString(screen, totalScoreString,
+                screen.getHeight() / 3 - FontManager.getFontRegularMetrics().getHeight() + 10, Color.WHITE));
+
         // draw "achievement status"
-        entities.add(createCenteredBigString(screen, achievementTitle,
+        entities.add(createCenteredBigString(screen, achievementsStatusTitle,
                 screen.getHeight() / 2 + FontManager.getFontBigMetrics().getHeight(), Color.MAGENTA));
+
         // draw "high accuracy"
         entities.add(createLeftSideAchievementRegularString(screen, maxComboTitle,
                 screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 3
         + FontManager.getFontBigMetrics().getHeight() + 7, Color.WHITE));
+
         // draw "Perfect clear"
         entities.add(createLeftSideAchievementRegularString(screen, perfectClearTitle,
                screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 4
         + FontManager.getFontBigMetrics().getHeight() * 2 + 7, Color.WHITE ));
+
         // draw "Flawless Failure"
         entities.add(createLeftSideAchievementRegularString(screen, flawlessFailureTitle,
                screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5
         + FontManager.getFontBigMetrics().getHeight() * 3 + 5, Color.WHITE));
+
         // draw "best friends"
         entities.add(createLeftSideAchievementRegularString(screen, eternityTimeTitle,
                screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 6
@@ -349,14 +362,15 @@ public class EntityFactory {
                 + FontManager.getFontBigMetrics().getHeight() * 2, Color.orange));
 
                 String accuracyAchievement = String.format("             %d", maxCombo) + " =>" + "         10";
-                entities.add(createRightSideAchievementCoinBigString(screen, ACCURACY_COIN_REWARD[0],
+                entities.add(createRightSideAchievementBigString(screen, accuracyAchievement,
                         screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5 + 5, Color.WHITE));
             } else {
                 entities.add(createRightSideAchievementCoinBigString(screen, ACCURACY_COIN_REWARD[maxCombo / 5 - 1],
                         screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 2
                 + FontManager.getFontBigMetrics().getHeight() * 2, Color.orange));
+
                 String accuracyAchievement = String.format("             %d", maxCombo) + " =>" + String.format("         %d", ((maxCombo - 10) / 5 + 1) * 5 + 10);
-                entities.add(createRightSideAchievementCoinBigString(screen, accuracyAchievement,
+                entities.add(createRightSideAchievementBigString(screen, accuracyAchievement,
                         screen.getHeight() / 2 + FontManager.getFontRegularMetrics().getHeight() * 5 + 5, Color.WHITE));
             }
         }
@@ -463,7 +477,7 @@ public class EntityFactory {
     public static TextEntity createCenteredSmallString(final Screen screen,
                                                        final String string, final int height, final Color color){
         return new TextEntity(screen.getWidth() / 2 - FontManager.getFontSmallMetrics().stringWidth(string) / 2,
-                height, color, string, FontManager.getFontRegular());
+                height, color, string, FontManager.getFontSmall());
     }
 
     public static TextEntity createCenteredRegularString(final Screen screen,
@@ -558,7 +572,7 @@ public class EntityFactory {
     public static TextEntity createRightSideAchievementSmallString3(final Screen screen,
                                                                     final String string, final int height, Color color){
         return new TextEntity(screen.getWidth()  / 2
-                - FontManager.getFontRegularMetrics().stringWidth(string),
+                - FontManager.getFontRegularMetrics().stringWidth(string) / 7,
                 height, color, string, FontManager.getFontSmall());
     }
 
@@ -904,7 +918,7 @@ public class EntityFactory {
             entities.add(previousShip);
 
             entities.add(new TextEntity(screen.getWidth() / 2 - SHIP_OFFSET - FontManager.getFontRegularMetrics().stringWidth(shipTypes[shipIndex - 1].name()) / 2,
-                    screen.getHeight() / 100 * 80 - 35, Color.GREEN, shipTypes[shipIndex - 1].name(), FontManager.getFontRegular()));
+                    screen.getHeight() / 100 * 80 - 35, Color.WHITE, shipTypes[shipIndex - 1].name(), FontManager.getFontRegular()));
 
 
             entities.add(new PolygonEntity(new int[]{
@@ -925,7 +939,7 @@ public class EntityFactory {
             nextShip.setPositionY(screen.getHeight() / 100 * 80);
             entities.add(nextShip);
             entities.add(new TextEntity(screen.getWidth() / 2 + SHIP_OFFSET - FontManager.getFontRegularMetrics().stringWidth(shipTypes[shipIndex + 1].name()) / 2,
-                    screen.getHeight() / 100 * 80 - 35, Color.GREEN, shipTypes[shipIndex + 1].name(), FontManager.getFontRegular()));
+                    screen.getHeight() / 100 * 80 - 35, Color.WHITE, shipTypes[shipIndex + 1].name(), FontManager.getFontRegular()));
 
              // Create arrow right
             entities.add(new PolygonEntity(
