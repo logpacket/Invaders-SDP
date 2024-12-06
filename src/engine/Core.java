@@ -161,6 +161,11 @@ public final class Core {
 					menu = frame.setScreen(currentScreen);
 					break;
 
+				case MATCHMAKING:
+					currentScreen = new MatchMakingScreen(width, height, FPS);
+					menu = frame.setScreen(currentScreen);
+					break;
+
                 default:
                     break;
             }
