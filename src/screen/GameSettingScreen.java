@@ -175,17 +175,17 @@ public class GameSettingScreen extends Screen {
 	 *            Input manager.
 	 */
 	private void handleNameInput(InputManager inputManager) {
-		for (int keyCode = KeyEvent.VK_A; keyCode <= KeyEvent.VK_Z; keyCode++) {
+		for (int keyCode = KeyEvent.VK_0; keyCode <= KeyEvent.VK_Z; keyCode++) {
 			if (inputManager.isKeyDown(keyCode)) {
 				if (isMultiplayer) {
 					if (this.nameBuilder2.length() < NAME_LIMIT) {
-						this.nameBuilder2.append(keyCode);
+						this.nameBuilder2.append((char) keyCode);
 						this.selectionCooldown.reset();
 						soundManager.playSound(Sound.MENU_TYPING);
 					}
 				} else{
 					if (this.nameBuilder1.length() < NAME_LIMIT) {
-						this.nameBuilder1.append(keyCode);
+						this.nameBuilder1.append((char) keyCode);
 						this.selectionCooldown.reset();
 						soundManager.playSound(Sound.MENU_TYPING);
 					}

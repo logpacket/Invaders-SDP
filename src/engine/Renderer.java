@@ -43,6 +43,8 @@ public final class Renderer {
 	/** Vertical line width for two player mode **/
 	private static final int LINE_WIDTH = 1;
 
+	private Logger logger;
+
 	/** Sprite types mapped to their images. */
 	private static final Map<SpriteType, boolean[][]> spriteMap = new LinkedHashMap<>();
 
@@ -252,7 +254,7 @@ public final class Renderer {
 					drawBlockerEntity((Blocker) entity);
 					break;
                 default:
-                    System.out.println("Unknown Entity type: " + entity.getClass().getSimpleName());
+					logger.warning("Unknown Entity type: " + entity.getClass().getSimpleName());
             }
 		}
 	}
@@ -287,7 +289,7 @@ public final class Renderer {
 					drawBlockerEntity((Blocker) entity, screenGap);
 					break;
 				default:
-					System.out.println("Unknown Entity type: " + entity.getClass().getSimpleName());
+					logger.warning("Unknown Entity type: " + entity.getClass().getSimpleName());
 			}
 		}
 	}

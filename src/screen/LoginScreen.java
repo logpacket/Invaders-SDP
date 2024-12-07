@@ -1,6 +1,7 @@
 package screen;
 
 import engine.*;
+import service.LoginService;
 
 import java.awt.event.KeyEvent;
 
@@ -19,9 +20,11 @@ public class LoginScreen extends Screen {
     private boolean isUsernameActive;
     private boolean isPasswordActive;
 
+    private final LoginService loginService = new LoginService();
+
     /** Time until alert message disappears */
-    private Cooldown selectionCooldown;
-    private Cooldown alertCooldown;
+    private final Cooldown selectionCooldown;
+    private final Cooldown alertCooldown;
 
     /** Option selected (0 = Username Input, 1 = Password Input, 2 = Login Button, 3 = Sign Up Button) */
     private int selectedOption;
@@ -37,11 +40,11 @@ public class LoginScreen extends Screen {
         super(width, height, fps);
 
         this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
+        this.alertCooldown = Core.getCooldown(ALERT_TIME);
         this.usernameInput = "";
         this.passwordInput = "";
         this.isUsernameActive = true;
         this.isPasswordActive = false;
-        this.alertCooldown = Core.getCooldown(ALERT_TIME);
         this.selectedOption = 0;
         this.menu = Menu.LOGIN;
 
@@ -90,8 +93,8 @@ public class LoginScreen extends Screen {
                 handleTextInput();
             }
 
-            if (inputManager.isKeyDown(KeyEvent.VK_ENTER)) {
-                handleEnterKey();
+            if (inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
+                handleSpaceKey();
             }
         }
     }
@@ -141,7 +144,7 @@ public class LoginScreen extends Screen {
     /**
      * Handles the ENTER key functionality based on the selected option.
      */
-    private void handleEnterKey() {
+    private void handleSpaceKey() {
         if (selectedOption == 0) {
             isUsernameActive = true;
             isPasswordActive = false;
@@ -149,16 +152,7 @@ public class LoginScreen extends Screen {
             isUsernameActive = false;
             isPasswordActive = true;
         } else if (selectedOption == 2) {
-            if (validateLogin()) {
-                soundManager.playSound(Sound.MENU_CLICK);
-                if (soundManager.isSoundPlaying(Sound.BGM_LOGIN))
-                    soundManager.stopSound(Sound.BGM_LOGIN);
-                this.isRunning = false;
-
-            } else {
-                soundManager.playSound(Sound.COIN_INSUFFICIENT);
-                alertCooldown.reset();
-            }
+            login();
         } else if (selectedOption == 3) {
             this.menu = Menu.SIGN_UP;
             soundManager.playSound(Sound.MENU_CLICK);
@@ -167,12 +161,20 @@ public class LoginScreen extends Screen {
     }
 
     /**
-     * Validates login credentials.
+     * Login to validate credentials
      *
-     * @return True if login is successful, false otherwise.
      */
-    private boolean validateLogin() {
-        return usernameInput.equals("ADMIN") && passwordInput.equals("1234");
+    private void login() {
+        loginService.login(usernameInput, passwordInput, _ -> {
+            soundManager.playSound(Sound.MENU_CLICK);
+            soundManager.stopSound(Sound.BGM_LOGIN);
+            this.menu = Menu.MAIN;
+            isRunning = false;
+        },
+        _ -> {
+            soundManager.playSound(Sound.COIN_INSUFFICIENT);
+            alertCooldown.reset();
+        });
     }
 
     protected void updateEntity(){
