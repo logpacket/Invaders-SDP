@@ -970,8 +970,8 @@ public class EntityFactory {
         String loginTitle = "Login";
         String usernameLabel = "Username: ";
         String passwordLabel = "Password: ";
-        String loginButton = "Press ENTER to Login";
-        String signUpButton = "Press ENTER to Sign Up";
+        String loginButton = "Press SPACE to Login";
+        String signUpButton = "Press SPACE to Sign Up";
         String alertMessage = "Invalid Username or Password";
 
         int titleY = Math.round(screen.getHeight() * 0.15f);
@@ -1015,7 +1015,7 @@ public class EntityFactory {
         String usernameLabel = "Username: ";
         String passwordLabel = "Password: ";
         String confirmPasswordLabel = "Confirm: ";
-        String signUpButton = "Press ENTER to Sign Up";
+        String signUpButton = "Press SPACE to Sign Up";
         String alertMessage = "Duplicate username";
 
         int titleY = Math.round(screen.getHeight() * 0.15f);
