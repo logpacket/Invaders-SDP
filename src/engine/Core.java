@@ -67,7 +67,7 @@ public final class Core {
 		AchievementManager achievementManager = new AchievementManager();
 
 		Menu menu = Menu.LOGIN;
-		GameLevelState gameLevelState = new GameLevelState();
+		GameLevelState gameLevelState = null;
 		GameSettings gameSettings = null;
 		GameState gameState = null;
 		String playerName = "";
@@ -85,6 +85,9 @@ public final class Core {
 					menu = frame.setScreen(currentScreen);
 					break;
                 case MAIN:
+					if (gameLevelState == null) {
+						gameLevelState = new GameLevelState();
+					}
 					menu = frame.setScreen(new TitleScreen(width, height, FPS));
 					break;
 				case GAME_SETTING:
