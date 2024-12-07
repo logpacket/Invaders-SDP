@@ -3,7 +3,7 @@ package entity;
 import engine.Cooldown;
 import engine.Core;
 import engine.DrawManager;
-import engine.GameState;
+import engine.GameLevelState;
 
 import java.awt.*;
 import java.util.Random;
@@ -24,8 +24,8 @@ public class EnemyShipDiver extends EnemyShip {
      * @param positionX
      * @param positionY
      */
-    public EnemyShipDiver(final int positionX, final int positionY, final GameState gameState, final int difficulty) {
-        super(positionX, positionY, DrawManager.SpriteType.ENEMY_SHIP_F1, gameState, difficulty);
+    public EnemyShipDiver(final int positionX, final int positionY, final GameLevelState gameLevelState, final int difficulty) {
+        super(positionX, positionY, DrawManager.SpriteType.ENEMY_SHIP_F1, gameLevelState, difficulty);
         this.diveCooldown = Core.getVariableCooldown(DIVE_INTERVAL, DIVE_VARIANCE);
         this.diveCooldown.reset();
         this.pointValue = POINTS;
