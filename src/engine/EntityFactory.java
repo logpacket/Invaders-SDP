@@ -982,12 +982,13 @@ public class EntityFactory {
         int inputHeight = Math.round(screen.getHeight() * 0.07f);
 
         entities.add(createCenteredBigString(screen, loginTitle, titleY, Color.GREEN));
+
         entities.add(new TextEntity(inputStartX, inputStartY, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontRegular()));
-        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10, isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
         entities.add(new TextEntity(inputStartX + 160, inputStartY - 5, isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontRegular()));
 
         entities.add(new TextEntity(inputStartX, inputStartY + inputSpacing, isPasswordActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontRegular()));
-        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, isPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, true));
+        entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10, isPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
 
         String maskedPassword = "*".repeat(passwordInput.length());
         entities.add(new TextEntity(inputStartX + 160, inputStartY + inputSpacing - 5, isPasswordActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontRegular()));
