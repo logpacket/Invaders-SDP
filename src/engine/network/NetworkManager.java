@@ -28,28 +28,27 @@ public final class NetworkManager {
     private ObjectMapper mapper;
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final Map<String, EventHandler> eventHandlers = new HashMap<>();
-    private static long latency = 0L;
+    private long latency = 0L;
     private final Set<UUID> requestSet = new HashSet<>();
 
     private NetworkManager() {
+        mapper = new ObjectMapper();
+        mapper.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+
+        Reflections reflections = new Reflections("message");
+        for (Class<? extends Body> bodyClass : reflections.getSubTypesOf(Body.class)) {
+            mapper.registerSubtypes(bodyClass);
+        }
+
+        eventHandlers.put("ping", event -> {
+            latency = System.currentTimeMillis() - ((Ping) event.body()).sendTimestamp();
+            logger.info("Network latency: " + latency + "ms");
+        });
         try {
             socket = new Socket("localhost", 1105);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
-            mapper = new ObjectMapper();
-            mapper.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
-            mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
-
-            Reflections reflections = new Reflections("message");
-            for (Class<? extends Body> bodyClass : reflections.getSubTypesOf(Body.class)) {
-                mapper.registerSubtypes(bodyClass);
-            }
-
-            eventHandlers.put("ping", event -> {
-                latency = System.currentTimeMillis() - ((Ping) event.body()).sendTimestamp();
-                logger.info("Network latency: " + latency + "ms");
-            });
 
             executor.execute(this::listen);
             executor.execute(this::trackLatency);
@@ -66,7 +65,7 @@ public final class NetworkManager {
         return instance;
     }
 
-    public static long getLatency() {
+    public long getLatency() {
         return latency;
     }
 
