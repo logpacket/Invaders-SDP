@@ -2,14 +2,13 @@ package service;
 
 import engine.network.EventHandler;
 import engine.network.ErrorHandler;
-import engine.network.NetworkManager;
-import message.Ranking;
-import message.RankingListResponse;
+import message.HighScore;
 
-import java.util.List;
+public class RankingService extends Service {
 
-public class RankingService {
-    private final NetworkManager networkManager = NetworkManager.getInstance();
+    public RankingService() {
+        super("ranking");
+    }
 
     /**
      * Fetches rankings from the server.
@@ -18,26 +17,17 @@ public class RankingService {
      * @param errorHandler   Handler for errors.
      */
     public void fetchRankings(EventHandler successHandler, ErrorHandler errorHandler) {
-        networkManager.registerEventHandler("fetchRankings", event -> {
-            if (event.body() instanceof RankingListResponse response) {
-                successHandler.handle(event); // 성공적인 결과 처리
-            } else {
-                errorHandler.handle(new message.Error("Invalid data format."));
-            }
-        });
-
-        networkManager.sendEvent("fetchRankings", null);
+        request(null, successHandler, errorHandler);
     }
 
     /**
      * Saves a ranking to the server.
      *
-     * @param ranking       The ranking to save.
+     * @param score          The new high score to save.
      * @param successHandler Handler for successful responses.
      * @param errorHandler   Handler for errors.
      */
-    public void saveRanking(Ranking ranking, EventHandler successHandler, ErrorHandler errorHandler) {
-        networkManager.registerEventHandler("saveRanking", eventContext -> successHandler.handle(eventContext));
-        networkManager.sendEvent("saveRanking", ranking);
+    public void saveRanking(int score, EventHandler successHandler, ErrorHandler errorHandler) {
+        request(new HighScore(score), successHandler, errorHandler);
     }
 }

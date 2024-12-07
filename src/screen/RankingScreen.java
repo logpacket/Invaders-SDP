@@ -2,6 +2,7 @@ package screen;
 
 import engine.*;
 import message.Ranking;
+import message.RankingList;
 import service.RankingService;
 
 import java.awt.event.KeyEvent;
@@ -26,21 +27,21 @@ public class RankingScreen extends Screen {
 
         rankingService.fetchRankings(
                 event -> {
-                    if (event.body() instanceof List<?> fetchedData) {
+                    if (event.body() instanceof RankingList response) {
                         try {
-                            rankings = (List<Ranking>) fetchedData;
+                            rankings = response.rankings();
                             isLoading = false;
                         } catch (ClassCastException e) {
-                            System.err.println("Invalid data format received from the server.");
+                            logger.warning("Invalid data format received from the server.");
                             isLoading = false;
                         }
                     } else {
-                        System.err.println("Failed to parse rankings data.");
+                        logger.warning("Failed to parse rankings data.");
                         isLoading = false;
                     }
                 },
                 error -> {
-                    System.err.println("Failed to fetch rankings: " + error.message());
+                    logger.warning("Failed to fetch rankings: " + error.message());
                     isLoading = false;
                 }
         );
