@@ -34,6 +34,8 @@ public class GameState {
     private final SoundManager soundManager = SoundManager.getInstance();
     /** Singleton instance of ItemManager. */
     private ItemManager itemManager;
+    /** Singleton instance of NetworkManager. */
+    private final NetworkManager networkManager = NetworkManager.getInstance();
     private GameScreen gameScreen;
 
     /** Formation of enemy ships. */
@@ -277,7 +279,7 @@ public class GameState {
             bulletsShoot += itemManager.getShootNum();
 
         long currentTime = System.currentTimeMillis();
-        ping = NetworkManager.getLatency();
+        ping = networkManager.getLatency();
 
         if (prevTime != null)
             elapsedTime += (int) (currentTime - prevTime);

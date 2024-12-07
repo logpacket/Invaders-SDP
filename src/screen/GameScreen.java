@@ -2,10 +2,8 @@ package screen;
 
 import engine.Menu;
 import engine.*;
-import engine.network.NetworkManager;
 import entity.*;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
