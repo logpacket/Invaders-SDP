@@ -271,7 +271,7 @@ public class EntityFactory {
         }
 
         // draw "achievement"
-        entities.add(createCenteredBigString(screen, achievementTitle, screen.getHeight() / 9 ,Color.GREEN));
+        entities.add(createCenteredBigString(screen, achievementTitle, screen.getHeight() / 8 ,Color.GREEN));
 
         // draw instruction
         entities.add(createCenteredRegularString(screen, instructionsString,
@@ -1029,27 +1029,27 @@ public class EntityFactory {
 
 
         entities.add(new TextEntity(inputStartX, inputStartY,
-                isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontRegular()));
+                isUsernameActive ? Color.YELLOW : Color.WHITE, usernameLabel, FontManager.getFontBig()));
         entities.add(createRectEntity(inputStartX + 150, inputStartY - inputHeight + 10,
                 isUsernameActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
         entities.add(new TextEntity(inputStartX + 160, inputStartY - 5,
-                isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontRegular()));
+                isUsernameActive ? Color.YELLOW : Color.WHITE, usernameInput, FontManager.getFontBig()));
 
         entities.add(new TextEntity(inputStartX, inputStartY + inputSpacing,
-                isPasswordActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontRegular()));
+                isPasswordActive ? Color.YELLOW : Color.WHITE, passwordLabel, FontManager.getFontBig()));
         entities.add(createRectEntity(inputStartX + 150, inputStartY + inputSpacing - inputHeight + 10,
                 isPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
         String maskedPassword = "*".repeat(passwordInput.length());
         entities.add(new TextEntity(inputStartX + 160, inputStartY + inputSpacing - 5,
-                isPasswordActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontRegular()));
+                isPasswordActive ? Color.YELLOW : Color.WHITE, maskedPassword, FontManager.getFontBig()));
 
         entities.add(new TextEntity(inputStartX, inputStartY + 2 * inputSpacing,
-                isConfirmPasswordActive ? Color.YELLOW : Color.WHITE, confirmPasswordLabel, FontManager.getFontRegular()));
+                isConfirmPasswordActive ? Color.YELLOW : Color.WHITE, confirmPasswordLabel, FontManager.getFontBig()));
         entities.add(createRectEntity(inputStartX + 150, inputStartY + 2 * inputSpacing - inputHeight + 10,
                 isConfirmPasswordActive ? Color.YELLOW : Color.WHITE, inputWidth, inputHeight, false));
         String maskedConfirmPassword = "*".repeat(confirmPasswordInput.length());
         entities.add(new TextEntity(inputStartX + 160, inputStartY + 2 * inputSpacing - 5,
-                isConfirmPasswordActive ? Color.YELLOW : Color.WHITE, maskedConfirmPassword, FontManager.getFontRegular()));
+                isConfirmPasswordActive ? Color.YELLOW : Color.WHITE, maskedConfirmPassword, FontManager.getFontBig()));
 
         entities.add(createCenteredRegularString(screen, signUpButton, inputStartY + 3 * inputSpacing,Color.YELLOW));
 
