@@ -60,7 +60,6 @@ public class AchievementScreen extends Screen {
 	protected final void update() {
 		super.update();
 
-		draw();
 		if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)
 				&& this.inputDelay.checkFinished()) {
 			this.isRunning = false;
@@ -68,15 +67,12 @@ public class AchievementScreen extends Screen {
 		}
 	}
 
-	/**
-	 * Draws the elements associated with the screen.
-	 */
-	private void draw() {
-		drawManager.initDrawing(this);
-		drawManager.drawAchievementMenu(this, this.totalScore, this.totalPlayTime,
+
+	protected void updateEntity(){
+		entityList.addAll(EntityFactory.createAchievementMenu(this, this.totalScore, this.totalPlayTime,
 				this.maxCombo, this.currentPerfectStage, this.currentPerfectStage+1,
-				this.checkFlawlessFailure);
-		drawManager.drawHighScores(this, this.highScores);
-		drawManager.completeDrawing(this);
+				this.checkFlawlessFailure));
+		entityList.addAll(EntityFactory.createHighScores(this, this.highScores));
+
 	}
 }

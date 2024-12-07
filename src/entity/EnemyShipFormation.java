@@ -1,7 +1,7 @@
 package entity;
 
 import engine.*;
-import engine.DrawManager.SpriteType;
+import engine.Renderer.SpriteType;
 import screen.Screen;
 
 import java.util.*;
@@ -47,7 +47,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	private static final int MINIMUM_SPEED = 10;
 
 	/** DrawManager instance. */
-	private final DrawManager drawManager;
+	private final Renderer renderer;
 	/** Application logger. */
 	private final Logger logger;
 	/** Screen to draw ships on. */
@@ -123,7 +123,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	 *            Current game settings.
 	 */
 	public EnemyShipFormation(final GameSettings gameSettings, final GameLevelState gameLevelState) {
-		this.drawManager = DrawManager.getInstance();
+        this.renderer = Renderer.getInstance();
 		this.logger = Core.getLogger();
 		this.enemyShipsGrid = new ArrayList<>();
 		this.enemyShipsDivers = new ArrayList<>();
@@ -200,38 +200,6 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	public final void attach(final Screen newScreen) {
 		screen = newScreen;
 	}
-
-	/**
-	 * Draws every individual component of the formation.
-	 */
-	public final void draw() {
-		for (List<EnemyShip> column : this.enemyShipsGrid)
-			for (EnemyShip enemyShip : column)
-				if (enemyShip != null)
-				    drawManager.drawEntity(enemyShip, enemyShip.getPositionX(),
-                 enemyShip.getPositionY());
-
-		for(EnemyShip enemyShip : this.enemyShipsDivers) {
-			drawManager.drawEntity(enemyShip, enemyShip.getPositionX(),
-					enemyShip.getPositionY());
-		}
-	}
-
-	/**
-	 * Draws every individual component of the formation for two player mode.
-	 */
-	public final void draw(final int playerNumber) {
-		for (List<EnemyShip> column : this.enemyShipsGrid)
-			for (EnemyShip enemyShip : column)
-				if (enemyShip != null)
-					drawManager.drawEntity(enemyShip, enemyShip.getPositionX(),
-							enemyShip.getPositionY(), playerNumber);
-
-        for(EnemyShip enemyShip : this.enemyShipsDivers) {
-            drawManager.drawEntity(enemyShip, enemyShip.getPositionX(),
-                    enemyShip.getPositionY(), playerNumber);
-        }
-    }
 
 	/**
 	 * Updates the position of the ships.

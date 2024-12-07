@@ -1,8 +1,8 @@
 package entity;
 
-import engine.DrawManager.SpriteType;
+import java.awt.Color;
 
-import java.awt.*;
+import engine.Renderer.SpriteType;
 
 /**
  * Implements a bullet that moves vertically up or down.
@@ -10,7 +10,7 @@ import java.awt.*;
  * @author <a href="mailto:RobertoIA1987@gmail.com">Roberto Izquierdo Amo</a>
  * 
  */
-public class Bullet extends Entity {
+public class Bullet extends SpriteEntity {
 
 	/**
 	 * Speed of the bullet, positive or negative depending on direction -

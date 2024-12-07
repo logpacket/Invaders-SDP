@@ -1,6 +1,6 @@
 package entity.ship;
 
-import engine.DrawManager;
+import engine.Renderer;
 import entity.Ship;
 import entity.ShipMultipliers;
 
@@ -12,6 +12,6 @@ public class CosmicCruiser extends Ship {
     public CosmicCruiser(final int positionX, final int positionY) {
         super(positionX, positionY,
                 "Cosmic Cruiser", new ShipMultipliers(0.8f, 2f, 1.6f),
-                DrawManager.SpriteType.SHIP_4, ShipType.COSMIC_CRUISER);
+                Renderer.SpriteType.SHIP_4, ShipType.COSMIC_CRUISER);
     }
 }

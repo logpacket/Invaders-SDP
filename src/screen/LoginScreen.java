@@ -50,6 +50,8 @@ public class LoginScreen extends Screen {
 
         if (!soundManager.isSoundPlaying(Sound.BGM_LOGIN))
             soundManager.loopSound(Sound.BGM_LOGIN);
+
+        renderer.initDrawing(this); //to initialize FontManager.fontMetrics
     }
 
     /**
@@ -57,7 +59,6 @@ public class LoginScreen extends Screen {
      */
     protected final void update() {
         super.update();
-        draw();
         handleInput();
     }
 
@@ -176,16 +177,9 @@ public class LoginScreen extends Screen {
         });
     }
 
-    /**
-     * Draws the login screen elements.
-     */
-    private void draw() {
-        drawManager.initDrawing(this);
-
-        drawManager.drawLoginScreen(this, usernameInput, passwordInput, isUsernameActive,
-                isPasswordActive, selectedOption, !alertCooldown.checkFinished());
-
-        drawManager.completeDrawing(this);
+    protected void updateEntity(){
+        entityList.addAll(EntityFactory.createLoginScreen(this, usernameInput, passwordInput,
+                isUsernameActive, isPasswordActive, selectedOption, !alertCooldown.checkFinished()));
     }
 
     /**

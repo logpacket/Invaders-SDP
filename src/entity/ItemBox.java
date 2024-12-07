@@ -1,6 +1,6 @@
 package entity;
 
-import engine.DrawManager.SpriteType;
+import engine.Renderer.SpriteType;
 import engine.Sound;
 import engine.SoundManager;
 
@@ -17,7 +17,7 @@ import java.awt.*;
  * @author D0hunLee
  *
  */
-public class ItemBox extends Entity {
+public class ItemBox extends SpriteEntity {
     /** Check if it was dropped right now. */
     private boolean droppedRightNow;
 

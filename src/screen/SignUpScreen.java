@@ -43,7 +43,6 @@ public class SignUpScreen extends Screen {
     @Override
     protected final void update() {
         super.update();
-        draw();
         handleInput();
     }
 
@@ -131,12 +130,10 @@ public class SignUpScreen extends Screen {
         return passwordInput.equals(confirmPasswordInput);
     }
 
-    private void draw() {
-        drawManager.initDrawing(this);
+    protected void updateEntity(){
+        entityList.addAll(EntityFactory.createSignUpScreen(this, usernameInput, passwordInput, confirmPasswordInput,
+                isUsernameActive, isPasswordActive, isConfirmPasswordActive,
+                !alertCooldown.checkFinished()));
 
-        drawManager.drawSignUpScreen(this, usernameInput, passwordInput, confirmPasswordInput,
-                isUsernameActive, isPasswordActive, isConfirmPasswordActive, !alertCooldown.checkFinished());
-
-        drawManager.completeDrawing(this);
     }
 }

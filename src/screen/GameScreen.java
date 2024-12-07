@@ -7,10 +7,8 @@ import entity.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.List;
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.Timer;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 
@@ -44,7 +42,10 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 
 	private final GameState gameState;
 
+	private boolean isMultiPlay = false;
+
     private long ping = 0L;
+
     /**
 	 * Constructor, establishes the properties of the screen.
 	 *
@@ -139,7 +140,6 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		gameState.updateEnemyShipFormation(this.inputDelay.checkFinished());
 		gameState.manageCollisions();
 		gameState.cleanBullets();
-		draw();
 
 		if ((gameState.getEnemyShipFormation().isEmpty() || gameState.getLives() <= 0)
 				&& !gameState.isLevelFinished()) {
@@ -158,84 +158,96 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 		}
 	}
 
-	/**
-	 * Draws the elements associated with the screen.
-	 */
-	private void draw() {
-		drawManager.initDrawing(this);
-		drawManager.drawGameTitle(this);
-		drawManager.drawLaunchTrajectory( this,gameState.getShip().getPositionX());
-		drawManager.drawEntity(gameState.getShip(), gameState.getShip().getPositionX(), gameState.getShip().getPositionY());
-		drawManager.drawPing(this, gameState.getPing());
 
-		//draw Spider Web
-        for (Web web : gameState.getWebList()) {
-            drawManager.drawEntity(web, web.getPositionX(),
-                    web.getPositionY());
-        }
-		//draw Blocks
-		for (Block b : gameState.getBlock())
-			drawManager.drawEntity(b, b.getPositionX(),
-					b.getPositionY());
+	protected void updateEntity(){
+		try {
+			entityList.add(EntityFactory.createGameTitle(this));
 
-		EnemyShip enemyShipSpecial = gameState.getEnemyShipSpecial();
-		if (enemyShipSpecial != null)
-			drawManager.drawEntity(enemyShipSpecial,
-					enemyShipSpecial.getPositionX(),
-					enemyShipSpecial.getPositionY());
+			entityList.addAll(EntityFactory.createLaunchTrajectory(this, gameState.getShip().getPositionX()));
 
-		gameState.getEnemyShipFormation().draw();
+			entityList.add(gameState.getShip());
 
-		for (ItemBox itemBox : gameState.getItemBoxes())
-			drawManager.drawEntity(itemBox, itemBox.getPositionX(), itemBox.getPositionY());
+			//create Spider Web
+			if (gameState.getWebList() != null)
+				entityList.addAll(gameState.getWebList());
 
-		for (Barrier barrier :gameState.getBarriers())
-			drawManager.drawEntity(barrier, barrier.getPositionX(), barrier.getPositionY());
+			//create Blocks
+			if (gameState.getBlock() != null)
+				entityList.addAll(gameState.getBlock());
 
-		for (Bullet bullet : gameState.getBullets())
-			drawManager.drawEntity(bullet, bullet.getPositionX(), bullet.getPositionY());
+			if (gameState.getEnemyShipSpecial() != null)
+				entityList.add(gameState.getEnemyShipSpecial());
 
-		// Interface.
-		drawManager.drawScore(this, gameState.getScore());
-		drawManager.drawElapsedTime(this, gameState.getElapsedTime());
-		drawManager.drawAlertMessage(this, gameState.getAlertMessage());
-		drawManager.drawLives(this, gameState.getLives(), this.shipType);
-		drawManager.drawLevel(this, this.level);
-		drawManager.drawHorizontalLine(this, SEPARATION_LINE_HEIGHT - 1);
-		drawManager.drawReloadTimer(this, gameState.getShip(), gameState.getShip().getRemainingReloadTime(), this.shipType);
-		drawManager.drawCombo(this, gameState.getCombo());
 
-		// Countdown to game start.
-		if (!this.inputDelay.checkFinished()) {
-			int countdown = (int) ((INPUT_DELAY - (System.currentTimeMillis() - this.gameStartTime)) / 1000);
-			drawManager.drawCountDown(this, this.level, countdown, gameState.getBonusLife());
-			drawManager.drawHorizontalLine(this, this.height / 2 - this.height / 12);
-			drawManager.drawHorizontalLine(this, this.height / 2 + this.height / 12);
+			//create enemyShip
+			for (List<EnemyShip> column : gameState.getEnemyShipFormation().getEnemyShips())
+				for (EnemyShip enemyShip : column)
+					if (enemyShip != null)
+						entityList.add(enemyShip);
 
-			//Intermediate aggregation
-			if (this.level > 1){
-                if (countdown == 0) {
-					//Reset mac combo and edit temporary values
-					gameState.initLapTime();
-                    gameState.initTempScore();
-                    gameState.initMaxCombo();
-                } else {
-					// Don't show it just before the game starts, i.e. when the countdown is zero.
-                    drawManager.interAggre(this, this.level - 1, gameState.getMaxCombo(), gameState.getElapsedTime() - gameState.getLapTime(), gameState.getScore(), gameState.getTempScore());
-                }
+			if (gameState.getEnemyShipFormation() != null)
+				entityList.addAll(gameState.getEnemyShipFormation().getEnemyDivers());
+
+			if (gameState.getItemBoxes() != null)
+				entityList.addAll(gameState.getItemBoxes());
+
+			if (gameState.getBarriers() != null)
+				entityList.addAll(gameState.getBarriers());
+
+			if (gameState.getBullets() != null)
+				entityList.addAll(gameState.getBullets());
+
+			// Interface.
+			entityList.add(EntityFactory.createScore(this, gameState.getScore()));
+			entityList.add(EntityFactory.createElapsedTime(this, gameState.getElapsedTime()));
+			entityList.add(EntityFactory.createAlertMessage(this, gameState.getAlertMessage()));
+			entityList.add(EntityFactory.createLivesString(this, gameState.getLives()));
+			entityList.addAll(EntityFactory.createLivesSprites(this, gameState.getLives(), this.shipType));
+			entityList.add(EntityFactory.createLevel(this, this.level));
+			entityList.addAll(EntityFactory.createHorizontalLines(this, SEPARATION_LINE_HEIGHT - 1));
+			entityList.add(EntityFactory.createReloadTimer(this, gameState.getShip(), gameState.getShip().getRemainingReloadTime(), this.shipType));
+			entityList.add(EntityFactory.createCombo(this, gameState.getCombo()));
+
+
+			if (this.isMultiPlay && gameState.isLevelFinished() && gameState.setScreenFinishedCooldown().checkFinished() && gameState.getLives() <= 0) {
+				entityList.addAll(EntityFactory.createInGameOver(this));
+				entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2
+						- this.height / 12));
+				entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2
+						+ this.height / 12));
 			}
-		}
 
-		//add drawRecord method for drawing
-		drawManager.drawRecord(highScores,this);
 
-		// Blocker drawing part
-		if (!gameState.getBlockers().isEmpty()) {
-			for (Blocker blocker : gameState.getBlockers()) {
-				drawManager.drawRotatedEntity(blocker, blocker.getPositionX(), blocker.getPositionY(), blocker.getAngle());
+			// Countdown to game start.
+			if (!this.inputDelay.checkFinished()) {
+				int countdown = (int) ((INPUT_DELAY - (System.currentTimeMillis() - this.gameStartTime)) / 1000);
+				entityList.addAll(EntityFactory.createCountDown(this, this.level, countdown, gameState.getBonusLife()));
+				entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 - this.height / 12));
+				entityList.addAll(EntityFactory.createHorizontalLines(this, this.height / 2 + this.height / 12));
+
+				//Intermediate aggregation
+				if (this.level > 1) {
+					if (countdown == 0) {
+						//Reset mac combo and edit temporary values
+						gameState.initLapTime();
+						gameState.initTempScore();
+						gameState.initMaxCombo();
+					} else {
+						// Don't show it just before the game starts, i.e. when the countdown is zero.
+						entityList.addAll(EntityFactory.createAggre(this, this.level - 1, gameState.getMaxCombo(), gameState.getElapsedTime() - gameState.getLapTime(), gameState.getScore(), gameState.getTempScore()));
+					}
+				}
 			}
+
+			entityList.add(EntityFactory.createRecord(this, highScores));
+
+			// Blocker drawing part
+			if (!gameState.getBlockers().isEmpty())
+				entityList.addAll(gameState.getBlockers());
+		} catch (Exception e) {
+			entityList.clear();
+			entityList.add(EntityFactory.createCenteredSmallString(this, "", 0, Color.BLACK));
 		}
-		drawManager.completeDrawing(this);
 	}
 
 	/**
@@ -257,7 +269,15 @@ public class GameScreen extends Screen implements Callable<GameLevelState> {
 	 */
 	@Override
 	public final GameLevelState call() {
+		this.isMultiPlay = true;
 		run();
 		return getGameLevelState();
+	}
+
+	public List<Entity> getEntities() {
+		updateEntity();
+		List<Entity> tmpEntities = (List<Entity>) ((ArrayList<Entity>) entityList).clone();
+		entityList.clear();
+		return tmpEntities;
 	}
 }
