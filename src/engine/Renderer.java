@@ -34,12 +34,6 @@ public final class Renderer {
 	private Graphics backBufferGraphics;
 	/** Buffer image. */
 	private BufferedImage backBuffer;
-	/** Small sized font. */
-	private Font fontSmall;
-	/** Regular sized font. */
-	private Font fontRegular;
-	/** Big sized font. */
-	private Font fontBig;
 	/** Vertical line width for two player mode **/
 	private static final int LINE_WIDTH = 1;
 
@@ -157,19 +151,9 @@ public final class Renderer {
 			fileManager.loadSprite(spriteMap);
 			logger.info("Finished loading the sprites.");
 
-			// Font loading.
-			fontSmall = fileManager.loadFont(10f);
-			fontRegular = fileManager.loadFont(14f);
-			fontBig = fileManager.loadFont(24f);
-			logger.info("Finished loading the fonts.");
-
 		} catch (IOException e) {
 			logger.warning("Loading failed.");
-		} catch (FontFormatException e) {
-			logger.warning("Font formating failed.");
 		}
-
-
 	}
 
 	/**

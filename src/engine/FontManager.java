@@ -20,11 +20,7 @@ public class FontManager {
             fontSmall = fileManager.loadFont(10f);
             fontRegular = fileManager.loadFont(14f);
             fontBig = fileManager.loadFont(24f);
-        } catch (IOException _) {
-
-        } catch (FontFormatException _) {
-
-		}
+        } catch (IOException | FontFormatException _) { }
 
     }
 
