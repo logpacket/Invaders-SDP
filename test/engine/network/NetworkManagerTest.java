@@ -8,7 +8,10 @@ import java.util.UUID;
 
 import message.Ping;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 
 class NetworkManagerTest {
     private NetworkManager networkManager;
@@ -56,4 +59,15 @@ class NetworkManagerTest {
             fail("Test failed: " + e.getMessage());
         }
     }
+
+    @Test
+    void showErrorPopup_shouldShowErrorPopupWithoutException() throws Exception {
+        NetworkManager networkManager = NetworkManager.getInstance();
+
+        Method method = NetworkManager.class.getDeclaredMethod("showErrorPopup", String.class);
+        method.setAccessible(true);
+
+        assertDoesNotThrow(() -> method.invoke(networkManager, "Test Error"));
+    }
+
 }
