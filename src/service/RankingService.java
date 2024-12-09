@@ -3,6 +3,7 @@ package service;
 import engine.network.EventHandler;
 import engine.network.ErrorHandler;
 import message.HighScore;
+import message.Ranking;
 
 public class RankingService extends Service {
 
@@ -28,6 +29,8 @@ public class RankingService extends Service {
      * @param errorHandler   Handler for errors.
      */
     public void saveRanking(int score, EventHandler successHandler, ErrorHandler errorHandler) {
-        request(new HighScore(score), successHandler, errorHandler);
+
+        HighScore highScore = new HighScore(score);
+        request(highScore, successHandler, errorHandler);
     }
 }

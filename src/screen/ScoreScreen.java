@@ -2,6 +2,7 @@ package screen;
 
 import engine.*;
 import entity.Wallet;
+import service.RankingService;
 
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -92,6 +93,8 @@ public class ScoreScreen extends Screen {
 		} catch (IOException e) {
 			logger.warning("Couldn't load high scores!");
 		}
+
+		saveHighScoreToServer(name1, score);
 	}
 
 	/**
@@ -160,6 +163,17 @@ public class ScoreScreen extends Screen {
 		} catch (IOException e) {
 			logger.warning("Couldn't load high scores!");
 		}
+	}
+
+	private void saveHighScoreToServer(String username, int highScore){
+
+		RankingService rankingService = new RankingService();
+
+		rankingService.saveRanking(
+				highScore,
+				event -> logger.info("High score saved successfully for user: " + username),
+				error -> logger.warning("Failed to save high score for user: " + username)
+		);
 	}
 
 	/**

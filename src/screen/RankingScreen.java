@@ -16,9 +16,11 @@ public class RankingScreen extends Screen {
     private boolean isLoading = true;
     private int scrollOffset = 0;
     private final int rowsPerPage = 10;
+    private final GameState gameState;
 
-    public RankingScreen(int width, int height, int fps) {
+    public RankingScreen(int width, int height, int fps, GameState gameState) {
         super(width, height, fps);
+        this.gameState = gameState;
         loadRankings();
     }
 

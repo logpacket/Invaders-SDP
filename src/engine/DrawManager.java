@@ -2115,8 +2115,8 @@ public final class DrawManager {
 
 			// Draw rank, username, and highScore
 			String rankText = String.valueOf(i + 1); // Rank as a string
-			String userName = rankings.get(i).name(); // UserName
-			String highScore = String.valueOf(rankings.get(i).score()); // HighScore
+			String userName = rankings.get(i).username(); // UserName
+			String highScore = String.valueOf(rankings.get(i).highScore()); // HighScore
 
 			// Render text at appropriate positions
 			backBufferGraphics.setColor(Color.WHITE);
