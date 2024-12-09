@@ -823,7 +823,7 @@ public class EntityFactory {
      *            Screen to draw on.
      * @param selectedRow
      *            Selected row.
-     * @param isMultiPlayer
+     * @param isOnlinePlay
      *            If the game is multiplayer.
      * @param name1
      *            Player 1 name.
@@ -836,34 +836,30 @@ public class EntityFactory {
      *
      */
     public static List<Entity> createGameSettingElements(final Screen screen, final int selectedRow,
-                                                         final boolean isMultiPlayer, final String name1, final String name2, final int difficultyLevel,
+                                                         final boolean isOnlinePlay, final int difficultyLevel,
                                                          final Ship.ShipType shipType) {
         List<Entity> entities = new ArrayList<>();
 
         String spaceString = " ";
-        String player1String = "1 Player";
-        String player2String = "2 Player";
+        String singlePlayString = "Single Play";
+        String onlinePlayString = "Online Play";
         String levelEasyString = "Easy";
         String levelNormalString = "Normal";
         String levelHardString = "Hard";
         String startString = "Start";
         Color color;
 
-        if (!isMultiPlayer) color = Color.GREEN;
+        if (!isOnlinePlay) color = Color.GREEN;
         else color = Color.WHITE;
 
-        entities.add(createCenteredRegularString(screen, player1String + spaceString.repeat(40),
+        entities.add(createCenteredRegularString(screen, singlePlayString + spaceString.repeat(40),
                 screen.getHeight() / 100 * 38, color));
-        entities.add(createCenteredRegularString(screen,  name1 + spaceString.repeat(40),
-                screen.getHeight() / 100 * 46, color));
 
-        if (!isMultiPlayer) color = Color.WHITE;
+        if (!isOnlinePlay) color = Color.WHITE;
         else color = Color.GREEN;
 
-        entities.add(createCenteredRegularString(screen, spaceString.repeat(40) + player2String,
+        entities.add(createCenteredRegularString(screen, spaceString.repeat(40) + onlinePlayString,
                 screen.getHeight() / 100 * 38, color));
-        entities.add(createCenteredRegularString(screen, spaceString.repeat(40) + name2,
-                screen.getHeight() / 100 * 46, color));
 
         if (difficultyLevel==0) color = Color.GREEN;
         else color = Color.WHITE;
