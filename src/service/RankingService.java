@@ -25,12 +25,10 @@ public class RankingService extends Service {
      * Saves a ranking to the server.
      *
      * @param score          The new high score to save.
-     * @param successHandler Handler for successful responses.
-     * @param errorHandler   Handler for errors.
      */
-    public void saveRanking(int score, EventHandler successHandler, ErrorHandler errorHandler) {
+    public void saveRanking(int score, EventHandler callback, ErrorHandler errorHandler) {
 
         HighScore highScore = new HighScore(score);
-        request(highScore, successHandler, errorHandler);
+        request(highScore, callback, errorHandler);
     }
 }

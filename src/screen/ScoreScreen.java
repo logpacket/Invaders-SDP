@@ -94,7 +94,7 @@ public class ScoreScreen extends Screen {
 			logger.warning("Couldn't load high scores!");
 		}
 
-		saveHighScoreToServer(name1, score);
+		saveHighScoreToServer(score);
 	}
 
 	/**
@@ -165,14 +165,18 @@ public class ScoreScreen extends Screen {
 		}
 	}
 
-	private void saveHighScoreToServer(String username, int highScore){
+	private void saveHighScoreToServer(int score){
+		if (score <= 0) {
+			logger.warning("Invalid high score: " + score);
+			return;
+		}
 
 		RankingService rankingService = new RankingService();
 
 		rankingService.saveRanking(
-				highScore,
-				event -> logger.info("High score saved successfully for user: " + username),
-				error -> logger.warning("Failed to save high score for user: " + username)
+				score,
+				event -> logger.info("HighScore saved successfully!"),
+				error -> logger.warning("Failed save score!")
 		);
 	}
 
