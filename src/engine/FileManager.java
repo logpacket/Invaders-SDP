@@ -1,16 +1,26 @@
 package engine;
 
-import engine.DrawManager.SpriteType;
-import entity.Achievement;
-import entity.Wallet;
-
-import java.awt.*;
-import java.io.*;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.*;
 import java.util.logging.Logger;
+
+import engine.Renderer.SpriteType;
+import entity.Wallet;
+import entity.Achievement;
 
 /**
  * Manages files used in the application.
@@ -50,8 +60,8 @@ public final class FileManager {
 	 *             In case of loading problems.
 	 */
 	public void loadSprite(final Map<SpriteType, boolean[][]> spriteMap) throws IOException {
-        try (InputStream inputStream = DrawManager.class.getClassLoader().getResourceAsStream("graphics");
-			 BufferedReader reader = inputStream != null ? new BufferedReader(new InputStreamReader(inputStream)) : null) {
+        try (InputStream inputStream = Renderer.class.getClassLoader().getResourceAsStream("graphics");
+             BufferedReader reader = inputStream != null ? new BufferedReader(new InputStreamReader(inputStream)) : null) {
 
 			if (reader == null)
 				throw new IOException("Graphics file not found.");

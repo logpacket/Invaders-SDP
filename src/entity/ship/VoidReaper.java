@@ -1,6 +1,6 @@
 package entity.ship;
 
-import engine.DrawManager;
+import engine.Renderer;
 import entity.Ship;
 import entity.ShipMultipliers;
 
@@ -12,6 +12,6 @@ public class VoidReaper extends Ship {
     public VoidReaper(final int positionX, final int positionY) {
         super(positionX, positionY,
                 "Void Reaper", new ShipMultipliers(1.4f, 1.2f, 0.4f),
-                DrawManager.SpriteType.SHIP_2, ShipType.VOID_REAPER);
+                Renderer.SpriteType.SHIP_2, ShipType.VOID_REAPER);
     }
 }

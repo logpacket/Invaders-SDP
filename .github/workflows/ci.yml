@@ -1,0 +1,28 @@
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 23
+        uses: actions/setup-java@v3
+        with:
+          java-version: '23'
+          distribution: 'oracle'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e87d72b7e8201
+        with:
+          arguments: build

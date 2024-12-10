@@ -101,7 +101,6 @@ public class ScoreScreen extends Screen {
 	protected final void update() {
 		super.update();
 
-		draw();
 		if (this.inputDelay.checkFinished()) {
 			if (inputManager.isKeyDown(KeyEvent.VK_ESCAPE)) {
 				// Return to main menu.
@@ -162,17 +161,11 @@ public class ScoreScreen extends Screen {
 		}
 	}
 
-	/**
-	 * Draws the elements associated with the screen.
-	 */
-	private void draw() {
-		drawManager.initDrawing(this);
+	protected void updateEntity(){
+		entityList.addAll(EntityFactory.createGameOver(this, this.inputDelay.checkFinished(),
+				this.isNewRecord));
+		entityList.addAll(EntityFactory.createResults(this, this.score, this.livesRemaining,
+				this.shipsDestroyed, this.accuracy, this.isNewRecord, this.coinsEarned));
 
-		drawManager.drawGameOver(this, this.inputDelay.checkFinished(),
-				this.isNewRecord);
-		drawManager.drawResults(this, this.score, this.livesRemaining,
-				this.shipsDestroyed, this.accuracy, this.isNewRecord, this.coinsEarned);
-
-		drawManager.completeDrawing(this);
 	}
 }

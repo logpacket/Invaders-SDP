@@ -1,9 +1,15 @@
 package screen;
 
+import engine.Cooldown;
+import engine.Core;
+import engine.GameSettings;
+import engine.InputManager;
 import engine.*;
+import entity.Entity;
 import entity.Ship;
 
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 /**
  * Implements the game setting screen.
@@ -61,6 +67,7 @@ public class GameSettingScreen extends Screen {
 
 		// row 3: start
 		this.selectedRow = 0;
+		this.entityList = new ArrayList<Entity>();
 
 		this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
 		this.selectionCooldown.reset();
@@ -73,7 +80,6 @@ public class GameSettingScreen extends Screen {
 	protected final void update() {
 		super.update();
 
-		draw();
 		if (this.inputDelay.checkFinished() && this.selectionCooldown.checkFinished()) {
 			if (inputManager.isKeyDown(KeyEvent.VK_UP)){
 				this.selectedRow = (this.selectedRow - 1 + TOTAL_ROWS) % TOTAL_ROWS;
@@ -188,19 +194,16 @@ public class GameSettingScreen extends Screen {
 		}
 	}
 
-	/**
-	 * Draws the elements associated with the screen.
-	 */
-	private void draw() {
-		drawManager.initDrawing(this);
 
-		drawManager.drawGameSetting(this);
+	protected void updateEntity(){
 
-		drawManager.drawGameSettingRow(this, this.selectedRow);
+		entityList.add(EntityFactory.createGameSetting(this));
 
-		drawManager.drawGameSettingElements(this, this.selectedRow, isMultiplayer, nameBuilder1.toString(), nameBuilder2.toString(), this.difficulty, this.shipType);
+		entityList.add(EntityFactory.createGameSettingRow(this, this.selectedRow));
 
-		drawManager.completeDrawing(this);
+		entityList.addAll(EntityFactory.createGameSettingElements(this, this.selectedRow,
+				isMultiplayer, nameBuilder1.toString(), nameBuilder2.toString(), this.difficulty, this.shipType));
+
 	}
 
 	public GameSettings getGameSettings() {
