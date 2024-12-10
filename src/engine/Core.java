@@ -125,8 +125,8 @@ public final class Core {
 					Renderer.getInstance().setFrame(frame);
 
 					gameLevelState = ((TwoPlayerScreen) currentScreen).getWinnerGameState();
-					int winnerNumber = ((TwoPlayerScreen) currentScreen).getWinnerNumber();
-					playerName = winnerNumber == 1 ? gameSettings.playerName1() : gameSettings.playerName2();
+					//int winnerNumber = ((TwoPlayerScreen) currentScreen).getWinnerNumber();
+					//playerName = "";
 
 					break;
 
@@ -135,7 +135,7 @@ public final class Core {
 
 					achievementManager.updatePlayed(gameLevelState.getAccuracy(), gameLevelState.score());
 					achievementManager.updateAllAchievements();
-					currentScreen = new ScoreScreen(playerName, width, height, FPS, gameLevelState, achievementManager, gameSettings.isMultiplayer());
+					currentScreen = new ScoreScreen(playerName, width, height, FPS, gameLevelState, achievementManager, gameSettings.isOnlinePlay());
 
 					menu = frame.setScreen(currentScreen);
 					gameLevelState = new GameLevelState();
@@ -158,6 +158,11 @@ public final class Core {
 
 				case CREDIT:
 					currentScreen = new CreditScreen(width, height, FPS);
+					menu = frame.setScreen(currentScreen);
+					break;
+
+				case MATCHMAKING:
+					currentScreen = new MatchmakingScreen(width, height, FPS, gameSettings);
 					menu = frame.setScreen(currentScreen);
 					break;
 
