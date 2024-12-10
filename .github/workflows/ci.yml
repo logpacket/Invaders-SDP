@@ -25,9 +25,7 @@ jobs:
           distribution: 'oracle'
 
       - name: Build with Gradle
-        uses: gradle/actions@v4.2.1
-        with:
-          arguments: build
+        uses: gradle/gradle-build-action@v3
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
