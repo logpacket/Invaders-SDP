@@ -14,12 +14,10 @@ public class Wallet {
     private int coinLevel;
     private final ShopService shopService;
 
-    private boolean initialized = false;
     private final Object initializationLock = new Object();
 
     private Wallet() {
         this.shopService = new ShopService();
-        initialize();
     }
 
     private static class WalletHolder {
@@ -30,69 +28,51 @@ public class Wallet {
         return WalletHolder.INSTANCE;
     }
 
-    private void initialize() {
-        new Thread(this::fetchShopData).start();
-    }
-
-    public boolean isInitialized() {
-        return initialized;
-    }
-
     public int getCoin() {
-        waitForInitialization();
         return coin;
     }
 
     public int getBulletLevel() {
-        waitForInitialization();
         return bulletLevel;
     }
 
     public int getShootLevel() {
-        waitForInitialization();
         return shootLevel;
     }
 
     public int getLivesLevel() {
-        waitForInitialization();
         return livesLevel;
     }
 
     public int getCoinLevel() {
-        waitForInitialization();
         return coinLevel;
     }
 
     public void setBulletLevel(int bulletLevel) {
-        waitForInitialization();
         this.bulletLevel = bulletLevel;
         saveShopToServer();
         logger.info("Bullet Level upgraded to: " + bulletLevel);
     }
 
     public void setShootLevel(int shootLevel) {
-        waitForInitialization();
         this.shootLevel = shootLevel;
         saveShopToServer();
         logger.info("Shoot Level upgraded to: " + shootLevel);
     }
 
     public void setLivesLevel(int livesLevel) {
-        waitForInitialization();
         this.livesLevel = livesLevel;
         saveShopToServer();
         logger.info("Lives Level upgraded to: " + livesLevel);
     }
 
     public void setCoinLevel(int coinLevel) {
-        waitForInitialization();
         this.coinLevel = coinLevel;
         saveShopToServer();
         logger.info("Coin Gain Level upgraded to: " + coinLevel);
     }
 
     public void deposit(int amount) {
-        waitForInitialization();
         if (amount <= 0) return;
         coin += amount;
         saveShopToServer();
@@ -100,7 +80,6 @@ public class Wallet {
     }
 
     public boolean withdraw(int amount) {
-        waitForInitialization();
         if (amount <= 0) return false;
         if (coin < amount) {
             logger.warning("Insufficient coin balance.");
@@ -112,13 +91,15 @@ public class Wallet {
         return true;
     }
 
-    private void saveShopToServer() {
+    public void saveShopToServer() {
+        logger.info("Sending shop data to server: coin=" + coin + ", bulletLevel=" + bulletLevel +
+                ", shootLevel=" + shootLevel + ", livesLevel=" + livesLevel + ", coinLevel=" + coinLevel);
         shopService.saveShop(coin, bulletLevel, shootLevel, livesLevel, coinLevel,
                 _ -> logger.info("Wallet data saved to server successfully."),
                 _ -> logger.warning("Error saving shop data."));
     }
 
-    private void fetchShopData() {
+    public void initialize() {
         shopService.callShop(
                 (event) -> {
                     if (event.body() instanceof message.Wallet wallet) {
@@ -128,7 +109,6 @@ public class Wallet {
                             this.shootLevel = wallet.shootLevel();
                             this.livesLevel = wallet.livesLevel();
                             this.coinLevel = wallet.coinLevel();
-                            this.initialized = true;
                             initializationLock.notifyAll();
                         }
 
@@ -144,16 +124,4 @@ public class Wallet {
         );
     }
 
-    private void waitForInitialization() {
-        synchronized (initializationLock) {
-            while (!initialized) {
-                try {
-                    initializationLock.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    logger.warning("Thread interrupted while waiting for Wallet initialization.");
-                }
-            }
-        }
-    }
 }
