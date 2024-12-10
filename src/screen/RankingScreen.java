@@ -5,6 +5,7 @@ import message.Ranking;
 import message.RankingList;
 import service.RankingService;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
@@ -15,11 +16,12 @@ public class RankingScreen extends Screen {
     private List<Ranking> rankings;
     private boolean isLoading = true;
     private int scrollOffset = 0;
-    private final int rowsPerPage = 10;
+    private final int rowsPerPage;
     private final GameState gameState;
 
     public RankingScreen(int width, int height, int fps, GameState gameState) {
         super(width, height, fps);
+        this.rowsPerPage = Math.max(1, height / 70);
         this.gameState = gameState;
         loadRankings();
     }
@@ -68,21 +70,22 @@ public class RankingScreen extends Screen {
             scrollOffset = Math.min(scrollOffset + 1, Math.max(0, rankings.size() - rowsPerPage));
             inputDelay.reset();
         }
-
-        draw();
     }
 
-    private void draw() {
-        drawManager.initDrawing(this);
+    public int getScrollOffset() {
+        return scrollOffset;
+    }
+
+    @Override
+    protected void updateEntity() {
+        entityList.clear();
 
         if (isLoading) {
-            drawManager.drawLoadingScreen(this);
+            entityList.add(EntityFactory.createCenteredBigString(this, "Loading...", Math.round(getHeight() * 0.5f), Color.YELLOW));
         } else if (rankings == null || rankings.isEmpty()) {
-            drawManager.drawErrorMessage(this, "No rankings available.");
+            entityList.add(EntityFactory.createCenteredBigString(this, "No rankings available.", Math.round(getHeight() * 0.5f), Color.RED));
         } else {
-            drawManager.drawRankingScreen(this, rankings, scrollOffset);
+            entityList.addAll(EntityFactory.createRankingScreen(this, rankings));
         }
-
-        drawManager.completeDrawing(this);
     }
 }
