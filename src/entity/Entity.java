@@ -14,7 +14,6 @@ public abstract class Entity {
         this.positionX = positionX;
         this.positionY = positionY;
         this.color = color;
-
     }
 
 	public abstract EntityType getType();

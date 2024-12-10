@@ -240,6 +240,12 @@ public abstract class Ship extends SpriteEntity {
 	}
 
 	/**
+	 * Getter for the ship's type
+	 * @return Type of the ship.
+	 */
+	public final ShipType getShipType() { return this.shipType; }
+
+	/**
 	 * Getter for the ship's multipliers.
 	 * @return Multipliers for the ship's properties.
 	 */

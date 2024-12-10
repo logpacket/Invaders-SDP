@@ -15,7 +15,7 @@ class TwoPlayerScreenTest {
     }
 
     @Test
-    void getWinnerGameState() {
+    void getGameState() {
     }
 
     @Test

@@ -12,6 +12,7 @@ public class FontManager {
     private static FontMetrics fontRegularMetrics;
     private static FontMetrics fontBigMetrics;
 
+    private FontManager() {}
 
     static {
         FileManager fileManager = FileManager.getInstance();

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import engine.Core;
+import entity.EntityMapper;
 import message.Ping;
 import org.reflections.Reflections;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public final class NetworkManager {
     private final Set<UUID> requestSet = new HashSet<>();
 
     private NetworkManager() {
-        mapper = new ObjectMapper();
+        mapper = new EntityMapper();
         mapper.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
         mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
 
@@ -93,7 +94,7 @@ public final class NetworkManager {
 
     private void trackLatency() {
         while (socket.isConnected()) {
-            sendEvent("ping", new Ping(System.currentTimeMillis()));
+            request("ping", new Ping(System.currentTimeMillis()));
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
@@ -107,9 +108,14 @@ public final class NetworkManager {
         eventHandlers.put(key, handler);
     }
 
-    public UUID sendEvent(String eventName, Body body) {
+    public UUID request(String eventName, Body body) {
         UUID requestId = UUID.randomUUID();
         requestSet.add(requestId);
+        sendEvent(eventName, body, requestId);
+        return requestId;
+    }
+
+    public void sendEvent(String eventName, Body body, UUID requestId) {
         Event event = new Event(eventName, body, requestId, System.currentTimeMillis());
         executor.execute(() -> {
             try {
@@ -122,11 +128,6 @@ public final class NetworkManager {
                 showErrorPopup("Failed to send data to the server.");
             }
         });
-        return requestId;
-    }
-
-    public boolean isDone(UUID requestId) {
-        return !requestSet.contains(requestId);
     }
 
     public boolean isRequested(UUID requestId) {
