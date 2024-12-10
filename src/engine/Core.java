@@ -169,6 +169,14 @@ public final class Core {
 					menu = frame.setScreen(currentScreen);
 					break;
 
+				case RANKING:
+					if (gameState == null) {
+						gameState = new GameState();
+					}
+					currentScreen = new RankingScreen(width, height, FPS, gameState);
+					menu = frame.setScreen(currentScreen);
+					break;
+
                 default:
                     break;
             }
