@@ -1,11 +1,10 @@
 package entity;
 
-import engine.DrawManager.SpriteType;
-
-import java.awt.*;
+import engine.Renderer.SpriteType;
 import java.util.Random;
+import java.awt.*;
 
-public class Blocker extends Entity {
+public class Blocker extends SpriteEntity {
 
     private final Random random;
     /* angle */
@@ -32,4 +31,9 @@ public class Blocker extends Entity {
     public double getAngle() { return angle; }
 
     public boolean getMoveLeft() { return moveLeft; }
+
+    @Override
+    public EntityType getType() {
+        return EntityType.BLOCKER;
+    }
 }

@@ -1,177 +1,121 @@
 package entity;
 
 import engine.Core;
-import engine.FileManager;
+import service.ShopService;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 public class Wallet {
-    private static Logger logger = Core.getLogger();
+    private static final Logger logger = Core.getLogger();
     private int coin;
-
-    //bullet speed level
     private int bulletLevel;
-
-    //shoot frequency level
     private int shootLevel;
-
-    //additional lives level
     private int livesLevel;
-
-    //coin gain level
     private int coinLevel;
+    private final ShopService shopService;
 
-    public Wallet()
-    {
-        this.coin = 0;
-        this.bulletLevel = 1;
-        this.shootLevel = 1;
-        this.livesLevel = 1;
-        this.coinLevel = 1;
-        writeWallet();
+    private Wallet() {
+        this.shopService = new ShopService();
     }
 
-    public Wallet(int coin, int bulletLevel, int shootLevel, int livesLevel, int coinLevel)
-    {
-        this.coin = coin;
-        this.bulletLevel = bulletLevel;
-        this.shootLevel = shootLevel;
-        this.livesLevel = livesLevel;
-        this.coinLevel = coinLevel;
+    private static class WalletHolder {
+        private static final Wallet INSTANCE = new Wallet();
     }
 
-    public int getCoin()
-    {
+    public static Wallet getWallet() {
+        return WalletHolder.INSTANCE;
+    }
+
+    public int getCoin() {
         return coin;
     }
 
-    public int getBulletLevel()
-    {
+    public int getBulletLevel() {
         return bulletLevel;
     }
 
-    public int getShootLevel()
-    {
+    public int getShootLevel() {
         return shootLevel;
     }
 
-    public int getLivesLevel() { return livesLevel; }
+    public int getLivesLevel() {
+        return livesLevel;
+    }
 
-    public int getCoinLevel()
-    {
+    public int getCoinLevel() {
         return coinLevel;
     }
 
-    public void setBulletLevel(int bulletLevel)
-    {
+    public void setBulletLevel(int bulletLevel) {
         this.bulletLevel = bulletLevel;
-        writeWallet();
-        logger.info("Upgrade Bullet Speed " + (bulletLevel -1) + "to " + bulletLevel);
+        saveShopToServer();
+        logger.info("Bullet Level upgraded to: " + bulletLevel);
     }
 
-    public void setShootLevel(int shootLevel)
-    {
+    public void setShootLevel(int shootLevel) {
         this.shootLevel = shootLevel;
-        writeWallet();
-        logger.info("Upgrade Shop Intervaluency  " + (shootLevel -1) + "to " + shootLevel);
+        saveShopToServer();
+        logger.info("Shoot Level upgraded to: " + shootLevel);
     }
 
-    public void setLivesLevel(int livesLevel)
-    {
+    public void setLivesLevel(int livesLevel) {
         this.livesLevel = livesLevel;
-        writeWallet();
-        logger.info("Upgrade Additional Lives " + (livesLevel -1) + "to " + livesLevel);
+        saveShopToServer();
+        logger.info("Lives Level upgraded to: " + livesLevel);
     }
 
-    public void setCoinLevel(int coinLevel)
-    {
+    public void setCoinLevel(int coinLevel) {
         this.coinLevel = coinLevel;
-        writeWallet();
-        logger.info("Upgrade Gain Coin " + (coinLevel -1) + "to " + coinLevel);
+        saveShopToServer();
+        logger.info("Coin Gain Level upgraded to: " + coinLevel);
     }
 
-    public void deposit(int amount)
-    {
-        if(amount <= 0) return;
+    public void deposit(int amount) {
+        if (amount <= 0) return;
         coin += amount;
-        writeWallet();
-        logger.info("Deposit completed. Your coin: " + this.coin);
+        saveShopToServer();
+        logger.info("Deposit completed. Current coin: " + coin);
     }
 
-    public boolean withdraw(int amount)
-    {
-        if(amount <= 0) return false;
-        if(coin - amount < 0)
-        {
-            logger.info("Insufficient coin");
+    public boolean withdraw(int amount) {
+        if (amount <= 0) return false;
+        if (coin < amount) {
+            logger.warning("Insufficient coin balance.");
             return false;
         }
         coin -= amount;
-        writeWallet();
-        logger.info("Withdraw completed. Your coin: " + this.coin);
+        saveShopToServer();
+        logger.info("Withdraw completed. Remaining coin: " + coin);
         return true;
     }
 
-    //현재 지갑상태를 파일에 저장. 저장방식: coin, bulletLevel, shootLevel, livesLevel, coinLevel 순으로 한줄씩 저장
-    //Save the current wallet state to a file. Save format: coin, bulletLevel, shootLevel, livesLevel, coinLevel, each in one line
-    private void writeWallet()
-    {
-        try {
-            FileManager.getInstance().saveWallet(this);
-        } catch (IOException e) {
-            logger.warning("Couldn't load wallet!");
-        }
+    public void saveShopToServer() {
+        logger.info("Sending shop data to server: coin=" + coin + ", bulletLevel=" + bulletLevel +
+                ", shootLevel=" + shootLevel + ", livesLevel=" + livesLevel + ", coinLevel=" + coinLevel);
+        shopService.saveShop(coin, bulletLevel, shootLevel, livesLevel, coinLevel,
+                _ -> logger.info("Wallet data saved to server successfully."),
+                _ -> logger.warning("Error saving shop data."));
     }
 
-    // 파일에 적힌 정보로 지갑 생성. 만약 파일이 손상되어 읽을 수 없다면 초기값(0)으로 생성하기
-    //Create a wallet using the information written in the file. If the file is damaged or unreadable, create it with initial values (0)
-    public static Wallet getWallet() {
-        BufferedReader bufferedReader = null;
+    public void initialize() {
+        shopService.callShop(
+                (event) -> {
+                    if (event.body() instanceof message.Wallet wallet) {
+                        this.coin = wallet.coin();
+                        this.bulletLevel = wallet.bulletLevel();
+                        this.shootLevel = wallet.shootLevel();
+                        this.livesLevel = wallet.livesLevel();
+                        this.coinLevel = wallet.coinLevel();
 
-        try {
-            //FileManager 를 통해 파일에서 지갑 데이터를 불러옴
-            //Load wallet data from the file via FileManager
-            bufferedReader = FileManager.getInstance().loadWallet();
-
-            if (bufferedReader == null) {
-                logger.info("Wallet file does not exist, initializing with default values.");
-
-                return new Wallet();
-            }
-
-            //파일에서 각 줄을 읽어와서 값 설정
-            //Read each line from the file and set the values
-            int coin = Integer.parseInt(bufferedReader.readLine());
-            int[] levelSeq = new int[4]; //bulletLevel, shootLevel, livesLevel, coinLevel
-            for (int i = 0; i < 4; i++) {
-                int level = Integer.parseInt(bufferedReader.readLine());
-                if(level > 4 || level <= 0){
-                    logger.info("Weird level. Initializing with default values.");
-                    return new Wallet();
+                        logger.info(String.format("Wallet data loaded from server: coin=%d, bulletLevel=%d, shootLevel=%d, livesLevel=%d, coinLevel=%d",
+                                coin, bulletLevel, shootLevel, livesLevel, coinLevel));
+                    } else {
+                        logger.warning("Unexpected response type: " + event.body().getClass().getName());
+                    }
+                },
+                (error) -> {
+                    logger.warning("Error loading shop data: " + error.message());
                 }
-                levelSeq[i] = level;
-            }
-
-            return new Wallet(coin, levelSeq[0], levelSeq[1], levelSeq[2], levelSeq[3]);
-
-        } catch (IOException | NumberFormatException e) {
-            //파일을 읽지 못하거나 손상된 경우 기본값으로 반환
-            //If there is an error reading the file or if it's corrupted, return with default values
-            logger.info("Error loading wallet data. Initializing with default values.");
-            return new Wallet();
-        } finally {
-            //파일 리소스 해제
-            //Release file resources
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException e) {
-                    logger.warning("Couldn't close file.");
-                }
-            }
-        }
+        );
     }
-
 }

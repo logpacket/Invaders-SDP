@@ -14,6 +14,7 @@ public enum Menu {
     LOGIN,
     SIGN_UP,
     RANKING;
+    MATCHMAKING;
 
     static final Menu[] TITLE_MENU = {GAME_SETTING, SHOP, ACHIEVEMENT, RANKING, SETTING, EXIT};
     private static final int TILE_MENU_COUNT = 6;

@@ -1,8 +1,8 @@
 package screen;
 
-import engine.*;
-
 import java.awt.event.KeyEvent;
+
+import engine.*;
 
 
 /**
@@ -42,6 +42,8 @@ public class TitleScreen extends Screen {
 		this.selectionCooldown = Core.getCooldown(SELECTION_TIME);
 		this.selectionCooldown.reset();
 		this.menu = Menu.GAME_SETTING;
+
+		renderer.initDrawing(this); //to initialize FontManager.fontMetrics
 	}
 
 	/**
@@ -50,7 +52,6 @@ public class TitleScreen extends Screen {
 	protected final void update() {
 		super.update();
 
-		draw();
 		if (this.selectionCooldown.checkFinished()
 				&& this.inputDelay.checkFinished()) {
 			if (inputManager.isKeyDown(KeyEvent.VK_UP)
@@ -72,15 +73,12 @@ public class TitleScreen extends Screen {
 		}
 	}
 
-	/**
-	 * Draws the elements associated with the screen.
-	 */
-	private void draw() {
-		drawManager.initDrawing(this);
 
-		drawManager.drawTitle(this);
-		drawManager.drawMenu(this, this.menu);
+	protected void updateEntity() {
+		entityList.addAll(EntityFactory.createTitle(this));
+		entityList.addAll(EntityFactory.createMenu(this, this.menu));
 
-		drawManager.completeDrawing(this);
 	}
+
+
 }

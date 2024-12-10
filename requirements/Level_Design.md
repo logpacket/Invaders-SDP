@@ -58,7 +58,7 @@
     Modify the `destroy` method of the `EnemyShipFormation` class so that enemies are not destroyed immediately as the level increases, and increase the damage to enemy projectiles from 1 to 2.
 
   - Ally Speed Limit (Web class):
-    Remove the `final` value of the `speed` property of the `Ship` entity, and create a new `Web` class to design a platform that slows down friendly units when they step on it.
+    Remove the `final` value of the `speed` property of the `Ship` spriteEntity, and create a new `Web` class to design a platform that slows down friendly units when they step on it.
 
   - Endless Stages (Infinite Levels):
     Added a `levelDesign` method in the `GameSettings` class to change the game stages limited to 7 stages to unlimited, and set the difficulty to increase exponentially after stage 5.

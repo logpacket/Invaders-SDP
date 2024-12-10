@@ -1,6 +1,7 @@
 package screen;
 
 import engine.*;
+import entity.Wallet;
 import service.LoginService;
 
 import java.awt.event.KeyEvent;
@@ -28,6 +29,8 @@ public class LoginScreen extends Screen {
 
     /** Option selected (0 = Username Input, 1 = Password Input, 2 = Login Button, 3 = Sign Up Button) */
     private int selectedOption;
+    private final Wallet wallet;
+
 
     /**
      * Constructor, establishes the properties of the screen.
@@ -47,9 +50,12 @@ public class LoginScreen extends Screen {
         this.isPasswordActive = false;
         this.selectedOption = 0;
         this.menu = Menu.LOGIN;
+        this.wallet = Wallet.getWallet();
 
         if (!soundManager.isSoundPlaying(Sound.BGM_LOGIN))
             soundManager.loopSound(Sound.BGM_LOGIN);
+
+        renderer.initDrawing(this); //to initialize FontManager.fontMetrics
     }
 
     /**
@@ -57,7 +63,6 @@ public class LoginScreen extends Screen {
      */
     protected final void update() {
         super.update();
-        draw();
         handleInput();
     }
 
@@ -169,6 +174,7 @@ public class LoginScreen extends Screen {
             soundManager.stopSound(Sound.BGM_LOGIN);
             this.menu = Menu.MAIN;
             isRunning = false;
+            wallet.initialize();
         },
         _ -> {
             soundManager.playSound(Sound.COIN_INSUFFICIENT);
@@ -176,16 +182,9 @@ public class LoginScreen extends Screen {
         });
     }
 
-    /**
-     * Draws the login screen elements.
-     */
-    private void draw() {
-        drawManager.initDrawing(this);
-
-        drawManager.drawLoginScreen(this, usernameInput, passwordInput, isUsernameActive,
-                isPasswordActive, selectedOption, !alertCooldown.checkFinished());
-
-        drawManager.completeDrawing(this);
+    protected void updateEntity(){
+        entityList.addAll(EntityFactory.createLoginScreen(this, usernameInput, passwordInput,
+                isUsernameActive, isPasswordActive, selectedOption, !alertCooldown.checkFinished()));
     }
 
     /**

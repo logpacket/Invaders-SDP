@@ -60,15 +60,16 @@ public final class Core {
 
         /* Frame to draw the screen on. */
         Frame frame = new Frame(WIDTH, HEIGHT);
-		DrawManager.getInstance().setFrame(frame);
+		Renderer.getInstance().setFrame(frame);
 		int width = frame.getWidth();
 		int height = frame.getHeight();
 
 		AchievementManager achievementManager = new AchievementManager();
 
 		Menu menu = Menu.LOGIN;
-		GameState gameState = new GameState();
+		GameLevelState gameLevelState = null;
 		GameSettings gameSettings = null;
+		GameState gameState = null;
 		String playerName = "";
 		Screen currentScreen;
 		do {
@@ -84,6 +85,9 @@ public final class Core {
 					menu = frame.setScreen(currentScreen);
 					break;
                 case MAIN:
+					if (gameLevelState == null) {
+						gameLevelState = new GameLevelState();
+					}
 					menu = frame.setScreen(new TitleScreen(width, height, FPS));
 					break;
 				case GAME_SETTING:
@@ -93,50 +97,51 @@ public final class Core {
 					break;
 				case SINGLE_PLAY:
 					assert gameSettings != null;
-					GameState currentGameState;
+					GameLevelState currentGameLevelState;
 
 					do {
 						long startTime = System.currentTimeMillis();
-						currentScreen = new GameScreen(gameState, gameSettings, width, height, FPS);
+						currentScreen = new GameScreen(gameLevelState, gameSettings, width, height, FPS);
 
 						menu = frame.setScreen(currentScreen);
 
-						currentGameState = ((GameScreen) currentScreen).getGameState();
-						gameState = new GameState(currentGameState, gameSettings);
+						currentGameLevelState = ((GameScreen) currentScreen).getGameLevelState();
+						gameLevelState = new GameLevelState(currentGameLevelState, gameSettings);
 
 						long endTime = System.currentTimeMillis();
-						achievementManager.updatePlaying(gameState.maxCombo(),(int) (endTime - startTime) / 1000, gameSettings.maxLives(), gameState.livesRemaining(), gameState.level() - 1);
-					} while (currentGameState.livesRemaining() > 0);
+						achievementManager.updatePlaying(gameLevelState.maxCombo(),(int) (endTime - startTime) / 1000, gameSettings.maxLives(), gameLevelState.livesRemaining(), gameLevelState.level() - 1);
+					} while (currentGameLevelState.livesRemaining() > 0);
 					break;
 
 				case MULTI_PLAY:
 					assert gameSettings != null;
+					gameState = new GameState(gameLevelState, gameSettings);
 
 					frame.setSize(WIDTH*2, HEIGHT);
 					frame.moveToMiddle();
 
-					currentScreen = new TwoPlayerScreen(gameState, gameSettings, width, height, FPS);
+					currentScreen = new TwoPlayerScreen(gameState, gameLevelState, gameSettings, width, height, FPS);
 					menu = frame.setScreen(currentScreen);
 
 					frame.setSize(WIDTH, HEIGHT);
 					frame.moveToMiddle();
-					DrawManager.getInstance().setFrame(frame);
+					Renderer.getInstance().setFrame(frame);
 
-					gameState = ((TwoPlayerScreen) currentScreen).getWinnerGameState();
-					int winnerNumber = ((TwoPlayerScreen) currentScreen).getWinnerNumber();
-					playerName = winnerNumber == 1 ? gameSettings.playerName1() : gameSettings.playerName2();
+					gameLevelState = ((TwoPlayerScreen) currentScreen).getWinnerGameState();
+					//int winnerNumber = ((TwoPlayerScreen) currentScreen).getWinnerNumber();
+					//playerName = "";
 
 					break;
 
 				case SCORE:
 					assert gameSettings != null;
 
-					achievementManager.updatePlayed(gameState.getAccuracy(), gameState.score());
+					achievementManager.updatePlayed(gameLevelState.getAccuracy(), gameLevelState.score());
 					achievementManager.updateAllAchievements();
-					currentScreen = new ScoreScreen(playerName, width, height, FPS, gameState, achievementManager, gameSettings.isMultiplayer());
+					currentScreen = new ScoreScreen(playerName, width, height, FPS, gameLevelState, achievementManager, gameSettings.isOnlinePlay());
 
 					menu = frame.setScreen(currentScreen);
-					gameState = new GameState();
+					gameLevelState = new GameLevelState();
 					break;
 
 				case SHOP:
@@ -156,6 +161,11 @@ public final class Core {
 
 				case CREDIT:
 					currentScreen = new CreditScreen(width, height, FPS);
+					menu = frame.setScreen(currentScreen);
+					break;
+
+				case MATCHMAKING:
+					currentScreen = new MatchmakingScreen(width, height, FPS, gameSettings);
 					menu = frame.setScreen(currentScreen);
 					break;
 
