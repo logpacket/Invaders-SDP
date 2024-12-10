@@ -6,15 +6,13 @@ import service.ShopService;
 import java.util.logging.*;
 
 public class Wallet {
-    private static Logger logger = Core.getLogger();
+    private static final Logger logger = Core.getLogger();
     private int coin;
     private int bulletLevel;
     private int shootLevel;
     private int livesLevel;
     private int coinLevel;
     private final ShopService shopService;
-
-    private final Object initializationLock = new Object();
 
     private Wallet() {
         this.shopService = new ShopService();
@@ -103,14 +101,11 @@ public class Wallet {
         shopService.callShop(
                 (event) -> {
                     if (event.body() instanceof message.Wallet wallet) {
-                        synchronized (initializationLock) {
-                            this.coin = wallet.coin();
-                            this.bulletLevel = wallet.bulletLevel();
-                            this.shootLevel = wallet.shootLevel();
-                            this.livesLevel = wallet.livesLevel();
-                            this.coinLevel = wallet.coinLevel();
-                            initializationLock.notifyAll();
-                        }
+                        this.coin = wallet.coin();
+                        this.bulletLevel = wallet.bulletLevel();
+                        this.shootLevel = wallet.shootLevel();
+                        this.livesLevel = wallet.livesLevel();
+                        this.coinLevel = wallet.coinLevel();
 
                         logger.info(String.format("Wallet data loaded from server: coin=%d, bulletLevel=%d, shootLevel=%d, livesLevel=%d, coinLevel=%d",
                                 coin, bulletLevel, shootLevel, livesLevel, coinLevel));
@@ -123,5 +118,4 @@ public class Wallet {
                 }
         );
     }
-
 }
