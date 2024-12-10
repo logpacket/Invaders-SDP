@@ -16,13 +16,23 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: Set up JDK 23
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '23'
           distribution: 'oracle'
+
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e87d72b7e8201
+        uses: gradle/actions@v4.2.1
         with:
           arguments: build
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          detailed_summary: true
+          include_passed: true
