@@ -24,7 +24,7 @@ public class GameSettingScreen extends Screen {
 	private static final int NAME_LIMIT = 4;
 
 	/** Multiplayer mode. */
-	private boolean isMultiplayer = false;
+	private boolean isOnlinePlay = false;
 	/** Difficulty level. */
 	private int difficulty;
 	/** Selected row. */
@@ -37,9 +37,6 @@ public class GameSettingScreen extends Screen {
 	private static final int TOTAL_ROWS = 4; // Multiplayer, Difficulty, Ship Type, Start
 	/** Singleton instance of SoundManager */
 	private final SoundManager soundManager = SoundManager.getInstance();
-
-	private final StringBuilder nameBuilder1 = new StringBuilder();
-	private final StringBuilder nameBuilder2 = new StringBuilder();
 
 	/**
 	 * Constructor, establishes the properties of the screen.
@@ -55,9 +52,7 @@ public class GameSettingScreen extends Screen {
 		super(width, height, fps);
 
 		// row 0: multiplayer
-		this.nameBuilder1.append("P1");
-		this.nameBuilder2.append("P2");
-		this.isMultiplayer = false;
+		this.isOnlinePlay = false;
 
 		// row 1: difficulty level
 		this.difficulty = 1; 	// 0: easy, 1: normal, 2: hard
@@ -93,29 +88,14 @@ public class GameSettingScreen extends Screen {
 
 			if (this.selectedRow == 0) {
 				if (inputManager.isKeyDown(KeyEvent.VK_LEFT)) {
-					this.isMultiplayer = false;
+					this.isOnlinePlay = false;
 					this.selectionCooldown.reset();
 					soundManager.playSound(Sound.MENU_MOVE);
 				} else if (inputManager.isKeyDown(KeyEvent.VK_RIGHT)) {
-					this.isMultiplayer = true;
+					this.isOnlinePlay = true;
 					this.selectionCooldown.reset();
 					soundManager.playSound(Sound.MENU_MOVE);
-				} else if (inputManager.isKeyDown(KeyEvent.VK_BACK_SPACE)) {
-					if (isMultiplayer) {
-						if (!this.nameBuilder2.isEmpty()) {
-							this.nameBuilder2.deleteCharAt(nameBuilder2.length() - 1);
-							this.selectionCooldown.reset();
-							soundManager.playSound(Sound.MENU_TYPING);
-						}
-					} else {
-						if (!this.nameBuilder1.isEmpty()) {
-							this.nameBuilder1.deleteCharAt(nameBuilder1.length() - 1);
-							this.selectionCooldown.reset();
-							soundManager.playSound(Sound.MENU_TYPING);
-						}
-					}
 				}
-				else handleNameInput(inputManager);
 			} else if (this.selectedRow == 1) {
 				if (inputManager.isKeyDown(KeyEvent.VK_LEFT)) {
 					if (this.difficulty != 0) {
@@ -154,7 +134,7 @@ public class GameSettingScreen extends Screen {
 				}
 			}
 			else if (this.selectedRow == 3 && inputManager.isKeyDown(KeyEvent.VK_SPACE)) {
-				this.menu = isMultiplayer ? Menu.MULTI_PLAY : Menu.SINGLE_PLAY;
+				this.menu = isOnlinePlay ? Menu.MATCHMAKING : Menu.SINGLE_PLAY;
 				this.isRunning = false;
 				soundManager.playSound(Sound.MENU_CLICK);
 			}
@@ -168,32 +148,6 @@ public class GameSettingScreen extends Screen {
 
 	}
 
-	/**
-	 * Handles the input for player name.
-	 *
-	 * @param inputManager
-	 *            Input manager.
-	 */
-	private void handleNameInput(InputManager inputManager) {
-		for (int keyCode = KeyEvent.VK_0; keyCode <= KeyEvent.VK_Z; keyCode++) {
-			if (inputManager.isKeyDown(keyCode)) {
-				if (isMultiplayer) {
-					if (this.nameBuilder2.length() < NAME_LIMIT) {
-						this.nameBuilder2.append((char) keyCode);
-						this.selectionCooldown.reset();
-						soundManager.playSound(Sound.MENU_TYPING);
-					}
-				} else{
-					if (this.nameBuilder1.length() < NAME_LIMIT) {
-						this.nameBuilder1.append((char) keyCode);
-						this.selectionCooldown.reset();
-						soundManager.playSound(Sound.MENU_TYPING);
-					}
-				}
-			}
-		}
-	}
-
 
 	protected void updateEntity(){
 
@@ -202,11 +156,11 @@ public class GameSettingScreen extends Screen {
 		entityList.add(EntityFactory.createGameSettingRow(this, this.selectedRow));
 
 		entityList.addAll(EntityFactory.createGameSettingElements(this, this.selectedRow,
-				isMultiplayer, nameBuilder1.toString(), nameBuilder2.toString(), this.difficulty, this.shipType));
+				isOnlinePlay, difficulty, shipType));
 
 	}
 
 	public GameSettings getGameSettings() {
-		return new GameSettings(difficulty, nameBuilder1.toString(), nameBuilder2.toString(), shipType, isMultiplayer);
+		return new GameSettings(difficulty,	 shipType, isOnlinePlay);
 	}
 }

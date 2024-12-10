@@ -37,7 +37,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'invaders.App'
+    mainClass = 'engine.Core'
 }
 
 test {
