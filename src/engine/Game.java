@@ -6,13 +6,12 @@ import screen.GameScreen;
 
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * Represents the overall state of the game, containing all entities and game information.
  */
-public class GameState {
+public class Game {
 
     /** Bonus score for each life remaining at the end of the level. */
     private static final int LIFE_SCORE = 100;
@@ -49,12 +48,12 @@ public class GameState {
 
     /*Entities*/
     /** Set of all bullets fired by on-screen ships. */
-    private final Set<Bullet> bullets;
+    private Set<Bullet> bullets;
     /** Item boxes that dropped when kill enemy ships. */
     private Set<ItemBox> itemBoxes;
-    private List<Block> block;
-    private List<Blocker> blockers;
-    private List<Web> webList;
+    private Set<Block> blocks;
+    private Set<Blocker> blockers;
+    private Set<Web> webs;
     /** Barriers appear in game screen. */
     private Set<Barrier> barriers;
 
@@ -97,12 +96,12 @@ public class GameState {
     private long ping = 0;
 
 
-    public GameState(final GameLevelState gameLevelState, final GameSettings gameSettings) {
+    public Game(final GameLevelState gameLevelState, final GameSettings gameSettings) {
         this.bullets = new HashSet<>();
         this.itemBoxes = new HashSet<>();
-        this.block = new ArrayList<>();
-        this.blockers = new ArrayList<>();
-        this.webList = new ArrayList<>();
+        this.blocks = new HashSet<>();
+        this.blockers = new HashSet<>();
+        this.webs = new HashSet<>();
         this.barriers = new HashSet<>();
         this.level = gameLevelState.level();
         this.score = gameLevelState.score();
@@ -144,9 +143,7 @@ public class GameState {
     public int getMaxCombo() { return maxCombo;}
     public int getTempScore() { return tempScore;}
     public int getLapTime() { return lapTime;}
-    public void initTempScore() {
-            tempScore = this.score;
-    }
+    public void initTempScore() { tempScore = this.score; }
 
     public int getElapsedTime() {
         return elapsedTime;
@@ -159,15 +156,16 @@ public class GameState {
     public int getBulletsShoot() {return bulletsShoot;}
 
     public int getShipsDestroyed() {return shipsDestroyed;}
-    public Cooldown setScreenFinishedCooldown() {
-        return screenFinishedCooldown;
+    public void setScreenFinishedCooldown() {
+        screenFinishedCooldown.reset();
     }
-
-    public void setLevelFinished() {
-        this.levelFinished = true;
+    public boolean isScreenFinished() {
+        return screenFinishedCooldown.checkFinished();
     }
 
     public boolean isLevelFinished() { return levelFinished; }
+
+    public void setLevelFinished() { levelFinished = true; }
 
     public int getHitBullets() {
         return hitBullets;
@@ -194,23 +192,20 @@ public class GameState {
         if(lives == 0) this.score += 100;
     }
 
-    public List<Blocker> getBlockers() {
+    public Set<Blocker> getBlockers() {
         return blockers;
     }
 
-    public EnemyShipFormation getEnemyShipFormation() {
-        return enemyShipFormation;
+    public Set<EnemyShip> getEnemyShips() {
+        return enemyShipFormation.getEnemyShips();
     }
 
-    public List<Web> getWebList() {
-        return webList;
+    public Set<Web> getWebs() {
+        return webs;
     }
 
-    public List<Block> getBlock() {
-        if (block == null) {
-            block = new ArrayList<>();
-        }
-        return block;
+    public Set<Block> getBlocks() {
+        return blocks;
     }
 
     public long getPing() { return ping; }
@@ -230,26 +225,18 @@ public class GameState {
 
         elapsedTime = gameLevelState.elapsedTime();
 
-        // initialize webList
-        if (this.webList == null) {
-            this.webList = new ArrayList<>(); // webList 초기화
-        }
         int webCount = 1 + level / 3;
         for (int i = 0; i < webCount; i++) {
             double randomValue = Math.random();
             int positionX = (int) Math.max(0, randomValue * gameScreen.getWidth() - 12 * 2);
             int positionY = gameScreen.getHeight() - 30;
-            this.webList.add(new Web(positionX, positionY)); // Create a new Web
+            this.webs.add(new Web(positionX, positionY)); // Create a new Web
         }
 
-        // initialize block
-        if (this.block == null) {
-            this.block = new ArrayList<>();
-        }
         int blockCount = level / 2;
         int playerTopYContainBarrier = gameScreen.getHeight() - 40 - 150;
         int enemyBottomY = 100 + (formationHeight - 1) * 48;
-        this.block.clear(); // Clear existing blocks
+        this.blocks.clear(); // Clear existing blocks
 
         for (int i = 0; i < blockCount; i++) {
             Block newBlock;
@@ -262,7 +249,7 @@ public class GameState {
                 newBlock = new Block(positionX, positionY);
 
                 overlapping = false;
-                for (Block b : block) {
+                for (Block b : blocks) {
                     if (checkCollision(newBlock, b)) {
                         overlapping = true;
                         break;
@@ -270,11 +257,11 @@ public class GameState {
                 }
             } while (overlapping);
 
-            block.add(newBlock);
+            blocks.add(newBlock);
         }
     }
 
-    public void update(boolean playerAttacking, boolean moveRight, boolean moveLeft) {
+    public void update(boolean playerAttacking, boolean moveRight, boolean moveLeft, boolean inputDelayFinished) {
         if (playerAttacking && ship.shoot(bullets, itemManager.getShootNum()))
             bulletsShoot += itemManager.getShootNum();
 
@@ -298,7 +285,7 @@ public class GameState {
             if (moveRight && !isRightBorder) ship.moveRight();
             if (moveLeft && !isLeftBorder) ship.moveLeft();
 
-            for (Web web : webList) {
+            for (Web web : webs) {
                 //escape Spider Web
                 if (ship.getPositionX() + 6 <= web.getPositionX() - 6
                         || web.getPositionX() + 6 <= web.getPositionX() - 6) {
@@ -359,18 +346,20 @@ public class GameState {
         if (level >= 3) { //Events where vision obstructions appear start from level 3 onwards.
             handleBlockerAppearance();
         }
+
+        updateEnemyShipFormation(inputDelayFinished);
+        manageCollisions();
+        cleanBullets();
     }
 
     public void updateEnemyShipFormation(boolean inputDelayFinished) {
         if(inputDelayFinished && !itemManager.isTimeStopActive()) {
             enemyShipFormation.updateSmooth();
         }
-
     }
 
     // Methods that handle the position, angle, sprite, etc. of the blocker (called repeatedly in update.)
     private void handleBlockerAppearance() {
-
         if (level >= 3 && level < 6) maxBlockers = 1;
         else if (level >= 6 && level < 11) maxBlockers = 2;
         else if (level >= 11) maxBlockers = 3;
@@ -394,14 +383,11 @@ public class GameState {
         }
 
         // Manage existing blockers
-        for (int i = 0; i < blockers.size(); i++) {
-            Blocker blocker = blockers.get(i);
-
+        for (Blocker blocker : blockers) {
             // Remove blockers that leave the screen
             if (blocker.getMoveLeft() && blocker.getPositionX() < -300
                     || !blocker.getMoveLeft() && blocker.getPositionX() > gameScreen.getWidth() + 300) {
                 blockers.remove(blocker);
-                i--;
                 continue;
             }
 
@@ -480,7 +466,7 @@ public class GameState {
         }
 
         int topEnemyY = Integer.MAX_VALUE;
-        for (EnemyShip enemyShip : getEnemyShipFormation()) {
+        for (EnemyShip enemyShip : this.enemyShipFormation) {
             if (enemyShip != null && !enemyShip.isDestroyed() && enemyShip.getPositionY() < topEnemyY) {
                 topEnemyY = enemyShip.getPositionY();
             }
@@ -520,10 +506,10 @@ public class GameState {
                     if (enemyShip != null && !enemyShip.isDestroyed()
                             && checkCollision(bullet, enemyShip)) {
                         // Decide whether to destroy according to physical strength
-                        getEnemyShipFormation().healthManageDestroy(enemyShip, balance);
+                        this.enemyShipFormation.healthManageDestroy(enemyShip, balance);
                         // if the enemy dies, both the combo and score increase.
-                        this.score += Score.comboScore(getEnemyShipFormation().getPoint(), this.combo);
-                        this.shipsDestroyed += getEnemyShipFormation().getDestroyedShip();
+                        this.score += Score.comboScore(this.enemyShipFormation.getPoint(), this.combo);
+                        this.shipsDestroyed += this.enemyShipFormation.getDestroyedShip();
                         this.combo++;
                         this.hitBullets++;
                         if (this.combo > this.maxCombo) this.maxCombo = this.combo;
@@ -531,7 +517,7 @@ public class GameState {
                         isExecuted = false;
                         recyclable.add(bullet);
 
-                        if (enemyShip.getHealth() < 0 && !getEnemyShipFormation().getEnemyDivers().contains(enemyShip) && itemManager.dropItem()) {
+                        if (enemyShip.getHealth() < 0 && !this.enemyShipFormation.getEnemyDivers().contains(enemyShip) && itemManager.dropItem()) {
                             this.itemBoxes.add(new ItemBox(enemyShip.getPositionX() + 6, enemyShip.getPositionY() + 1, balance));
                             logger.info("Item box dropped");
                         }
@@ -558,24 +544,20 @@ public class GameState {
                     isExecuted = true;
                 }
 
-                Iterator<ItemBox> itemBoxIterator = this.itemBoxes.iterator();
-                while (itemBoxIterator.hasNext()) {
-                    ItemBox itemBox = itemBoxIterator.next();
-                    if (checkCollision(bullet, itemBox) && !itemBox.isDroppedRightNow()) {
-                        this.hitBullets++;
-                        itemBoxIterator.remove();
-                        recyclable.add(bullet);
-                        Map.Entry<Integer, Integer> itemResult = this.itemManager.useItem();
+                if (itemBoxes.removeIf(
+                        itemBox -> checkCollision(bullet, itemBox) && !itemBox.isDroppedRightNow())) {
+                    this.hitBullets++;
+                    recyclable.add(bullet);
+                    Map.Entry<Integer, Integer> itemResult = this.itemManager.useItem();
 
-                        if (itemResult != null) {
-                            this.score += itemResult.getKey();
-                            this.shipsDestroyed += itemResult.getValue();
-                        }
+                    if (itemResult != null) {
+                        this.score += itemResult.getKey();
+                        this.shipsDestroyed += itemResult.getValue();
                     }
                 }
 
                 //check the collision between the obstacle and the bullet
-                for (Block b : getBlock()) {
+                for (Block b : getBlocks()) {
                     if (checkCollision(bullet, b)) {
                         recyclable.add(bullet);
                         soundManager.playSound(Sound.BULLET_BLOCKING, balance);
@@ -587,9 +569,9 @@ public class GameState {
 
         //check the collision between the obstacle and the enemy ship
         Set<Block> removableBlocks = new HashSet<>();
-        for (EnemyShip enemyShip : getEnemyShipFormation()) {
+        for (EnemyShip enemyShip : this.enemyShipFormation) {
             if (enemyShip != null && !enemyShip.isDestroyed()) {
-                for (Block b : block) {
+                for (Block b : blocks) {
                     if (checkCollision(enemyShip, b)) {
                         removableBlocks.add(b);
                     }
@@ -597,12 +579,12 @@ public class GameState {
             }
         }
         // remove crashed obstacle
-        block.removeAll(removableBlocks);
+        blocks.removeAll(removableBlocks);
         this.bullets.removeAll(recyclable);
         BulletPool.recycle(recyclable);
     }
 
-    //Enemy bullet damage increases depending on stage level
+    /** Enemy bullet damage increases depending on stage level */
     public void levelDamage(){
         for(int i = 0; i<= level /3; i++){
             this.lives--;

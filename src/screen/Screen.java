@@ -63,7 +63,7 @@ public abstract class Screen {
 		this.inputDelay = Core.getCooldown(INPUT_DELAY);
 		this.inputDelay.reset();
 		this.menu = Menu.MAIN;
-		this.entityList = new ArrayList<Entity>();
+		this.entityList = new ArrayList<>();
 	}
 
 	/**
