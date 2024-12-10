@@ -49,7 +49,7 @@ class NetworkManagerTest {
                     "Latency should be updated after ping");
 
             long actualLatency = networkManager.getLatency();
-            assertTrue(Math.abs(actualLatency - expectedLatency) >= 1,
+            assertTrue(Math.abs(actualLatency - expectedLatency) <= 1,
                     "Expected latency around " + expectedLatency + "ms, but got " + actualLatency + "ms");
 
         } catch (Exception e) {
