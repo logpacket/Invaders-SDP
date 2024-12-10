@@ -170,9 +170,6 @@ public final class Core {
 					break;
 
 				case RANKING:
-					if (gameState == null) {
-						gameState = new GameState();
-					}
 					currentScreen = new RankingScreen(width, height, FPS, gameState);
 					menu = frame.setScreen(currentScreen);
 					break;

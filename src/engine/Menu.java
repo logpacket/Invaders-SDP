@@ -13,7 +13,7 @@ public enum Menu {
     SCORE,
     LOGIN,
     SIGN_UP,
-    RANKING;
+    RANKING,
     MATCHMAKING;
 
     static final Menu[] TITLE_MENU = {GAME_SETTING, SHOP, ACHIEVEMENT, RANKING, SETTING, EXIT};
