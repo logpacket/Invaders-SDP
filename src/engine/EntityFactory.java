@@ -1,6 +1,8 @@
 package engine;
 
 import entity.*;
+import message.Ranking;
+import screen.RankingScreen;
 import screen.Screen;
 
 import java.awt.*;
@@ -1066,6 +1068,53 @@ public class EntityFactory {
 
     }
 
+    public static List<Entity> createRankingScreen(final Screen screen, final List<Ranking> rankings) {
+        List<Entity> entities = new ArrayList<>();
 
+        int screenWidth = screen.getWidth();
+        int screenHeight = screen.getHeight();
+
+        // Title
+        String title = "Ranking";
+        int titleY = Math.round(screenWidth * 0.1f);
+        entities.add(createCenteredBigString(screen, title, titleY, Color.GREEN));
+
+        // Table Headers
+        int startX = Math.round(screenWidth * 0.1f);
+        int headerY = Math.round(screenHeight * 0.2f);
+        int columnSpacing = Math.round(screenWidth * 0.25f);
+
+        String rankHeader = "RANK";
+        String usernameHeader = "USERNAME";
+        String scoreHeader = "SCORE";
+
+        // Add headers
+        entities.add(new TextEntity(startX, headerY, Color.YELLOW, rankHeader, fontBig));
+        entities.add(new TextEntity(startX + columnSpacing, headerY, Color.YELLOW, usernameHeader, fontBig));
+        entities.add(new TextEntity(startX + 2 * columnSpacing, headerY, Color.YELLOW, scoreHeader, fontBig));
+
+        // Add ranking entries
+        int rowSpacing = Math.round(screenHeight * 0.07f);
+        int rowsPerPage = Math.max(1, screenHeight / 70);
+        int scrollOffset = ((RankingScreen) screen).getScrollOffset();
+
+        int startIndex = scrollOffset;
+        int endIndex = Math.min(scrollOffset + rowsPerPage, rankings.size());
+
+        for (int i = startIndex; i < endIndex; i++) {
+            Ranking ranking = rankings.get(i);
+            int rowY = headerY + (i - scrollOffset + 1) * rowSpacing;
+
+            entities.add(new TextEntity(startX, rowY, Color.WHITE, String.valueOf(i + 1), fontRegular));
+            entities.add(new TextEntity(startX + columnSpacing, rowY, Color.WHITE, ranking.username(), fontRegular));
+            entities.add(new TextEntity(startX + 2 * columnSpacing, rowY, Color.WHITE, String.valueOf(ranking.highScore()), fontRegular));
+        }
+
+        return entities;
     }
+
+
+
+
+}
 
