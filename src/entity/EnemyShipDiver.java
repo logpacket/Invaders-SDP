@@ -1,5 +1,6 @@
 package entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import engine.*;
 
 import java.awt.*;
@@ -67,6 +68,7 @@ public class EnemyShipDiver extends EnemyShip {
     /**
      * @return The Cooldown for diving
      */
+    @JsonIgnore
     public Cooldown getDiveCooldown() {
         return diveCooldown;
     }

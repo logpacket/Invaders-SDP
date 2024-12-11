@@ -14,6 +14,7 @@ public class RectEntity extends Entity{
         this.height = height;
 		this.isFilled = isFilled;
     }
+	public RectEntity() {}
 
 	public final boolean getIsFilled() { return this.isFilled;}
 

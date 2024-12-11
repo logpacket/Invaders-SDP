@@ -20,6 +20,7 @@ public class EntityMapper extends ObjectMapper {
         simpleModule.addSerializer(Color.class, new ColorSerializer());
         simpleModule.addSerializer(Renderer.SpriteType.class, new SpriteTypeSerializer());
         simpleModule.addSerializer(Font.class, new FontSerializer());
+        simpleModule.addKeySerializer(Font.class, new FontSerializer());
 
         /* Add deserializers */
         simpleModule.addDeserializer(Color.class, new ColorDeserializer());

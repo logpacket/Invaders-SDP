@@ -29,6 +29,7 @@ public class GameService extends Service{
     }
 
     public List<Entity> getEntityList() {
+        if (entityList == null) return List.of();
         return entityList;
     }
 }

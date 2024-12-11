@@ -2,6 +2,7 @@ package entity;
 
 import java.awt.Color;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import engine.Renderer.SpriteType;
 
 /**
@@ -88,6 +89,7 @@ public class Bullet extends SpriteEntity {
 	 * 
 	 * @return Speed of the bullet.
 	 */
+	@JsonIgnore
 	public final int getSpeed() {
 		return this.speed;
 	}

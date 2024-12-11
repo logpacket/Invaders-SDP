@@ -2,7 +2,12 @@ package entity;
 
 import java.awt.Color;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import engine.Renderer.SpriteType;
+import entity.deserializer.SpriteTypeDeserializer;
+import entity.serializer.SpriteTypeSerializer;
 
 /**
  * Implements a generic game entity.
@@ -40,6 +45,8 @@ public class SpriteEntity extends Entity{
 		this.height = height;
 	}
 
+	public SpriteEntity() { }
+
 	@Override
 	public EntityType getType() {
 		return EntityType.SPRITE;
@@ -50,7 +57,9 @@ public class SpriteEntity extends Entity{
 	 * 
 	 * @return Sprite corresponding to the entity.
 	 */
-	public final SpriteType getSpriteType() {
+	@JsonSerialize(using = SpriteTypeSerializer.class)
+	@JsonDeserialize(using = SpriteTypeDeserializer.class)
+	public SpriteType getSpriteType() {
 		return this.spriteType;
 	}
 
@@ -59,7 +68,7 @@ public class SpriteEntity extends Entity{
 	 * 
 	 * @return Width of the entity.
 	 */
-	public final int getWidth() {
+	public int getWidth() {
 		return this.width;
 	}
 
@@ -68,7 +77,7 @@ public class SpriteEntity extends Entity{
 	 * 
 	 * @return Height of the entity.
 	 */
-	public final int getHeight() {
+	public int getHeight() {
 		return this.height;
 	}
 }

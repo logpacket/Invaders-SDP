@@ -14,6 +14,7 @@ public class ImageEntity extends Entity{
         this.width = width;
         this.height = height;
     }
+	public ImageEntity() {}
 
 	@Override
 	public EntityType getType() {

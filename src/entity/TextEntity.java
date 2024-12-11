@@ -1,8 +1,13 @@
 package entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import entity.deserializer.FontDeserializer;
+import entity.serializer.FontSerializer;
+
 import java.awt.*;
 
-public class TextEntity extends Entity{
+public class TextEntity extends Entity {
     protected String text;
     protected Font font;
 
@@ -11,6 +16,7 @@ public class TextEntity extends Entity{
         this.text = text;
         this.font = font;
     }
+    public TextEntity(){}
 
     @Override
 	public EntityType getType() {
@@ -43,10 +49,7 @@ public class TextEntity extends Entity{
      *
      * @return Font of the entity.
      */
+    @JsonSerialize(using = FontSerializer.class)
+    @JsonDeserialize(using = FontDeserializer.class)
     public final Font getFont() {return this.font;}
-
-
-
-
-
 }

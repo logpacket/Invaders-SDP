@@ -16,6 +16,7 @@ public class LineEntity extends Entity{
         this.positionX2 = positionX2;
         this.positionY2 = positionY2;
     }
+    public LineEntity() {}
 
     @Override
 	public EntityType getType() {

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import engine.Core;
+import entity.Entity;
 import entity.EntityMapper;
+import message.Entities;
 import message.Ping;
 import org.reflections.Reflections;
 import org.slf4j.LoggerFactory;
@@ -12,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,15 +35,21 @@ public final class NetworkManager {
     private final Map<String, EventHandler> eventHandlers = new HashMap<>();
     private long latency = 0L;
     private final Set<UUID> requestSet = new HashSet<>();
+    private final SocketAddress socketAddress;
 
     private NetworkManager() {
         mapper = new EntityMapper();
         mapper.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
         mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        socketAddress = new InetSocketAddress("localhost", 1105);
 
         Reflections reflections = new Reflections("message");
         for (Class<? extends Body> bodyClass : reflections.getSubTypesOf(Body.class)) {
             mapper.registerSubtypes(bodyClass);
+        }
+        Reflections reflections2 = new Reflections("entity");
+        for (Class<? extends Entity> entityClass : reflections2.getSubTypesOf(Entity.class)) {
+            mapper.registerSubtypes(entityClass);
         }
 
         eventHandlers.put("ping", event -> {
@@ -47,9 +57,10 @@ public final class NetworkManager {
             logger.info("Network latency: " + latency + "ms");
         });
         try {
-            socket = new Socket("localhost", 1105);
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            socket = new Socket();
+            socket.connect(socketAddress);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()), 20000);
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()),20000);
 
             executor.execute(this::listen);
             executor.execute(this::trackLatency);

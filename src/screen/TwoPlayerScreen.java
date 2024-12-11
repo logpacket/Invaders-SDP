@@ -1,11 +1,9 @@
 package screen;
 
-import engine.network.NetworkManager;
 import entity.Entity;
 import engine.GameLevelState;
 import engine.GameSettings;
 import engine.Menu;
-import message.Entities;
 import service.GameService;
 
 import java.text.MessageFormat;
@@ -127,7 +125,7 @@ public class TwoPlayerScreen extends Screen {
     private void  runGameScreen(){
         if (gameLevelState.livesRemaining() > 0) {
             logger.info(MessageFormat.format("difficulty is {0}", gameSettings.difficulty()));
-            gameScreen = new GameScreen(gameLevelState, gameSettings, width / 2, height, fps / 2);
+            gameScreen = new GameScreen(gameLevelState, gameSettings, width / 2, height, fps / 6);
             gameScreen.initialize();
             levelStateFuture = executor.submit(gameScreen);
         }

@@ -30,7 +30,6 @@ dependencies {
     // Other dependencies
     implementation 'org.javassist:javassist:3.28.0-GA'
     implementation 'org.slf4j:slf4j-api:2.0.13'
-    implementation 'org.slf4j:slf4j-api:1.7.32'
     implementation 'io.github.javaunit:autoparams:0.2.3'
     implementation 'org.opentest4j:opentest4j:1.2.0'
     implementation 'org.apiguardian:apiguardian-api:1.1.2'
