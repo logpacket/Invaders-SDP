@@ -7,6 +7,7 @@ import service.RankingService;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.Comparator;
 import java.util.List;
 
 public class RankingScreen extends Screen {
@@ -34,6 +35,8 @@ public class RankingScreen extends Screen {
                     if (event.body() instanceof RankingList response) {
                         try {
                             rankings = response.rankings();
+                            if (rankings != null && !rankings.isEmpty())
+                                rankings.sort(Comparator.comparingInt(Ranking::highScore).reversed());
                             isLoading = false;
                         } catch (ClassCastException e) {
                             logger.warning("Invalid data format received from the server.");
