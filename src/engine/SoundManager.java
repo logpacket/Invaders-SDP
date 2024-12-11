@@ -18,7 +18,7 @@ public class SoundManager {
     private static SoundManager instance;
 
     /** Application logger. */
-    private static final Logger logger = Core.getLogger();
+    private static final Logger logger = Logger.getLogger(SoundManager.class.getName());
     /** Sound manager activation flag */
     private boolean soundEnabled;
     /** Value of current volume */

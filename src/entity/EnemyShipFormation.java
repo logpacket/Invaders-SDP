@@ -46,8 +46,6 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	/** Minimum speed allowed. */
 	private static final int MINIMUM_SPEED = 10;
 
-	/** DrawManager instance. */
-	private final Renderer renderer;
 	/** Application logger. */
 	private final Logger logger;
 	/** Screen to draw ships on. */
@@ -123,7 +121,6 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	 *            Current game settings.
 	 */
 	public EnemyShipFormation(final GameSettings gameSettings, final GameLevelState gameLevelState) {
-        this.renderer = Renderer.getInstance();
 		this.logger = Core.getLogger();
 		this.enemyShipsGrid = new ArrayList<>();
 		this.enemyShipsDivers = new ArrayList<>();
@@ -146,26 +143,25 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 		this.logger.info("Initializing " + formationWidth + "x" + formationHeight
 				+ " ship formation in (" + positionX + "," + positionY + ")");
 
-		// Each sub-list is a column on the formation.
-		for (int i = 0; i < this.formationWidth; i++)
-			this.enemyShipsGrid.add(new ArrayList<>());
 
-		for (List<EnemyShip> column : this.enemyShipsGrid) {
-			for (int i = 0; i < this.formationHeight; i++) {
-				if (i / (float) this.formationHeight <  PROPORTION_E)
+		for (int i = 0; i < this.formationWidth; i++) {
+			List<EnemyShip> column = new ArrayList<>();
+			this.enemyShipsGrid.add(column);
+			for (int j = 0; j < this.formationHeight; j++) {
+				if (j / (float) this.formationHeight <  PROPORTION_E)
 					spriteType = SpriteType.ENEMY_SHIP_E1;
-				else if (i / (float) this.formationHeight <  PROPORTION_E + PROPORTION_D)
+				else if (j / (float) this.formationHeight <  PROPORTION_E + PROPORTION_D)
 					spriteType = SpriteType.ENEMY_SHIP_D1;
-				else if (i / (float) this.formationHeight <  PROPORTION_E + PROPORTION_D + PROPORTION_C)
+				else if (j / (float) this.formationHeight <  PROPORTION_E + PROPORTION_D + PROPORTION_C)
 					spriteType = SpriteType.ENEMY_SHIP_C1;
-				else if (i / (float) this.formationHeight <  PROPORTION_E + PROPORTION_D + PROPORTION_C + PROPORTION_B)
+				else if (j / (float) this.formationHeight <  PROPORTION_E + PROPORTION_D + PROPORTION_C + PROPORTION_B)
 					spriteType = SpriteType.ENEMY_SHIP_B1;
 				else
 					spriteType = SpriteType.ENEMY_SHIP_A1;
 
 				column.add(new EnemyShip((SEPARATION_DISTANCE 
 						* this.enemyShipsGrid.indexOf(column))
-								+ positionX, (SEPARATION_DISTANCE * i)
+								+ positionX, (SEPARATION_DISTANCE * j)
 								+ positionY, spriteType, gameLevelState, difficulty));
 				this.shipCount++;
 			}
@@ -676,14 +672,7 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 	 */
 	@Override
 	public final Iterator<EnemyShip> iterator() {
-		Set<EnemyShip> enemyShipsList = new HashSet<>();
-
-		for (List<EnemyShip> column : this.enemyShipsGrid)
-            enemyShipsList.addAll(column);
-
-        enemyShipsList.addAll(this.enemyShipsDivers);
-
-		return enemyShipsList.iterator();
+		return getEnemyShips().iterator();
 	}
 
 	/**
@@ -712,9 +701,19 @@ public class EnemyShipFormation implements Iterable<EnemyShip> {
 
 	public int getDestroyedShip(){ return destroyedShip; }
 
-	public List<List<EnemyShip>> getEnemyShips() {return enemyShipsGrid; }
+	public List<List<EnemyShip>> getEnemyShipList() {return enemyShipsGrid; }
 
 	public List<EnemyShipDiver> getEnemyDivers() {
 		return enemyShipsDivers;
+	}
+
+	public Set<EnemyShip> getEnemyShips() {
+		Set<EnemyShip> enemyShips = new HashSet<>();
+
+		for (List<EnemyShip> column : this.enemyShipsGrid)
+			enemyShips.addAll(column);
+
+		enemyShips.addAll(this.enemyShipsDivers);
+		return enemyShips;
 	}
 }

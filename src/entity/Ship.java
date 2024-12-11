@@ -1,5 +1,6 @@
 package entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import engine.Cooldown;
 import engine.Core;
 import engine.Renderer.SpriteType;
@@ -219,6 +220,7 @@ public abstract class Ship extends SpriteEntity {
 	 * 
 	 * @return Speed of the ship.
 	 */
+	@JsonIgnore
 	public final int getSpeed() {
 		return Math.round(SPEED * this.multipliers.speed());
 	}
@@ -227,6 +229,7 @@ public abstract class Ship extends SpriteEntity {
 	 * Getter for the ship's bullet speed.
 	 * @return Speed of the bullets.
 	 */
+	@JsonIgnore
 	public final int getBulletSpeed() {
 		return Math.round(bulletSpeed * this.multipliers.bulletSpeed());
 	}
@@ -235,14 +238,23 @@ public abstract class Ship extends SpriteEntity {
 	 * Getter for the ship's shoot frequency.
 	 * @return Time between shoots.
 	 */
+	@JsonIgnore
 	public final int getShootInterval() {
 		return Math.round(shootInterval * this.multipliers.shootInterval());
 	}
 
 	/**
+	 * Getter for the ship's type
+	 * @return Type of the ship.
+	 */
+	@JsonIgnore
+	public final ShipType getShipType() { return this.shipType; }
+
+	/**
 	 * Getter for the ship's multipliers.
 	 * @return Multipliers for the ship's properties.
 	 */
+	@JsonIgnore
 	public final ShipMultipliers getMultipliers() {
 		return this.multipliers;
 	}

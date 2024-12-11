@@ -146,7 +146,7 @@ public class ItemManager {
         int addScore = 0;
         int addShipsDestroyed = 0;
 
-        List<List<EnemyShip>> enemyships = this.enemyShipFormation.getEnemyShips();
+        List<List<EnemyShip>> enemyships = this.enemyShipFormation.getEnemyShipList();
         int enemyShipsSize = enemyships.size();
 
         int maxCnt = -1;
@@ -214,7 +214,7 @@ public class ItemManager {
         int addScore = 0;
         int addShipsDestroyed = 0;
 
-        List<List<EnemyShip>> enemyShips = this.enemyShipFormation.getEnemyShips();
+        List<List<EnemyShip>> enemyShips = this.enemyShipFormation.getEnemyShipList();
 
         int destroyRow = -1;
 

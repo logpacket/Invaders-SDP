@@ -1,5 +1,6 @@
 package entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import engine.Renderer.SpriteType;
 import java.util.Random;
 import java.awt.*;
@@ -28,8 +29,10 @@ public class Blocker extends SpriteEntity {
 
     public final void rotate(final double degree) { angle += degree; }
 
+    @JsonIgnore
     public double getAngle() { return angle; }
 
+    @JsonIgnore
     public boolean getMoveLeft() { return moveLeft; }
 
     @Override

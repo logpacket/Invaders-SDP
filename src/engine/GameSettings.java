@@ -22,6 +22,8 @@ public record GameSettings(
 	 * 			  Difficulty of game
 	 * @param shipType
 	 *            Ship type
+	 * @param isMultiplayer
+	 * 			  Multi play mode flag
 	 */
 	public GameSettings(final int difficulty, final Ship.ShipType shipType, final boolean isMultiplayer) {
 		this(difficulty, shipType,

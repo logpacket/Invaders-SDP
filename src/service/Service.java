@@ -22,11 +22,15 @@ public abstract class Service {
     protected void request(Body body, EventHandler callback, ErrorHandler errorCallback) {
         if (!requestCooldown.checkFinished()) return;
         if (networkManager.isRequested(requestId)) return;
-        requestId = networkManager.sendEvent(eventName, body);
+        requestId = networkManager.request(eventName, body);
         networkManager.registerEventHandler(eventName, event -> {
             if (event.body() instanceof Error e) errorCallback.handle(e);
             else callback.handle(event);
             requestCooldown.reset();
         });
+    }
+
+    protected void sendEvent(Body body) {
+        networkManager.sendEvent(eventName, body, UUID.randomUUID());
     }
 }

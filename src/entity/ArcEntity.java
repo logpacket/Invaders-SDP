@@ -19,6 +19,7 @@ public class ArcEntity extends Entity{
         this.endAngle = endAngle;
         this.isFilled = isFilled;
     }
+    public ArcEntity() {}
 
     public int getWidth(){ return this.width;}
 

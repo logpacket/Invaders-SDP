@@ -16,6 +16,7 @@ public class PolygonEntity extends Entity{
         this.nPoints = nPoints;
         this.iSFilled = isFilled;
     }
+    public PolygonEntity() {}
 
     public int[] getXPoints() { return this.xPoints;}
 

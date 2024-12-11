@@ -1,7 +1,19 @@
 package entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
+import entity.deserializer.ColorDeserializer;
+import entity.serializer.ColorSerializer;
+
 import java.awt.*;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeIdResolver(EntityTypeResolver.class)
 public abstract class Entity {
     /** Position in the x-axis of the upper left corner of the entity. */
 	protected int positionX;
@@ -14,9 +26,10 @@ public abstract class Entity {
         this.positionX = positionX;
         this.positionY = positionY;
         this.color = color;
-
     }
+	public Entity(){}
 
+	@JsonIgnore
 	public abstract EntityType getType();
 
     /**
@@ -34,6 +47,8 @@ public abstract class Entity {
 	 *
 	 * @return Color of the entity, used when drawing it.
 	 */
+	@JsonSerialize(using = ColorSerializer.class)
+	@JsonDeserialize(using = ColorDeserializer.class)
 	public final Color getColor() {
 		return color;
 	}

@@ -69,7 +69,7 @@ public final class Core {
 		Menu menu = Menu.LOGIN;
 		GameLevelState gameLevelState = null;
 		GameSettings gameSettings = null;
-		GameState gameState = null;
+		Game game = null;
 		String playerName = "";
 		Screen currentScreen;
 		do {
@@ -115,21 +115,18 @@ public final class Core {
 
 				case MULTI_PLAY:
 					assert gameSettings != null;
-					gameState = new GameState(gameLevelState, gameSettings);
 
 					frame.setSize(WIDTH*2, HEIGHT);
 					frame.moveToMiddle();
 
-					currentScreen = new TwoPlayerScreen(gameState, gameLevelState, gameSettings, width, height, FPS);
+					currentScreen = new TwoPlayerScreen(gameLevelState, gameSettings, width, height, FPS);
 					menu = frame.setScreen(currentScreen);
 
 					frame.setSize(WIDTH, HEIGHT);
 					frame.moveToMiddle();
 					Renderer.getInstance().setFrame(frame);
 
-					gameLevelState = ((TwoPlayerScreen) currentScreen).getWinnerGameState();
-					//int winnerNumber = ((TwoPlayerScreen) currentScreen).getWinnerNumber();
-					//playerName = "";
+					gameLevelState = ((TwoPlayerScreen) currentScreen).getGameState();
 
 					break;
 

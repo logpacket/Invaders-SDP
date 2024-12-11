@@ -2,6 +2,7 @@ package screen;
 
 import engine.*;
 import entity.Entity;
+import service.GameService;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -11,10 +12,10 @@ public class MatchmakingScreen extends Screen {
 
     /** Timer start time in milliseconds. */
     private long startTime;
-    /** Rendeerer instance **/
-    private final Renderer renderer;
     /** Game difficulty level **/
     private final int difficultyLevel;
+    /** Game service for communicate with server*/
+    private final GameService gameService;
 
     /**
      * Constructor, establishes the properties of the screen.
@@ -29,28 +30,11 @@ public class MatchmakingScreen extends Screen {
         this.menu = Menu.MATCHMAKING;
         this.renderer = Renderer.getInstance();
         this.difficultyLevel = gameSettings.difficulty();
-    }
-
-    /**
-     * Updates the elements on screen and checks for events.
-     */
-    @Override
-    protected final void update() {
-        super.update();
-        draw();
+        this.gameService = new GameService();
     }
 
     @Override
     protected void updateEntity() {
-
-    }
-
-    /**
-     * Draws the matchmaking screen elements.
-     */
-    public void draw() {
-        List<Entity> entities = new ArrayList<Entity>();
-
         // Calculate elapsed time in seconds
         long elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
 
@@ -61,14 +45,14 @@ public class MatchmakingScreen extends Screen {
             case 2 -> "Hard";
             default -> "";
         };
-        entities.add(EntityFactory.createCenteredRegularString(
+        entityList.add(EntityFactory.createCenteredRegularString(
                 this,
                 difficultyString,
                 this.getHeight() / 2 - 60,
                 Color.GREEN
         ));
 
-        entities.add(EntityFactory.createCenteredRegularString(
+        entityList.add(EntityFactory.createCenteredRegularString(
                 this,
                 "Waiting for player",
                 this.getHeight() / 2 - 20,
@@ -76,21 +60,24 @@ public class MatchmakingScreen extends Screen {
         ));
 
         // Create timer text
-        entities.add(EntityFactory.createCenteredRegularString(
+        entityList.add(EntityFactory.createCenteredRegularString(
                 this,
                 formatTime(elapsedTime),
                 this.getHeight() / 2 + 20,
                 Color.WHITE
         ));
+    }
 
-        // Initialize drawing
-        renderer.initDrawing(this);
-
-        // Draw all entities
-        renderer.drawEntities(entities);
-
-        // Complete drawing
-        renderer.completeDrawing(this);
+    @Override
+    public void initialize() {
+        gameService.enqueueMatch(difficultyLevel, _ -> {
+            isRunning = false;
+            this.menu = Menu.MULTI_PLAY;
+        }, e -> {
+            logger.warning("Error on matchmaking: " + e.message());
+            isRunning = false;
+            this.menu = Menu.MAIN;
+        });
     }
 
     /**
