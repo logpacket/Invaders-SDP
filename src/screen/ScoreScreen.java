@@ -91,7 +91,7 @@ public class ScoreScreen extends Screen {
         int coinLevel = wallet.getCoinLevel();
 
         // Apply different ratios based on coinLevel
-        double coinRatio = COIN_RATIOS[coinLevel - 1];
+        double coinRatio = COIN_RATIOS[coinLevel];
 
         // Adjust coin earning ratios based on the game level upgrade stage score
         // Since coins are in integer units, round the decimal points and convert to int

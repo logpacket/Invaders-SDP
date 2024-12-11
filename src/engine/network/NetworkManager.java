@@ -46,7 +46,7 @@ public final class NetworkManager {
             logger.info("Network latency: " + latency + "ms");
         });
         try {
-            socket = new Socket("localhost", 1105);
+            socket = new Socket("43.203.229.87", 1105);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
